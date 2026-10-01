@@ -22,43 +22,45 @@ export interface NormalizedRecord {
   properties: Record<string, any>;
 }
 
-export function loadDatabaseIds(): { organizations: string; interventions: string } {
+export interface SectionConfig {
+  name: string;
+  database_id: string;
+  data_source_id?: string;
+  view_id?: string;
+  filters?: { escala_property?: string; escala_value?: string };
+  property_names?: Record<string, string[]>;
+}
+
+export interface DatabaseConfig {
+  organizations: SectionConfig;
+  interventions: SectionConfig;
+}
+
+export function loadDatabaseConfig(): DatabaseConfig {
   const raw = fs.readFileSync('./src/data/databases.yaml', 'utf8');
-  const parsed = yaml.load(raw) as { organizations: { database_id: string }; interventions: { database_id: string } };
+  const parsed = yaml.load(raw) as DatabaseConfig;
+  return parsed;
+}
+
+// Backwards-compatible helper for callers that only need the ids.
+export function loadDatabaseIds(): { organizations: string; interventions: string } {
+  const cfg = loadDatabaseConfig();
   return {
-    organizations: parsed.organizations.database_id,
-    interventions: parsed.interventions.database_id,
+    organizations: cfg.organizations.database_id,
+    interventions: cfg.interventions.database_id,
   };
 }
 
 export async function fetchDatabaseRecords(databaseId: string): Promise<NormalizedRecord[]> {
+  return fetchRecords({ database_id: databaseId });
+}
+
+export async function fetchSection(section: SectionConfig): Promise<NormalizedRecord[]> {
+  return fetchRecords(section);
+}
+
+async function fetchRecords(section: Pick<SectionConfig, 'database_id' | 'data_source_id'>): Promise<NormalizedRecord[]> {
   const notion = getClient();
-
-  // Notion's new data-source architecture: some databases reject the classic
-  // databases.query call (object_not_found, or validation_error when the
-  // database has multiple data sources). In that case resolve the data-source
-  // id(s) — via databases.retrieve, or by treating the configured id itself as
-  // a data source (new-style shareable links) — and query those instead.
-  const resolveDataSources = async (): Promise<string[]> => {
-    try {
-      const db: any = await notion.databases.retrieve({ database_id: databaseId });
-      const ids = (db?.data_sources ?? []).map((ds: any) => ds.id).filter(Boolean);
-      if (ids.length > 0) return ids;
-    } catch {
-      // retrieve failed too — fall through: the id may itself be a data source
-    }
-    return [databaseId];
-  };
-
-  const queryDataSource = (dataSourceId: string, cursor?: string): Promise<any> =>
-    notion.request({
-      // No leading slash: the SDK joins this onto "https://api.notion.com/v1/",
-      // so a leading slash would produce a double slash and Notion answers
-      // invalid_request_url.
-      path: `data_sources/${dataSourceId}/query`,
-      method: 'post',
-      body: cursor ? { start_cursor: cursor } : {},
-    });
 
   const collect = async (fetchPage: (cursor?: string) => Promise<any>): Promise<NormalizedRecord[]> => {
     const out: NormalizedRecord[] = [];
@@ -71,36 +73,48 @@ export async function fetchDatabaseRecords(databaseId: string): Promise<Normaliz
     return out;
   };
 
+  const queryDataSource = (id: string, cursor?: string): Promise<any> =>
+    notion.request({
+      // No leading slash: the SDK joins this onto "https://api.notion.com/v1/".
+      path: `data_sources/${id}/query`,
+      method: 'post',
+      body: cursor ? { start_cursor: cursor } : {},
+    });
+
+  // Preferred path: an explicit data source id (new Notion data model).
+  if (section.data_source_id) {
+    return collect((cursor) => queryDataSource(section.data_source_id!, cursor));
+  }
+
+  // Classic path: query the database directly. If the database holds several data
+  // sources, enumerate them (databases.retrieve) and query each, deduped by page id.
   try {
     return await collect((cursor) =>
-      notion.databases.query({ database_id: databaseId, start_cursor: cursor })
+      notion.databases.query({ database_id: section.database_id, start_cursor: cursor })
     );
   } catch (err: any) {
-    console.log(`[notion] ${databaseId} databases.query failed: ${err?.code} ${err?.message}`);
     const isDataSourceError =
       err?.code === 'object_not_found' ||
       (err?.code === 'validation_error' && /multiple data sources/i.test(err?.message ?? ''));
     if (!isDataSourceError) throw err;
 
-    let sources: string[];
+    const ids: string[] = [];
     try {
-      sources = await resolveDataSources();
-    } catch (resolveErr: any) {
-      console.log(`[notion] ${databaseId} resolve failed: ${resolveErr?.code} ${resolveErr?.message}`);
-      throw resolveErr;
+      const db: any = await notion.databases.retrieve({ database_id: section.database_id });
+      for (const ds of db?.data_sources ?? []) if (ds?.id) ids.push(ds.id);
+    } catch {
+      // retrieve failed too — nothing else to try with this id
     }
-    console.log(`[notion] db=${databaseId} -> data sources: ${JSON.stringify(sources)}`);
-    for (const dataSourceId of sources) {
-      try {
-        const records = await collect((cursor) => queryDataSource(dataSourceId, cursor));
-        for (const r of records) {
-          if (!seen.has(r.id)) {
-            seen.add(r.id);
-            all.push(r);
-          }
+    if (ids.length === 0) throw err;
+
+    const seen = new Set<string>();
+    const all: NormalizedRecord[] = [];
+    for (const id of ids) {
+      for (const r of await collect((cursor) => queryDataSource(id, cursor))) {
+        if (!seen.has(r.id)) {
+          seen.add(r.id);
+          all.push(r);
         }
-      } catch (dsErr: any) {
-        console.log('[notion] data-source query failed', JSON.stringify({ dataSourceId, code: dsErr?.code, message: dsErr?.message }));
       }
     }
     return all;

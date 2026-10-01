@@ -44,10 +44,10 @@ export const ORG_PROPERTY_NAMES: OrgPropertyNames = {
   description: ['Description', 'Descripción', 'Descripcion', 'description', 'What is it', 'Qué es', 'Que es', 'Notas', 'Notes', 'About', 'Sobre'],
   website: ['Website', 'Web', 'web', 'URL', 'Url', 'url', 'Página web', 'Pagina web', 'Sitio web'],
   place: ['Place', 'Ubicación', 'Ubicacion', 'Localización', 'Localizacion', 'Location', 'Municipio', 'Pueblo', 'Ciudad'],
-  latitude: ['Lat', 'lat', 'Latitud', 'Latitude', 'latitude'],
-  longitude: ['Lng', 'lng', 'Lon', 'Longitud', 'Longitude', 'longitude'],
-  type: ['Tipo', 'Type', 'type', 'Tipo de actor', 'Tipo de entidad', 'Agency'],
-  zone: ['Zona', 'Área', 'Area', 'Ámbito', 'Ambito', 'Alcance', 'Zona geográfica', 'Territorio', 'Espacio', 'Scope'],
+  latitude: ['location_lat', 'location_Lat', 'Lat', 'lat', 'Latitud', 'Latitude', 'latitude'],
+  longitude: ['location_lng', 'location_Lng', 'Lng', 'lng', 'Lon', 'Longitud', 'Longitude', 'longitude'],
+  type: ['Tipo', 'Type', 'type', 'Tipo de actor', 'Tipo de entidad', 'Agency', 'Naturaleza'],
+  zona: ['Escala', 'Zona', 'Área', 'Area', 'Ámbito', 'Ambito', 'Alcance', 'Zona geográfica', 'Territorio', 'Espacio', 'Scope'],
   grupoTrabajo: ['Grupo de trabajo', 'Grupo trabajo', 'GrupoTrabajo', 'grupo_trabajo', 'Grupo de Trabajo', '¿Grupo de trabajo?'],
   inAltiplano: ['En el altiplano', 'En el Altiplano', 'Altiplano', 'altiplano', 'Dentro del altiplano', '¿Está en el altiplano?'],
 };
@@ -105,6 +105,13 @@ export function anyValues(props: Record<string, any>, candidates: string[]): str
 // Organizations
 // ---------------------------------------------------------------------------
 
+export interface OrgFilters {
+  // Property + exact value that marks a record as part of this landscape
+  // (Actores: Escala equals "Altiplano Estepario").
+  escalaProperty?: string;
+  escalaValue?: string;
+}
+
 export interface OrgRecord {
   id: string;
   url?: string;
@@ -121,13 +128,18 @@ export interface OrgRecord {
   zona: string[];
 }
 
-export const ORG_TYPE_VALUES = ['org', 'organización', 'organizacion', 'organisation', 'organisatie', 'entidad', 'colectivo', 'cooperativa', 'asociación', 'asociacion', 'asociación civil', 'fundación', 'fundacion', 'fundação', 'empresa', 'iniciativa', 'movimiento', 'red', 'consorcio', 'grupo', 'comunidad', 'ayuntamiento', 'administración', 'public body'];
+export const ORG_TYPE_VALUES = ['org', 'organización', 'organizacion', 'organisation', 'entidad', 'colectivo', 'cooperativa', 'asociación', 'asociacion', 'fundación', 'fundacion', 'empresa', 'iniciativa', 'movimiento', 'red', 'consorcio', 'grupo', 'comunidad', 'ayuntamiento', 'administración', 'administracion', 'public body', 'parque natural', 'grupo de desarrollo'];
 
-export const INDIVIDUAL_TYPE_VALUES = ['ind', 'individual', 'persona', 'persona física', 'persona fisica', 'person', 'freelance', 'autónomo', 'autonomo', 'self-employed', 'individual persona'];
+export const INDIVIDUAL_TYPE_VALUES = ['ind', 'individual', 'persona', 'persona física', 'persona fisica', 'person', 'freelance', 'autónomo', 'autonomo', 'self-employed'];
 
 export const ALTIPLANO_ZONE_VALUES = ['altiplano', 'estepario', 'altiplano estepario'];
 
-export function normalizeOrg(record: NormalizedRecord): OrgRecord {
+// Word-boundary match so "ind" never matches inside "industria" etc.
+function matchesToken(value: string, tokens: string[]): boolean {
+  return tokens.some((t) => new RegExp(`(^|[\\s/_,;(-])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s/_,;)-])`).test(value));
+}
+
+export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {}): OrgRecord {
   const props = record.properties;
   const name = pickString(props, ORG_PROPERTY_NAMES.name) || 'Sin nombre';
   const description = pickString(props, ORG_PROPERTY_NAMES.description);
@@ -138,33 +150,33 @@ export function normalizeOrg(record: NormalizedRecord): OrgRecord {
   const lat = latRaw !== undefined && !isNaN(Number(latRaw)) ? Number(latRaw) : null;
   const lng = lngRaw !== undefined && !isNaN(Number(lngRaw)) ? Number(lngRaw) : null;
 
-  // Type / agency: is this an organization (as opposed to an individual)?
+  // Type / nature: is this an organization (as opposed to an individual)?
   const tipo = pickString(props, ORG_PROPERTY_NAMES.type);
   const tipoLower = tipo.toLowerCase().trim();
-  const isIndividual = INDIVIDUAL_TYPE_VALUES.some((v) => tipoLower.includes(v) || tipoLower === v);
-  // Explicit checkbox positive beats the type-based heuristic
+  const isIndividual = tipoLower !== '' && matchesToken(tipoLower, INDIVIDUAL_TYPE_VALUES);
+  const claroQueEsOrg = tipoLower !== '' && matchesToken(tipoLower, ORG_TYPE_VALUES);
   const orgCheckbox = pickProp(props, ['¿Es organización?', 'Es organización', 'Es una organización', 'Organización?', 'Is organization']);
   const isOrganization =
-    typeof orgCheckbox === 'boolean' ? orgCheckbox && !isIndividual : !isIndividual;
+    typeof orgCheckbox === 'boolean' ? orgCheckbox && !isIndividual : (claroQueEsOrg || tipoLower === '') && !isIndividual;
 
-  // Territorial scope: only keep orgs inside the Altiplano.
-  // Rule: an explicit "in altiplano" checkbox wins; otherwise any zone-ish value
-  // must mention the altiplano; records with no zone info at all are kept
-  // (they were collected for this territory) unless an explicit outside marker exists.
-  const inAltiplanoCheckbox = pickProp(props, ORG_PROPERTY_NAMES.inAltiplano);
-  const zona = anyValues(props, ORG_PROPERTY_NAMES.zone);
+  // Territory: keep only entities whose Escala matches the configured value.
+  // When the record has no Escala at all it is not part of the landscape map.
+  const zona = anyValues(props, ORG_PROPERTY_NAMES.zona);
   let inAltiplano: boolean;
-  if (typeof inAltiplanoCheckbox === 'boolean') {
-    inAltiplano = inAltiplanoCheckbox;
+  if (filters.escalaProperty && filters.escalaValue) {
+    const raw = props[filters.escalaProperty];
+    const values = flatValues(raw).map((v) => v.toLowerCase());
+    inAltiplano = values.includes(filters.escalaValue.toLowerCase());
   } else {
-    const outsideMarkers = ['fuera', 'exterior', 'outside', 'cataluña', 'catalunya', 'madrid', 'internacional', 'global', 'nacional', 'resto de españa', 'resto de espana', 'valencia', 'país vasco'];
-    const zoneTxt = zona.join(' ').toLowerCase();
-    if (zoneTxt.includes('altiplano') || zoneTxt.includes('estepario')) {
-      inAltiplano = true;
-    } else if (outsideMarkers.some((m) => zoneTxt.includes(m))) {
-      inAltiplano = false;
+    const inAltiplanoCheckbox = pickProp(props, ORG_PROPERTY_NAMES.inAltiplano);
+    if (typeof inAltiplanoCheckbox === 'boolean') {
+      inAltiplano = inAltiplanoCheckbox;
     } else {
-      inAltiplano = true; // no zone info → keep (collected for this landscape)
+      const outsideMarkers = ['fuera', 'exterior', 'outside', 'cataluña', 'catalunya', 'madrid', 'internacional', 'global', 'nacional', 'valencia'];
+      const zoneTxt = zona.join(' ').toLowerCase();
+      if (zoneTxt.includes('altiplano') || zoneTxt.includes('estepario')) inAltiplano = true;
+      else if (outsideMarkers.some((m) => zoneTxt.includes(m))) inAltiplano = false;
+      else inAltiplano = true;
     }
   }
 
@@ -194,7 +206,7 @@ export function normalizeOrg(record: NormalizedRecord): OrgRecord {
   };
 }
 
-// The two rules the user set: only organizations, only inside the Altiplano.
+// The two rules: only organizations, only inside the Altiplano.
 export function keepOrg(org: OrgRecord): boolean {
   return org.isOrganization && org.inAltiplano;
 }

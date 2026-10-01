@@ -7,7 +7,7 @@ import SectionHeading from "../components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
 import InterventionCard from "../components/InterventionCard.astro";
-import { loadDatabaseIds, fetchDatabaseRecords } from "../lib/notion";
+import { loadDatabaseConfig, fetchSection } from "../lib/notion";
 import type { NormalizedRecord } from "../lib/notion";
 import {
     normalizeOrg,
@@ -26,7 +26,7 @@ const isTruthy = (v: any) =>
 const USE_FIXTURE = isTruthy(
     import.meta.env.USE_FIXTURE ?? process.env.USE_FIXTURE,
 );
-const dbIds = loadDatabaseIds();
+const dbConfig = loadDatabaseConfig();
 
 let orgRecords: NormalizedRecord[] = [];
 let interventionRecords: NormalizedRecord[] = [];
@@ -46,8 +46,8 @@ try {
                 "Sin NOTION_API_KEY: añádela al .env o usa USE_FIXTURE=1",
             );
         const [orgs, itvs] = await Promise.all([
-            fetchDatabaseRecords(dbIds.organizations),
-            fetchDatabaseRecords(dbIds.interventions),
+            fetchSection(dbConfig.organizations),
+            fetchSection(dbConfig.interventions),
         ]);
         orgRecords = orgs;
         interventionRecords = itvs;
@@ -58,7 +58,25 @@ try {
     interventionRecords = [];
 }
 
-const orgs = orgRecords.map(normalizeOrg).filter(keepOrg);
+// Build-time schema summary (property NAMES only, no values) — makes it easy to pin
+// the property mapping in databases.yaml after a Notion schema change.
+if (!USE_FIXTURE && orgRecords[0] && interventionRecords[0]) {
+    console.log(
+        "[notion] actores properties: " +
+            Object.keys(orgRecords[0].properties).join(", "),
+    );
+    console.log(
+        "[notion] intervenciones properties: " +
+            Object.keys(interventionRecords[0].properties).join(", "),
+    );
+}
+
+const orgFilters = {
+    escalaProperty: dbConfig.organizations.filters?.escala_property,
+    escalaValue: dbConfig.organizations.filters?.escala_value,
+};
+
+const orgs = orgRecords.map((r) => normalizeOrg(r, orgFilters)).filter(keepOrg);
 const orgMap = new Map(orgs.map((o) => [o.id, o]));
 const interventions = interventionRecords.map(normalizeIntervention);
 

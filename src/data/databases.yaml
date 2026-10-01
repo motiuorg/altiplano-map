@@ -1,32 +1,41 @@
 # Notion database mappings. IDs are not sensitive — only NOTION_API_KEY is secret.
 #
-# The UI reads records with defensive name matching (see src/lib/records.ts): for each
-# concept it checks a list of candidate property names, so the site keeps working even
-# if property names drift. Once the databases are shared with the integration, inspect
-# the real schema and pin the exact property names below to make the mapping explicit.
+# Notion's new data model: a database page can hold several "data sources"; only a
+# data source can be queried (querying the database id errors with
+# "Databases with multiple data sources are not supported in this API version").
+# So for each section we store BOTH the page/database id (for links) and the
+# data source id (for queries) when they differ.
 
 organizations:
-  database_id: 2f414415-10e1-80ff-bc2f-c1581274d40f
-  # Candidate property names, in priority order (empty → auto-detect from the default list).
-  # Pin exact names here once the schema is confirmed:
+  name: Actores
+  database_id: 36c14415-10e1-802d-9864-e4a7d878e5e8
+  data_source_id: 36c14415-10e1-806c-bf67-000b85483116
+  filters:
+    # Only entities whose Escala is exactly this value appear on the map/gallery.
+    escala_property: Escala
+    escala_value: Altiplano Estepario
+  # Property names, in priority order (empty → auto-detect from the default list in
+  # src/lib/records.ts). Pin them here once the schema is confirmed.
   property_names:
-    name: []          # e.g. ["Name"] or ["Nombre"]
-    description: []   # ["Description"] | ["Descripción"]
-    website: []       # ["Website"] | ["Web"]
-    place: []         # ["Ubicación"] | ["Municipio"] | ["Place"]
-    latitude: []      # ["Latitud"] | ["Lat"]
-    longitude: []     # ["Longitud"] | ["Lng"]
-    type: []          # ["Tipo"] — values like "Organización" / "Persona"
-    zone: []          # ["Zona"] — territorial scope, to keep only Altiplano orgs
-    grupoTrabajo: []  # ["Grupo de trabajo"] — checkbox or select
-    inAltiplano: []   # ["En el altiplano"] — optional checkbox override
+    name: [Name]
+    description: []          # ["Descripción"] | ["Description"]
+    website: []              # ["Website"] | ["Web"]
+    place: [Place]
+    latitude: [location_lat]
+    longitude: [location_lng]
+    type: []                 # ["Tipo"] — distinguishes organización vs persona
+    grupoTrabajo: []          # ["Grupo de trabajo"] — checkbox or select
 
 interventions:
-  database_id: 36c14415-10e1-802d-9864-e4a7d878e5e8
+  name: Intervenciones
+  database_id: 2f414415-10e1-80ff-bc2f-c1581274d40f
+  # View the gallery should mirror (the API cannot query a view, so its filter has to
+  # be replicated here once known):
+  view_id: 2f414415-10e1-809a-a581-000ccaa5ecde
   property_names:
     name: []          # ["Name"] | ["Nombre"] | ["Intervención"]
     description: []   # ["Description"] | ["Descripción"]
-    organization: []  # ["Organización"] | ["Entidad"] — relation to the organizations DB
+    organization: []  # ["Organización"] | ["Entidad"] — relation to Actores
     areaTrabajo: []   # ["Área de trabajo"] | ["Area"]
-    valor5Anos: []    # ["Valor ajustado a 5 años"] | ["Valor 5 años"] — number or formula
-    viable: []        # ["¿Es viable comercialmente?"] | ["Viable comercialmente"] — checkbox/select
+    valor5Anos: []    # ["Valor ajustado a 5 años"] — number or formula
+    viable: []        # ["¿Es viable comercialmente?"] — checkbox/select
