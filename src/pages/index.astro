@@ -1,0 +1,549 @@
+---
+// Altiplano Estepario — home: hero, organizations map, organizations gallery,
+// interventions gallery. Build-time Notion fetch; USE_FIXTURE=1 renders the local
+// fixture dataset (see src/lib/fixture.ts) for visual iteration.
+import Layout from "../components/Layout.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import OrgMap from "../components/OrgMap.astro";
+import OrgCard from "../components/OrgCard.astro";
+import InterventionCard from "../components/InterventionCard.astro";
+import { loadDatabaseIds, fetchDatabaseRecords } from "../lib/notion";
+import {
+    normalizeOrg,
+    keepOrg,
+    normalizeIntervention,
+    interventionOrgNames,
+} from "../lib/records";
+import { FIXTURE_ORGANIZATIONS, FIXTURE_INTERVENTIONS } from "../lib/fixture";
+
+// Value coercion: Vite can hand env vars back as booleans/numbers (or strings).
+const isTruthy = (v: any) =>
+    v === true ||
+    v === 1 ||
+    (typeof v === "string" && ["1", "true", "yes"].includes(v.toLowerCase()));
+
+const USE_FIXTURE = isTruthy(
+    import.meta.env.USE_FIXTURE ?? process.env.USE_FIXTURE,
+);
+const dbIds = loadDatabaseIds();
+
+let orgRecords = [];
+let interventionRecords = [];
+let dataError = "";
+let dataSource = "notion";
+
+try {
+    if (USE_FIXTURE) {
+        orgRecords = FIXTURE_ORGANIZATIONS;
+        interventionRecords = FIXTURE_INTERVENTIONS;
+        dataSource = "fixture";
+    } else {
+        const key =
+            import.meta.env.NOTION_API_KEY ?? process.env.NOTION_API_KEY;
+        if (!key)
+            throw new Error(
+                "Sin NOTION_API_KEY: añádela al .env o usa USE_FIXTURE=1",
+            );
+        const [orgs, itvs] = await Promise.all([
+            fetchDatabaseRecords(dbIds.organizations),
+            fetchDatabaseRecords(dbIds.interventions),
+        ]);
+        orgRecords = orgs;
+        interventionRecords = itvs;
+    }
+} catch (e: any) {
+    dataError = e?.message ?? String(e);
+    orgRecords = [];
+    interventionRecords = [];
+}
+
+const orgs = orgRecords.map(normalizeOrg).filter(keepOrg);
+const orgMap = new Map(orgs.map((o) => [o.id, o]));
+const interventions = interventionRecords.map(normalizeIntervention);
+
+const grupoCount = orgs.filter((o) => o.grupoTrabajo).length;
+const restoCount = orgs.length - grupoCount;
+
+// Distinct áreas de trabajo for the intervention filter chips
+const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
+    (a, b) => a.localeCompare(b),
+);
+---
+
+<Layout
+    title="Altiplano Estepario — Mapa de organizaciones e intervenciones"
+    description="Mapa abierto de las organizaciones e intervenciones del paisaje del Altiplano Estepario."
+>
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+        <div class="hero__blob" aria-hidden="true"></div>
+        <div class="container hero__inner">
+            <p class="overline">Mapa abierto del paisaje estepario</p>
+            <h1 class="display hero__title">
+                El Altiplano
+                <br />
+                Estepario
+            </h1>
+            <p class="lede hero__lede">
+                Las organizaciones que trabajan por la regeneración de este
+                paisaje, y el portfolio de intervenciones que están
+                construyendo. Datos vivos desde Notion, actualizados cada 6
+                horas.
+            </p>
+
+            <div class="hero__stats">
+                <span class="hero__stat">
+                    <strong>{orgs.length}</strong>
+                    organizaciones
+                </span>
+                <span class="hero__stat">
+                    <strong>{grupoCount}</strong>
+                    en el grupo de trabajo
+                </span>
+                <span class="hero__stat">
+                    <strong>{interventions.length}</strong>
+                    intervenciones
+                </span>
+            </div>
+
+            <div class="hero__actions">
+                <a class="btn" href="#mapa">
+                    Ver el mapa
+                </a>
+                <a class="btn btn--outline" href="#intervenciones">
+                    Ver intervenciones
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {dataError && (
+        <div class="container">
+            <div class="data-banner" role="alert">
+                <strong>⚠ Datos no disponibles.</strong> {dataError}
+                <span class="data-banner__hint">
+                    Comparte las dos bases de datos de Notion con la integración
+                    y vuelve a construir, o usa <code>USE_FIXTURE=1</code> para
+                    desarrollo.
+                </span>
+            </div>
+        </div>
+    )}
+    {!dataError && dataSource === "fixture" && (
+        <div class="container">
+            <div class="data-banner data-banner--fixture">
+                <strong>Modo fixture.</strong> Estás viendo el dataset de
+                desarrollo (<code>USE_FIXTURE=1</code>), no los datos reales de
+                Notion.
+            </div>
+        </div>
+    )}
+
+    <!-- ============ 01 · MAP ============ -->
+    <section class="section" id="mapa">
+        <div class="container">
+            <SectionHeading
+                number="01"
+                overline="El territorio"
+                title="Mapa de organizaciones"
+                intro="Cada punto es una organización del altiplano. Las marcadas en naranja participan en el grupo de trabajo; el resto forman parte del tejido territorial. Pasa el cursor para ver el detalle y haz clic para localizar su tarjeta."
+            />
+            <OrgMap orgs={orgs} />
+        </div>
+    </section>
+
+    <!-- ============ 02 · ORGANIZATIONS ============ -->
+    <section class="section section--alt" id="organizaciones">
+        <div class="container">
+            <SectionHeading
+                number="02"
+                overline="Quién está aquí"
+                title="Organizaciones"
+                intro={`El directorio completo de organizaciones del altiplano: ${orgs.length} entidades, de las cuales ${grupoCount} están en el grupo de trabajo.`}
+            />
+
+            <div class="filter-bar" data-gallery-filter-bar="orgs">
+                <button class="chip is-active" data-key="grupo" data-value="">
+                    Todos
+                </button>
+                <button class="chip" data-key="grupo" data-value="grupo">
+                    Grupo de trabajo · {grupoCount}
+                </button>
+                <button class="chip" data-key="grupo" data-value="resto">
+                    Resto · {restoCount}
+                </button>
+                <span class="filter-bar__count" data-visible-count="orgs">
+                    {orgs.length} mostradas
+                </span>
+            </div>
+
+            {orgs.length > 0 ? (
+                <div class="org-grid" data-gallery="orgs">
+                    {orgs.map((org) => (
+                        <OrgCard org={org} />
+                    ))}
+                </div>
+            ) : (
+                <p class="empty-note">
+                    No hay organizaciones que cumplan los criterios todavía.
+                </p>
+            )}
+            <p class="empty-note" data-empty="orgs" hidden>
+                Ninguna organización coincide con el filtro.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============ 03 · INTERVENTIONS ============ -->
+    <section class="section" id="intervenciones">
+        <div class="container">
+            <SectionHeading
+                number="03"
+                overline="El portfolio"
+                title="Intervenciones"
+                intro={`Proyectos e intervenciones del paisaje con su valor ajustado a 5 años y su viabilidad comercial.`}
+            />
+
+            <div class="filter-bar" data-gallery-filter-bar="itv">
+                <span class="filter-bar__label">Área de trabajo</span>
+                <button class="chip is-active" data-key="area" data-value="">
+                    Todas
+                </button>
+                {areas.map((area) => (
+                    <button
+                        class="chip"
+                        data-key="area"
+                        data-value={area.toLowerCase()}
+                    >
+                        {area}
+                    </button>
+                ))}
+                <span
+                    class="filter-bar__label"
+                    style="margin-left: var(--space-4);"
+                >
+                    Viabilidad
+                </span>
+                <button class="chip is-active" data-key="viable" data-value="">
+                    Todas
+                </button>
+                <button class="chip" data-key="viable" data-value="si">
+                    Viable comercialmente
+                </button>
+                <button class="chip" data-key="viable" data-value="no">
+                    No viable
+                </button>
+                <span class="filter-bar__count" data-visible-count="itv">
+                    {interventions.length} mostradas
+                </span>
+            </div>
+
+            {interventions.length > 0 ? (
+                <div class="itv-grid" data-gallery="itv">
+                    {interventions.map((itv) => (
+                        <InterventionCard
+                            intervention={itv}
+                            orgNames={interventionOrgNames(itv, orgMap)}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <p class="empty-note">
+                    No hay intervenciones publicadas todavía.
+                </p>
+            )}
+            <p class="empty-note" data-empty="itv" hidden>
+                Ninguna intervención coincide con el filtro.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============ METHODOLOGY ============ -->
+    <section class="section section--alt" id="metodologia">
+        <div class="container">
+            <SectionHeading
+                number="04"
+                overline="Cómo se construye"
+                title="Metodología y fuentes"
+            />
+            <div class="method">
+                <div class="method__block">
+                    <p class="overline">Datos</p>
+                    <p class="copy-sm">
+                        Organizaciones e intervenciones viven en dos bases de
+                        datos de Notion del espacio del Altiplano Estepario.
+                        Este sitio se regenera desde ellas cada 6 horas — editar
+                        Notion es editar el mapa.
+                    </p>
+                </div>
+                <div class="method__block">
+                    <p class="overline">Criterios de inclusión</p>
+                    <ul class="method__list">
+                        <li>
+                            Solo organizaciones — las personas a título
+                            individual quedan fuera.
+                        </li>
+                        <li>Solo entidades dentro del altiplano estepario.</li>
+                        <li>
+                            Las organizaciones del grupo de trabajo se marcan en
+                            naranja.
+                        </li>
+                    </ul>
+                </div>
+                <div class="method__block">
+                    <p class="overline">Proyecto</p>
+                    <p class="copy-sm">
+                        Un trabajo de articulación del paisaje financiero y
+                        territorial del Altiplano Estepario, en el ecosistema de{" "}
+                        <a
+                            href="https://motiu.org"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Motiu
+                        </a>
+                        .
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</Layout>
+
+<script>
+    // Generic gallery filtering: chips carry data-key/data-value; cards carry
+    // matching data-{key} attributes (space-separated values).
+    const galleries = new Set(["orgs", "itv"]);
+
+    document.querySelectorAll("[data-gallery-filter-bar]").forEach((bar) => {
+        const galleryId = bar.dataset.galleryFilterBar;
+        const gallery = document.querySelector(`[data-gallery="${galleryId}"]`);
+        const empty = document.querySelector(`[data-empty="${galleryId}"]`);
+        const counter = bar.querySelector(
+            `[data-visible-count="${galleryId}"]`,
+        );
+        const state = new Map(); // key → active value
+
+        const apply = () => {
+            let visible = 0;
+            if (gallery) {
+                for (const card of gallery.querySelectorAll(
+                    ":scope > .org-card, :scope > .itv-card",
+                )) {
+                    let show = true;
+                    for (const [key, value] of state) {
+                        if (!value) continue;
+                        // Values are pipe-joined so multi-word values ("espacios
+                        // naturales") survive the split
+                        const cardVal = (card.dataset[key] ?? "")
+                            .split("|")
+                            .filter(Boolean);
+                        if (!cardVal.includes(value)) {
+                            show = false;
+                            break;
+                        }
+                    }
+                    card.style.display = show ? "" : "none";
+                    if (show) visible++;
+                }
+            }
+            if (counter) counter.textContent = `${visible} mostradas`;
+            if (empty) empty.hidden = visible !== 0;
+        };
+
+        bar.querySelectorAll(".chip").forEach((chip) => {
+            chip.addEventListener("click", () => {
+                const key = chip.dataset.key;
+                const value = chip.dataset.value;
+                state.set(key, value);
+                bar.querySelectorAll(`.chip[data-key="${key}"]`).forEach((c) =>
+                    c.classList.toggle("is-active", c === chip),
+                );
+                apply();
+            });
+        });
+    });
+</script>
+
+<style>
+    /* ============ hero ============ */
+    .hero {
+        position: relative;
+        overflow: hidden;
+        padding: var(--space-20) 0 var(--space-16);
+        background:
+            radial-gradient(
+                48rem 26rem at 82% 8%,
+                color-mix(in srgb, var(--pillar-flow-1) 40%, transparent),
+                transparent 70%
+            ),
+            radial-gradient(
+                40rem 24rem at 6% 90%,
+                color-mix(in srgb, var(--pillar-tissue-2) 26%, transparent),
+                transparent 70%
+            ),
+            var(--bg);
+    }
+
+    .hero__inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-6);
+        padding-bottom: var(--space-8);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hero__title {
+        font-size: clamp(3rem, 9vw, 5.25rem);
+        color: var(--fg);
+    }
+
+    .hero__lede {
+        margin-bottom: var(--space-4);
+    }
+
+    .hero__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4) var(--space-10);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+    }
+
+    .hero__stat strong {
+        display: block;
+        font-family: var(--serif);
+        font-size: var(--text-2xl);
+        font-weight: 400;
+        color: var(--fg);
+        letter-spacing: -0.01em;
+    }
+
+    .hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+
+    /* ============ sections ============ */
+    .section {
+        padding: var(--space-20) 0;
+        scroll-margin-top: 4.5rem;
+    }
+
+    .section--alt {
+        background: var(--surface-1);
+        border-top: 1px solid var(--border-subtle);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    /* ============ filter bars ============ */
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2);
+        margin-bottom: var(--space-6);
+    }
+
+    .filter-bar__label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-right: var(--space-1);
+    }
+
+    .filter-bar__count {
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    /* ============ grids ============ */
+    .org-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--space-5);
+    }
+
+    .itv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: var(--space-5);
+    }
+
+    .empty-note {
+        font-family: var(--mono);
+        font-size: var(--text-sm);
+        color: var(--muted);
+        border: 1px dashed var(--border-subtle);
+        padding: var(--space-6);
+        text-align: center;
+    }
+
+    /* ============ banners ============ */
+    .data-banner {
+        margin-top: var(--space-6);
+        padding: var(--space-4) var(--space-5);
+        border: 1px solid color-mix(in srgb, var(--danger-mid) 45%, transparent);
+        background: color-mix(in srgb, var(--danger-mid) 7%, var(--bg));
+        font-size: var(--text-sm);
+        line-height: 1.55;
+        display: grid;
+        gap: var(--space-1);
+    }
+
+    .data-banner code {
+        font-family: var(--mono);
+        background: var(--surface-1);
+        padding: 0.05rem 0.3rem;
+    }
+
+    .data-banner__hint {
+        color: var(--muted);
+        font-size: var(--text-xs);
+    }
+
+    .data-banner--fixture {
+        border-color: var(--border);
+        background: color-mix(in srgb, var(--pillar-flow-2) 14%, var(--bg));
+    }
+
+    /* ============ methodology ============ */
+    .method {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: var(--space-8);
+    }
+
+    .method__block {
+        display: grid;
+        gap: var(--space-3);
+        align-content: start;
+    }
+
+    .method__list {
+        margin: 0;
+        padding-left: var(--space-5);
+        display: grid;
+        gap: var(--space-2);
+    }
+
+    .method__list li {
+        font-size: var(--text-sm);
+        line-height: 1.55;
+        color: color-mix(in srgb, var(--fg) 88%, var(--muted));
+    }
+</style>

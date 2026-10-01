@@ -1,0 +1,50 @@
+---
+// Section heading: number + mono overline + serif display title + hairline rule.
+export interface Props {
+  number: string;
+  overline: string;
+  title: string;
+  intro?: string;
+}
+
+const { number, overline, title, intro = '' } = Astro.props;
+---
+
+<div class="section-head reveal">
+  <p class="overline"><span class="section-head__num">{number}</span> {overline}</p>
+  <h2 class="display section-head__title">{title}</h2>
+  {intro && <p class="lede section-head__intro">{intro}</p>}
+  <div class="section-head__rule" aria-hidden="true"></div>
+</div>
+
+<style>
+  .section-head {
+    margin-bottom: var(--space-10);
+  }
+
+  .section-head__num {
+    color: var(--pillar-flow-3);
+    margin-right: 0.5em;
+  }
+
+  .section-head__title {
+    font-size: clamp(var(--text-2xl), 4.5vw, var(--text-3xl));
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .section-head__intro {
+    max-width: 64ch;
+    margin-bottom: var(--space-6);
+  }
+
+  .section-head__rule {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      var(--border) 0%,
+      var(--border) 48%,
+      transparent 100%
+    );
+  }
+</style>

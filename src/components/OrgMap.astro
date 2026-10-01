@@ -1,0 +1,313 @@
+---
+// OrgMap — MapLibre GL map of Altiplano organizations.
+// Two pin colors: grupo de trabajo (flow orange) vs resto (tissue lime).
+// Clicking a pin scrolls to + flashes the matching card in the gallery.
+import type { OrgRecord } from "../lib/records";
+
+export interface Props {
+    orgs: OrgRecord[];
+}
+
+const { orgs } = Astro.props;
+
+const withCoords = orgs.filter((o) => o.lat !== null && o.lng !== null);
+const missing = orgs.filter((o) => o.lat === null || o.lng === null);
+const grupoCount = withCoords.filter((o) => o.grupoTrabajo).length;
+const restoCount = withCoords.length - grupoCount;
+
+// Pins = flat list; overlapping-coordinate spidering (deterministic pixel-ring
+// offsets, like RC Maps' OrgMap) is computed client-side where pixel math lives.
+const pins = withCoords.map((o) => ({
+    id: o.id,
+    name: o.name,
+    place: o.placeName,
+    desc: o.description,
+    website: o.website,
+    grupo: o.grupoTrabajo,
+    lat: o.lat,
+    lng: o.lng,
+}));
+---
+
+<section class="org-map-block reveal" id="mapa">
+    <div class="org-map-block__frame">
+        <div id="org-map" data-pins={JSON.stringify(pins)}></div>
+    </div>
+
+    <div class="org-map-legend">
+        <span class="org-map-legend__item">
+            <span
+                class="org-map-legend__dot org-map-legend__dot--grupo"
+                aria-hidden="true"
+            ></span>
+            Grupo de trabajo · {grupoCount}
+        </span>
+        <span class="org-map-legend__item">
+            <span
+                class="org-map-legend__dot org-map-legend__dot--resto"
+                aria-hidden="true"
+            ></span>
+            Resto de organizaciones · {restoCount}
+        </span>
+        {missing.length > 0 && (
+            <span class="org-map-legend__missing">
+                ⚠ {missing.length} organizaciones sin coordenadas (no se
+                muestran en el mapa)
+            </span>
+        )}
+    </div>
+</section>
+
+<style is:global>
+    .org-map-block {
+        width: 100%;
+    }
+
+    .org-map-block__frame {
+        position: relative;
+        width: 100%;
+        height: min(560px, 68vh);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--surface-2);
+    }
+
+    #org-map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .org-map-legend {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-4) var(--space-6);
+        padding: var(--space-4) 0 0;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+    }
+
+    .org-map-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .org-map-legend__dot {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        border: 2px solid var(--bg);
+        box-shadow: 0 0 0 1px var(--border-subtle);
+    }
+
+    .org-map-legend__dot--grupo {
+        background: var(--pillar-flow-3);
+    }
+
+    .org-map-legend__dot--resto {
+        background: var(--pillar-tissue-3);
+    }
+
+    .org-map-legend__missing {
+        color: var(--danger-mid);
+        text-transform: none;
+    }
+
+    /* Map pins — round paper-ring dots with glow; hover scale goes on the INNER
+       span (MapLibre owns the marker element's transform/translation). */
+    .org-pin {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--pin-color);
+        border: 2.5px solid var(--paper);
+        box-shadow:
+            0 0 0 1px color-mix(in srgb, var(--pin-color) 55%, transparent),
+            0 3px 10px color-mix(in srgb, var(--pin-color) 55%, transparent);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+    }
+
+    .org-pin__inner {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--paper);
+        transition: transform var(--t-fast);
+    }
+
+    .org-pin:hover .org-pin__inner {
+        transform: scale(1.9);
+    }
+
+    .maplibregl-ctrl-bottom-left {
+        margin: 1.25rem !important;
+    }
+
+    @media (max-width: 767px) {
+        .maplibregl-ctrl-bottom-left {
+            margin: 0.75rem !important;
+        }
+    }
+
+    .org-pin-popup .maplibregl-popup-content {
+        border-radius: var(--radius) !important;
+        border: 1px solid var(--border-subtle);
+    }
+</style>
+
+<script>
+    import maplibregl from "maplibre-gl";
+    import "maplibre-gl/dist/maplibre-gl.css";
+
+    function escapeHtml(str) {
+        return String(str ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function initMap() {
+        const container = document.getElementById("org-map");
+        if (!container) return;
+
+        const pins = JSON.parse(container.dataset.pins || "[]");
+        if (pins.length === 0) {
+            container.innerHTML =
+                '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.85rem;padding:1rem;text-align:center;">Aún no hay organizaciones geolocalizadas para mostrar.</div>';
+            return;
+        }
+
+        const avgLat = pins.reduce((s, p) => s + p.lat, 0) / pins.length;
+        const avgLng = pins.reduce((s, p) => s + p.lng, 0) / pins.length;
+
+        const map = new maplibregl.Map({
+            container,
+            style: {
+                version: 8,
+                sources: {
+                    osm: {
+                        type: "raster",
+                        tiles: [
+                            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        ],
+                        tileSize: 256,
+                        attribution: "&copy; OpenStreetMap contributors",
+                    },
+                },
+                layers: [{ id: "osm", type: "raster", source: "osm" }],
+            },
+            center: [avgLng || -1.35, avgLat || 41.15],
+            zoom: pins.length === 1 ? 10 : 8.5,
+        });
+
+        map.addControl(new maplibregl.NavigationControl(), "bottom-left");
+
+        // Spider overlapping pins: several orgs share a town centroid, so identical
+        // rounded coordinates get a deterministic ring of 16px pixel offsets.
+        const offsets = new Map();
+        {
+            const groups = new Map();
+            for (const p of pins) {
+                const key = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+                const g = groups.get(key);
+                if (g) g.push(p);
+                else groups.set(key, [p]);
+            }
+            for (const group of groups.values()) {
+                if (group.length < 2) continue;
+                group.sort((a, b) => a.name.localeCompare(b.name));
+                group.forEach((m, i) => {
+                    const ang = (2 * Math.PI * i) / group.length - Math.PI / 2;
+                    offsets.set(m.id, [
+                        Math.round(Math.cos(ang) * 16),
+                        Math.round(Math.sin(ang) * 16),
+                    ]);
+                });
+            }
+        }
+
+        const bounds = new maplibregl.LngLatBounds();
+
+        for (const p of pins) {
+            const colorVar = p.grupo ? "--pillar-flow-3" : "--pillar-tissue-3";
+
+            const el = document.createElement("div");
+            el.className = "org-pin";
+            el.style.setProperty("--pin-color", `var(${colorVar})`);
+            el.innerHTML = '<span class="org-pin__inner"></span>';
+
+            const marker = new maplibregl.Marker({
+                element: el,
+                anchor: "center",
+                offset: offsets.get(p.id) ?? [0, 0],
+            })
+                .setLngLat([p.lng, p.lat])
+                .addTo(map);
+
+            const popup = new maplibregl.Popup({
+                offset: 18,
+                closeButton: false,
+                closeOnClick: false,
+                className: "org-pin-popup",
+                maxWidth: "340px",
+            }).setHTML(`
+        <div style="padding:1rem 1.1rem;font-family:var(--sans);max-width:340px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.7rem;">
+            <span style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;">${
+                p.grupo
+                    ? '<span style="color:var(--pillar-flow-4);">● Grupo de trabajo</span>'
+                    : '<span style="color:var(--pillar-tissue-4);">● Organización</span>'
+            }</span>
+          </div>
+          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--fg);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
+          ${p.place ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
+          ${p.desc ? `<div style="font-size:0.85rem;color:var(--fg);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
+          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">↗ Sitio web</a>` : ""}
+        </div>
+      `);
+
+            marker.setPopup(popup);
+            marker
+                .getElement()
+                .addEventListener("mouseenter", () => marker.togglePopup());
+            marker
+                .getElement()
+                .addEventListener("mouseleave", () => marker.togglePopup());
+            marker.getElement().addEventListener("click", (e) => {
+                e.stopPropagation();
+                // Scroll to + flash the corresponding card in the gallery
+                const card = document.querySelector(
+                    '.org-card[data-org-id="' + p.id + '"]',
+                );
+                if (card) {
+                    card.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                    card.classList.add("is-flash");
+                    setTimeout(() => card.classList.remove("is-flash"), 1600);
+                }
+            });
+
+            bounds.extend([p.lng, p.lat]);
+        }
+
+        if (pins.length > 1) {
+            map.fitBounds(bounds, { padding: 48, maxZoom: 10 });
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initMap);
+    } else {
+        initMap();
+    }
+</script>

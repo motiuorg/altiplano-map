@@ -1,0 +1,19 @@
+# Altiplano Estepario — site copy & configuration
+site:
+  title: Altiplano Estepario
+  description: Mapa de organizaciones e intervenciones del Altiplano Estepario
+  lang: es
+
+map:
+  # Default view when there are no geolocated markers
+  center: [41.15, -1.35]
+  zoom: 8.5
+
+# Marker / badge semantics
+groups:
+  groupoTrabajo:
+    label: Grupo de trabajo
+    color: "var(--pillar-flow-3)" # #FF7A00 — orange, the active/primary accent
+  resto:
+    label: Resto de organizaciones
+    color: "var(--pillar-tissue-3)" # #8FE84A — lime, the land/living-systems accent

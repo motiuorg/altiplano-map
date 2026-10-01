@@ -1,0 +1,32 @@
+# Notion database mappings. IDs are not sensitive — only NOTION_API_KEY is secret.
+#
+# The UI reads records with defensive name matching (see src/lib/records.ts): for each
+# concept it checks a list of candidate property names, so the site keeps working even
+# if property names drift. Once the databases are shared with the integration, inspect
+# the real schema and pin the exact property names below to make the mapping explicit.
+
+organizations:
+  database_id: 2f414415-10e1-80ff-bc2f-c1581274d40f
+  # Candidate property names, in priority order (empty → auto-detect from the default list).
+  # Pin exact names here once the schema is confirmed:
+  property_names:
+    name: []          # e.g. ["Name"] or ["Nombre"]
+    description: []   # ["Description"] | ["Descripción"]
+    website: []       # ["Website"] | ["Web"]
+    place: []         # ["Ubicación"] | ["Municipio"] | ["Place"]
+    latitude: []      # ["Latitud"] | ["Lat"]
+    longitude: []     # ["Longitud"] | ["Lng"]
+    type: []          # ["Tipo"] — values like "Organización" / "Persona"
+    zone: []          # ["Zona"] — territorial scope, to keep only Altiplano orgs
+    grupoTrabajo: []  # ["Grupo de trabajo"] — checkbox or select
+    inAltiplano: []   # ["En el altiplano"] — optional checkbox override
+
+interventions:
+  database_id: 36c14415-10e1-802d-9864-e4a7d878e5e8
+  property_names:
+    name: []          # ["Name"] | ["Nombre"] | ["Intervención"]
+    description: []   # ["Description"] | ["Descripción"]
+    organization: []  # ["Organización"] | ["Entidad"] — relation to the organizations DB
+    areaTrabajo: []   # ["Área de trabajo"] | ["Area"]
+    valor5Anos: []    # ["Valor ajustado a 5 años"] | ["Valor 5 años"] — number or formula
+    viable: []        # ["¿Es viable comercialmente?"] | ["Viable comercialmente"] — checkbox/select
