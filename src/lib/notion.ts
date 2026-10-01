@@ -33,41 +33,64 @@ export function loadDatabaseIds(): { organizations: string; interventions: strin
 
 export async function fetchDatabaseRecords(databaseId: string): Promise<NormalizedRecord[]> {
   const notion = getClient();
-  const results: any[] = [];
-  let cursor: string | undefined = undefined;
 
-  // Notion's new data-source architecture: on the new schema, querying by
-  // database_id returns object_not_found — fall back to querying the database's
-  // data source (discovered via databases.retrieve) on the first 404.
-  let dataSourceId: string | null = null;
-  const queryPage = async (startCursor?: string): Promise<any> => {
+  // Notion's new data-source architecture: some databases reject the classic
+  // databases.query call (object_not_found, or validation_error when the
+  // database has multiple data sources). In that case resolve the data-source
+  // id(s) — via databases.retrieve, or by treating the configured id itself as
+  // a data source (new-style shareable links) — and query those instead.
+  const resolveDataSources = async (): Promise<string[]> => {
     try {
-      return await notion.databases.query({
-        database_id: databaseId,
-        start_cursor: startCursor,
-      });
-    } catch (err: any) {
-      if (err?.code !== 'object_not_found') throw err;
-      if (dataSourceId === null) {
-        const db: any = await notion.databases.retrieve({ database_id: databaseId });
-        dataSourceId = db?.data_sources?.[0]?.id ?? null;
-        if (!dataSourceId) throw err;
-      }
-      return await notion.request({
-        path: `/data_sources/${dataSourceId}/query`,
-        method: 'post',
-        body: { start_cursor: startCursor },
-      });
+      const db: any = await notion.databases.retrieve({ database_id: databaseId });
+      const ids = (db?.data_sources ?? []).map((ds: any) => ds.id).filter(Boolean);
+      if (ids.length > 0) return ids;
+    } catch {
+      // retrieve failed too — fall through: the id may itself be a data source
     }
+    return [databaseId];
   };
 
-  do {
-    const response = await queryPage(cursor);
-    results.push(...response.results);
-    cursor = response.next_cursor;
-  } while (cursor);
+  const queryDataSource = (dataSourceId: string, cursor?: string): Promise<any> =>
+    notion.request({
+      path: `/data_sources/${dataSourceId}/query`,
+      method: 'post',
+      body: cursor ? { start_cursor: cursor } : {},
+    });
 
-  return results.map((page) => normalizePage(page));
+  const collect = async (fetchPage: (cursor?: string) => Promise<any>): Promise<NormalizedRecord[]> => {
+    const out: NormalizedRecord[] = [];
+    let cursor: string | undefined;
+    do {
+      const response = await fetchPage(cursor);
+      out.push(...response.results.map(normalizePage));
+      cursor = response.next_cursor;
+    } while (cursor);
+    return out;
+  };
+
+  try {
+    return await collect((cursor) =>
+      notion.databases.query({ database_id: databaseId, start_cursor: cursor })
+    );
+  } catch (err: any) {
+    const isDataSourceError =
+      err?.code === 'object_not_found' ||
+      (err?.code === 'validation_error' && /multiple data sources/i.test(err?.message ?? ''));
+    if (!isDataSourceError) throw err;
+
+    const seen = new Set<string>();
+    const all: NormalizedRecord[] = [];
+    for (const dataSourceId of await resolveDataSources()) {
+      const records = await collect((cursor) => queryDataSource(dataSourceId, cursor));
+      for (const r of records) {
+        if (!seen.has(r.id)) {
+          seen.add(r.id);
+          all.push(r);
+        }
+      }
+    }
+    return all;
+  }
 }
 
 export function normalizePage(page: any): NormalizedRecord {

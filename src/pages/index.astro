@@ -8,6 +8,7 @@ import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
 import InterventionCard from "../components/InterventionCard.astro";
 import { loadDatabaseIds, fetchDatabaseRecords } from "../lib/notion";
+import type { NormalizedRecord } from "../lib/notion";
 import {
     normalizeOrg,
     keepOrg,
@@ -27,8 +28,8 @@ const USE_FIXTURE = isTruthy(
 );
 const dbIds = loadDatabaseIds();
 
-let orgRecords = [];
-let interventionRecords = [];
+let orgRecords: NormalizedRecord[] = [];
+let interventionRecords: NormalizedRecord[] = [];
 let dataError = "";
 let dataSource = "notion";
 
@@ -312,57 +313,64 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
 
 <script>
     // Generic gallery filtering: chips carry data-key/data-value; cards carry
-    // matching data-{key} attributes (space-separated values).
-    const galleries = new Set(["orgs", "itv"]);
+    // matching data-{key} attributes (pipe-joined values).
 
-    document.querySelectorAll("[data-gallery-filter-bar]").forEach((bar) => {
-        const galleryId = bar.dataset.galleryFilterBar;
-        const gallery = document.querySelector(`[data-gallery="${galleryId}"]`);
-        const empty = document.querySelector(`[data-empty="${galleryId}"]`);
-        const counter = bar.querySelector(
-            `[data-visible-count="${galleryId}"]`,
-        );
-        const state = new Map(); // key → active value
+    document
+        .querySelectorAll<HTMLElement>("[data-gallery-filter-bar]")
+        .forEach((bar) => {
+            const galleryId = bar.dataset.galleryFilterBar;
+            const gallery = document.querySelector<HTMLElement>(
+                `[data-gallery="${galleryId}"]`,
+            );
+            const empty = document.querySelector<HTMLElement>(
+                `[data-empty="${galleryId}"]`,
+            );
+            const counter = bar.querySelector<HTMLElement>(
+                `[data-visible-count="${galleryId}"]`,
+            );
+            const state = new Map(); // key → active value
 
-        const apply = () => {
-            let visible = 0;
-            if (gallery) {
-                for (const card of gallery.querySelectorAll(
-                    ":scope > .org-card, :scope > .itv-card",
-                )) {
-                    let show = true;
-                    for (const [key, value] of state) {
-                        if (!value) continue;
-                        // Values are pipe-joined so multi-word values ("espacios
-                        // naturales") survive the split
-                        const cardVal = (card.dataset[key] ?? "")
-                            .split("|")
-                            .filter(Boolean);
-                        if (!cardVal.includes(value)) {
-                            show = false;
-                            break;
+            const apply = () => {
+                let visible = 0;
+                if (gallery) {
+                    for (const card of gallery.querySelectorAll<HTMLElement>(
+                        ":scope > .org-card, :scope > .itv-card",
+                    )) {
+                        let show = true;
+                        for (const [key, value] of state) {
+                            if (!value) continue;
+                            // Values are pipe-joined so multi-word values ("espacios
+                            // naturales") survive the split
+                            const cardVal = (card.dataset[key] ?? "")
+                                .split("|")
+                                .filter(Boolean);
+                            if (!cardVal.includes(value)) {
+                                show = false;
+                                break;
+                            }
                         }
+                        card.style.display = show ? "" : "none";
+                        if (show) visible++;
                     }
-                    card.style.display = show ? "" : "none";
-                    if (show) visible++;
                 }
-            }
-            if (counter) counter.textContent = `${visible} mostradas`;
-            if (empty) empty.hidden = visible !== 0;
-        };
+                if (counter) counter.textContent = `${visible} mostradas`;
+                if (empty) empty.hidden = visible !== 0;
+            };
 
-        bar.querySelectorAll(".chip").forEach((chip) => {
-            chip.addEventListener("click", () => {
-                const key = chip.dataset.key;
-                const value = chip.dataset.value;
-                state.set(key, value);
-                bar.querySelectorAll(`.chip[data-key="${key}"]`).forEach((c) =>
-                    c.classList.toggle("is-active", c === chip),
-                );
-                apply();
+            bar.querySelectorAll<HTMLElement>(".chip").forEach((chip) => {
+                chip.addEventListener("click", () => {
+                    const key = chip.dataset.key;
+                    const value = chip.dataset.value;
+                    state.set(key, value ?? "");
+                    bar.querySelectorAll<HTMLElement>(
+                        `.chip[data-key="${key}"]`,
+                    ).forEach((c) =>
+                        c.classList.toggle("is-active", c === chip),
+                    );
+                    apply();
+                });
             });
         });
-    });
 </script>
 
 <style>
