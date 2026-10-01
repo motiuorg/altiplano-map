@@ -52,7 +52,10 @@ export async function fetchDatabaseRecords(databaseId: string): Promise<Normaliz
 
   const queryDataSource = (dataSourceId: string, cursor?: string): Promise<any> =>
     notion.request({
-      path: `/data_sources/${dataSourceId}/query`,
+      // No leading slash: the SDK joins this onto "https://api.notion.com/v1/",
+      // so a leading slash would produce a double slash and Notion answers
+      // invalid_request_url.
+      path: `data_sources/${dataSourceId}/query`,
       method: 'post',
       body: cursor ? { start_cursor: cursor } : {},
     });
