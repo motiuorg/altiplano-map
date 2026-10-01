@@ -83,13 +83,19 @@ export async function fetchDatabaseRecords(databaseId: string): Promise<Normaliz
 
     const seen = new Set<string>();
     const all: NormalizedRecord[] = [];
-    for (const dataSourceId of await resolveDataSources()) {
-      const records = await collect((cursor) => queryDataSource(dataSourceId, cursor));
-      for (const r of records) {
-        if (!seen.has(r.id)) {
-          seen.add(r.id);
-          all.push(r);
+    const sources = await resolveDataSources();
+    console.log(`[notion] db=${databaseId} -> data sources: ${JSON.stringify(sources)}`);
+    for (const dataSourceId of sources) {
+      try {
+        const records = await collect((cursor) => queryDataSource(dataSourceId, cursor));
+        for (const r of records) {
+          if (!seen.has(r.id)) {
+            seen.add(r.id);
+            all.push(r);
+          }
         }
+      } catch (dsErr: any) {
+        console.log('[notion] data-source query failed', JSON.stringify({ dataSourceId, code: dsErr?.code, message: dsErr?.message }));
       }
     }
     return all;
