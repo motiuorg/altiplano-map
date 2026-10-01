@@ -1,7 +1,7 @@
 // TEMPORARY CI debug helper: tries every known Notion id against both query
-// endpoints (plus database retrieve), then dumps property names + value domains
-// for whatever works, so databases.yaml can be pinned. Never prints the key.
-// TODO: delete this file (and its workflow step) once the schema is pinned.
+// endpoints (plus new-schema endpoints), then dumps property names + value
+// domains for whatever works, so databases.yaml can be pinned. Never prints the
+// key. TODO: delete this file (and its workflow step) once the schema is pinned.
 const { Client } = require('@notionhq/client');
 
 const key = process.env.NOTION_API_KEY;
@@ -9,7 +9,9 @@ if (!key) {
   console.log('[probe] NOTION_API_KEY not set — skipping');
   process.exit(0);
 }
-const client = new Client({ auth: key });
+// New-schema endpoints (data_sources, notion_databases) exist from 2025-05-13;
+// the SDK's default (2022-06-28) returns invalid_request_url for them.
+const client = new Client({ auth: key, notionVersion: '2025-05-13' });
 
 const ROLES = [
   ['actores-page', '36c14415-10e1-802d-9864-e4a7d878e5e8'],
@@ -63,7 +65,42 @@ async function dump(role, pages) {
   }
 }
 
+async function tryGet(role, kind, id) {
+  try {
+    const res = await client.request({ path: `${kind}/${id}`, method: 'get' });
+    const dss = (res?.data_sources ?? []).map((d) => d.id ?? d.data_source_id);
+    const title =
+      (res?.title ?? []).map((t) => t.plain_text).join('').slice(0, 60) ||
+      res?.name ||
+      '';
+    console.log(
+      `[probe] OK ${role} ${kind}/${id} GET: ${JSON.stringify(title)} data_sources=${JSON.stringify(dss)} object=${res?.object ?? ''}`,
+    );
+    return res;
+  } catch (e) {
+    console.log(`[probe] FAIL ${role} ${kind}/${id} GET: ${e?.code} ${e?.message ?? ''}`);
+    return null;
+  }
+}
+
 (async () => {
+  // Search for data_source objects across the workspace
+  try {
+    const res = await client.request({
+      path: 'search',
+      method: 'post',
+      body: { filter: { property: 'object', value: 'data_source' }, page_size: 100 },
+    });
+    console.log(`[probe] search data_source: ${res?.results?.length ?? 0}`);
+    for (const r of res?.results ?? []) {
+      console.log(
+        `[probe]   ds id=${r.id} title=${JSON.stringify(((r?.title ?? []).map((t) => t.plain_text).join('') || '').slice(0, 60))}`,
+      );
+    }
+  } catch (e) {
+    console.log(`[probe] FAIL search data_source: ${e?.code} ${e?.message ?? ''}`);
+  }
+
   for (const [role, id] of ROLES) {
     for (const kind of ['data_sources', 'databases']) {
       try {
@@ -74,14 +111,9 @@ async function dump(role, pages) {
         console.log(`[probe] FAIL ${role} via ${kind}/${id}: ${e?.code} ${e?.message ?? ''}`);
       }
     }
-    try {
-      const db = await client.request({ path: `databases/${id}`, method: 'get' });
-      const dss = (db?.data_sources ?? []).map((d) => d.id);
-      const title = (db?.title ?? []).map((t) => t.plain_text).join('').slice(0, 60);
-      console.log(`[probe] OK ${role} retrieve: ${JSON.stringify(title)} data_sources=${JSON.stringify(dss)}`);
-    } catch (e) {
-      console.log(`[probe] FAIL ${role} retrieve: ${e?.code} ${e?.message ?? ''}`);
-    }
+    // New-schema retrieve endpoints
+    await tryGet(role, 'notion_databases', id);
+    await tryGet(role, 'data_sources', id);
   }
   console.log('[probe] done');
 })().catch((e) => {

@@ -10,7 +10,11 @@ function getClient(): Client {
   // .env (import.meta.env). Check both.
   const key = import.meta.env.NOTION_API_KEY ?? process.env.NOTION_API_KEY;
   if (!key) throw new Error('NOTION_API_KEY is not set');
-  return new Client({ auth: key });
+  // New-schema endpoints (data_sources, notion_databases) only exist from API
+  // version 2025-05-13; the SDK's default (2022-06-28) returns
+  // invalid_request_url for them. Classic databases.query still works at this
+  // version.
+  return new Client({ auth: key, notionVersion: '2025-05-13' });
 }
 
 export interface NormalizedRecord {
