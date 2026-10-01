@@ -76,14 +76,19 @@ export async function fetchDatabaseRecords(databaseId: string): Promise<Normaliz
       notion.databases.query({ database_id: databaseId, start_cursor: cursor })
     );
   } catch (err: any) {
+    console.log(`[notion] ${databaseId} databases.query failed: ${err?.code} ${err?.message}`);
     const isDataSourceError =
       err?.code === 'object_not_found' ||
       (err?.code === 'validation_error' && /multiple data sources/i.test(err?.message ?? ''));
     if (!isDataSourceError) throw err;
 
-    const seen = new Set<string>();
-    const all: NormalizedRecord[] = [];
-    const sources = await resolveDataSources();
+    let sources: string[];
+    try {
+      sources = await resolveDataSources();
+    } catch (resolveErr: any) {
+      console.log(`[notion] ${databaseId} resolve failed: ${resolveErr?.code} ${resolveErr?.message}`);
+      throw resolveErr;
+    }
     console.log(`[notion] db=${databaseId} -> data sources: ${JSON.stringify(sources)}`);
     for (const dataSourceId of sources) {
       try {
