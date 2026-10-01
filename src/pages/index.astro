@@ -7,7 +7,11 @@ import SectionHeading from "../components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
 import InterventionCard from "../components/InterventionCard.astro";
-import { loadDatabaseConfig, fetchSection } from "../lib/notion";
+import {
+    loadDatabaseConfig,
+    fetchSection,
+    fetchViewOrder,
+} from "../lib/notion";
 import type { NormalizedRecord } from "../lib/notion";
 import {
     normalizeOrg,
@@ -15,6 +19,7 @@ import {
     normalizeIntervention,
     interventionOrgNames,
 } from "../lib/records";
+import type { InterventionRecord } from "../lib/records";
 import { FIXTURE_ORGANIZATIONS, FIXTURE_INTERVENTIONS } from "../lib/fixture";
 
 // Value coercion: Vite can hand env vars back as booleans/numbers (or strings).
@@ -30,6 +35,7 @@ const dbConfig = loadDatabaseConfig();
 
 let orgRecords: NormalizedRecord[] = [];
 let interventionRecords: NormalizedRecord[] = [];
+let fetchViewOrderDone: string[] | null = null;
 let dataError = "";
 let dataSource = "notion";
 
@@ -45,12 +51,14 @@ try {
             throw new Error(
                 "Sin NOTION_API_KEY: añádela al .env o usa USE_FIXTURE=1",
             );
-        const [orgs, itvs] = await Promise.all([
+        const [orgs, itvs, viewOrder] = await Promise.all([
             fetchSection(dbConfig.organizations),
             fetchSection(dbConfig.interventions),
+            fetchViewOrder(dbConfig.interventions.view_id),
         ]);
         orgRecords = orgs;
         interventionRecords = itvs;
+        fetchViewOrderDone = viewOrder;
     }
 } catch (e: any) {
     dataError = e?.message ?? String(e);
@@ -64,11 +72,25 @@ try {
 const orgFilters = {
     escalaProperty: dbConfig.organizations.filters?.escala_property,
     escalaValue: dbConfig.organizations.filters?.escala_value,
+    assumeOrganization:
+        dbConfig.organizations.filters?.assume_organization ?? false,
 };
 
 const orgs = orgRecords.map((r) => normalizeOrg(r, orgFilters)).filter(keepOrg);
 const orgMap = new Map(orgs.map((o) => [o.id, o]));
-const interventions = interventionRecords.map(normalizeIntervention);
+
+// The gallery mirrors the Intervenciones view (its own filter + sort): the view
+// query returns the matching page ids in view order, so we order the normalized
+// records by it (falling back to data-source order when the view query fails).
+const itvById = new Map(
+    interventionRecords.map((r) => [r.id, normalizeIntervention(r)]),
+);
+const interventions =
+    fetchViewOrderDone && fetchViewOrderDone.length > 0
+        ? fetchViewOrderDone
+              .map((id) => itvById.get(id))
+              .filter((i): i is InterventionRecord => !!i)
+        : [...itvById.values()];
 
 const grupoCount = orgs.filter((o) => o.grupoTrabajo).length;
 const restoCount = orgs.length - grupoCount;

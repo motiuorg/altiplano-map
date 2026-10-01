@@ -29,7 +29,7 @@ export interface SectionConfig {
   database_id: string;
   data_source_id?: string;
   view_id?: string;
-  filters?: { escala_property?: string; escala_value?: string };
+  filters?: { escala_property?: string; escala_value?: string; assume_organization?: boolean };
   property_names?: Record<string, string[]>;
 }
 
@@ -59,6 +59,33 @@ export async function fetchDatabaseRecords(databaseId: string): Promise<Normaliz
 
 export async function fetchSection(section: SectionConfig): Promise<NormalizedRecord[]> {
   return fetchRecords(section);
+}
+
+// Run a database view's own filter/sort configuration and return the matching
+// page ids in view order (POST /v1/views/<id>/queries, API version 2026-03-11).
+// Returns null when the view is not configured or the query fails — callers then
+// fall back to the data-source order.
+export async function fetchViewOrder(viewId: string | undefined): Promise<string[] | null> {
+  if (!viewId) return null;
+  const notion = getClient();
+  const out: string[] = [];
+  try {
+    let cursor: string | undefined;
+    do {
+      const res = await notion.request({
+        path: `views/${viewId}/queries`,
+        method: 'post',
+        body: { page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) },
+      });
+      for (const r of res?.results ?? []) if (r?.id) out.push(r.id);
+      cursor = res?.next_cursor ?? undefined;
+    } while (cursor && out.length < 10000);
+    console.log(`[notion] view ${viewId}: ${out.length} rows in view order`);
+    return out.length > 0 ? out : null;
+  } catch (err: any) {
+    console.warn(`[notion] view ${viewId} query failed → ${err?.code}: ${err?.message}`);
+    return null;
+  }
 }
 
 async function fetchRecords(

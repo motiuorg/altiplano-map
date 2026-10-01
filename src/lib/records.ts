@@ -42,20 +42,20 @@ export interface InterventionPropertyNames {
 export const ORG_PROPERTY_NAMES: OrgPropertyNames = {
   name: ['Name', 'Nombre', 'name', 'Organización', 'Organizacion', 'Organisation', 'Entidad'],
   description: ['Description', 'Descripción', 'Descripcion', 'description', 'What is it', 'Qué es', 'Que es', 'Notas', 'Notes', 'About', 'Sobre'],
-  website: ['Website', 'Web', 'web', 'URL', 'Url', 'url', 'Página web', 'Pagina web', 'Sitio web'],
+  website: ['Website', 'Web', 'web', 'URL', 'Url', 'url', 'Página web', 'Pagina web', 'Sitio web', 'Enlace'],
   place: ['Place', 'Ubicación', 'Ubicacion', 'Localización', 'Localizacion', 'Location', 'Municipio', 'Pueblo', 'Ciudad'],
   latitude: ['location_lat', 'location_Lat', 'Lat', 'lat', 'Latitud', 'Latitude', 'latitude'],
   longitude: ['location_lng', 'location_Lng', 'Lng', 'lng', 'Lon', 'Longitud', 'Longitude', 'longitude'],
-  type: ['Tipo', 'Type', 'type', 'Tipo de actor', 'Tipo de entidad', 'Agency', 'Naturaleza'],
+  type: ['Tipo', 'Type', 'type', 'Tipo de actor', 'Tipo de entidad', 'Agency', 'Naturaleza', 'Tipo de Estructura'],
   zona: ['Escala', 'Zona', 'Área', 'Area', 'Ámbito', 'Ambito', 'Alcance', 'Zona geográfica', 'Territorio', 'Espacio', 'Scope'],
   grupoTrabajo: ['Grupo de trabajo', 'Grupo trabajo', 'GrupoTrabajo', 'grupo_trabajo', 'Grupo de Trabajo', '¿Grupo de trabajo?'],
   inAltiplano: ['En el altiplano', 'En el Altiplano', 'Altiplano', 'altiplano', 'Dentro del altiplano', '¿Está en el altiplano?'],
 };
 
 export const INTERVENTION_PROPERTY_NAMES: InterventionPropertyNames = {
-  name: ['Name', 'Nombre', 'name', 'Intervención', 'Intervencion', 'Iniciativa', 'Proyecto'],
+  name: ['Name', 'Nombre', 'name', 'Intervención', 'Intervencion', 'Iniciativa', 'Proyecto', 'Nombre de intervención'],
   description: ['Description', 'Descripción', 'Descripcion', 'description', 'Qué es', 'Que es', 'What is it', 'Notas', 'Notes'],
-  organization: ['Organización', 'Organizacion', 'Organization', 'Organisation', 'Entidad', 'Entity', 'Actor'],
+  organization: ['Organización', 'Organizacion', 'Organization', 'Organisation', 'Entidad', 'Entity', 'Actor', '👥 Actores', 'Actores'],
   areaTrabajo: ['Área de trabajo', 'Area de trabajo', 'Área', 'Area', 'Área temática', 'Area tematica', 'Tema', 'Theme'],
   valor5Anos: ['Valor ajustado a 5 años', 'Valor ajustado a 5 anos', 'Valor 5 años', 'Valor 5 anos', 'Valor', 'Valor económico', 'Valor a 5 años'],
   viable: ['¿Es viable comercialmente?', 'Es viable comercialmente', 'Viable comercialmente', 'Viabilidad comercial', 'Viable', '¿Viable comercialmente?'],
@@ -110,6 +110,10 @@ export interface OrgFilters {
   // (Actores: Escala equals "Altiplano Estepario").
   escalaProperty?: string;
   escalaValue?: string;
+  // When the section is already scoped to organizations at the data-source level
+  // (Actores' "Organizaciones" data source; people live in a separate
+  // "Personas" data source) skip the type heuristic entirely.
+  assumeOrganization?: boolean;
 }
 
 export interface OrgRecord {
@@ -156,8 +160,11 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
   const isIndividual = tipoLower !== '' && matchesToken(tipoLower, INDIVIDUAL_TYPE_VALUES);
   const claroQueEsOrg = tipoLower !== '' && matchesToken(tipoLower, ORG_TYPE_VALUES);
   const orgCheckbox = pickProp(props, ['¿Es organización?', 'Es organización', 'Es una organización', 'Organización?', 'Is organization']);
-  const isOrganization =
-    typeof orgCheckbox === 'boolean' ? orgCheckbox && !isIndividual : (claroQueEsOrg || tipoLower === '') && !isIndividual;
+  const isOrganization = filters.assumeOrganization
+    ? true
+    : typeof orgCheckbox === 'boolean'
+      ? orgCheckbox && !isIndividual
+      : (claroQueEsOrg || tipoLower === '') && !isIndividual;
 
   // Territory: keep only entities whose Escala matches the configured value.
   // When the record has no Escala at all it is not part of the landscape map.
@@ -180,14 +187,28 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
     }
   }
 
-  // Grupo de trabajo: checkbox true, or select/multi-select value that says yes
+  // Grupo de trabajo: checkbox true, or a select/multi-select membership value.
+  // Real schema (Actores "Grupo de Trabajo" select): Miembro / Relevante /
+  // Menos Relevante / Coordinación Internacional / Ex miembro / (null).
+  // Everything except "Ex miembro" and empty counts as a current member.
+  const GT_MEMBER = [
+    'miembro',
+    'relevante',
+    'menos relevante',
+    'coordinación internacional',
+    'coordinacion internacional',
+  ];
+  const GT_FORMER = ['ex miembro', 'ex-miembro', 'exmiembro'];
   const gtRaw = pickProp(props, ORG_PROPERTY_NAMES.grupoTrabajo);
-  const gtVals = flatValues(gtRaw);
-  const grupoTrabajo =
-    typeof gtRaw === 'boolean'
-      ? gtRaw
-      : gtVals.some((v) => ['sí', 'si', 'yes', 'y', 'true', '1', 'miembro', 'participa', 'active'].includes(v.toLowerCase())) ||
-        gtVals.every((v) => !['no', 'n', 'false', '0'].includes(v.toLowerCase()));
+  const gtVals = flatValues(gtRaw).map((v) => v.toLowerCase());
+  let grupoTrabajo = false;
+  if (typeof gtRaw === 'boolean') {
+    grupoTrabajo = gtRaw;
+  } else if (gtVals.length > 0) {
+    grupoTrabajo =
+      gtVals.some((v) => GT_MEMBER.includes(v)) &&
+      !gtVals.some((v) => GT_FORMER.includes(v));
+  }
 
   return {
     id: record.id,
