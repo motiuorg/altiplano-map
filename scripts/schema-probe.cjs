@@ -1,7 +1,8 @@
-// TEMPORARY CI debug helper: tries every known Notion id against both query
-// endpoints (plus new-schema endpoints), then dumps property names + value
-// domains for whatever works, so databases.yaml can be pinned. Never prints the
-// key. TODO: delete this file (and its workflow step) once the schema is pinned.
+// TEMPORARY CI debug helper: tries every known Notion id against the query,
+// retrieve and view endpoints at the CURRENT API version, then dumps property
+// names + value domains for whatever works, so databases.yaml can be pinned.
+// Never prints the key.
+// TODO: delete this file (and its workflow step) once the schema is pinned.
 const { Client } = require('@notionhq/client');
 
 const key = process.env.NOTION_API_KEY;
@@ -9,9 +10,8 @@ if (!key) {
   console.log('[probe] NOTION_API_KEY not set — skipping');
   process.exit(0);
 }
-// New-schema endpoints (data_sources, notion_databases) exist from 2025-05-13;
-// the SDK's default (2022-06-28) returns invalid_request_url for them.
-const client = new Client({ auth: key, notionVersion: '2025-05-13' });
+// Latest documented API version (see developers.notion.com/reference/versioning).
+const client = new Client({ auth: key, notionVersion: '2026-03-11' });
 
 const ROLES = [
   ['actores-page', '36c14415-10e1-802d-9864-e4a7d878e5e8'],
@@ -83,6 +83,31 @@ async function tryGet(role, kind, id) {
   }
 }
 
+async function tryView(role, id) {
+  // New-schema view endpoints: retrieve + run the view's own filter/sort.
+  try {
+    const view = await client.request({ path: `views/${id}`, method: 'get' });
+    console.log(
+      `[probe] OK ${role} views/${id} GET: ${JSON.stringify((view?.name ?? '').slice(0, 60))} filter=${JSON.stringify(view?.filter ?? null)} sorts=${JSON.stringify(view?.sorts ?? null)}`,
+    );
+  } catch (e) {
+    console.log(`[probe] FAIL ${role} views/${id} GET: ${e?.code} ${e?.message ?? ''}`);
+  }
+  try {
+    const q = await client.request({
+      path: `views/${id}/queries`,
+      method: 'post',
+      body: { page_size: 100 },
+    });
+    const ids = (q?.results ?? []).map((r) => r.id);
+    console.log(
+      `[probe] OK ${role} views/${id}/queries: total=${q?.total_count} first=${JSON.stringify(ids.slice(0, 8))} cursor=${q?.next_cursor ?? 'none'}`,
+    );
+  } catch (e) {
+    console.log(`[probe] FAIL ${role} views/${id}/queries: ${e?.code} ${e?.message ?? ''}`);
+  }
+}
+
 (async () => {
   // Search for data_source objects across the workspace
   try {
@@ -102,7 +127,11 @@ async function tryGet(role, kind, id) {
   }
 
   for (const [role, id] of ROLES) {
-    for (const kind of ['data_sources', 'databases']) {
+    if (role === 'intervenciones-view') {
+      await tryView(role, id);
+      continue;
+    }
+    for (const kind of ['data_sources', 'databases', 'notion_databases']) {
       try {
         const pages = await queryPages(kind, id);
         console.log(`[probe] OK ${role} via ${kind}/${id}`);
@@ -111,7 +140,6 @@ async function tryGet(role, kind, id) {
         console.log(`[probe] FAIL ${role} via ${kind}/${id}: ${e?.code} ${e?.message ?? ''}`);
       }
     }
-    // New-schema retrieve endpoints
     await tryGet(role, 'notion_databases', id);
     await tryGet(role, 'data_sources', id);
   }
