@@ -1,7 +1,10 @@
 ---
 // OrgMap — MapLibre GL map of Altiplano organizations.
 // Two pin colors: grupo de trabajo (flow orange) vs resto (tissue lime).
+// Overlaid on the altiplano comarcas (core "Altiplano de Granada" vs surrounding
+// steppe comarcas) with DOM comarca labels and a Spain-inset locator.
 // Clicking a pin scrolls to + flashes the matching card in the gallery.
+import fs from "fs";
 import type { OrgRecord } from "../lib/records";
 
 export interface Props {
@@ -10,13 +13,20 @@ export interface Props {
 
 const { orgs } = Astro.props;
 
+const REGION_JSON = JSON.parse(
+    fs.readFileSync("./src/data/altiplano-region.geojson", "utf8"),
+);
+const INSET_JSON = JSON.parse(
+    fs.readFileSync("./src/data/spain-inset.json", "utf8"),
+);
+
 const withCoords = orgs.filter((o) => o.lat !== null && o.lng !== null);
 const missing = orgs.filter((o) => o.lat === null || o.lng === null);
 const grupoCount = withCoords.filter((o) => o.grupoTrabajo).length;
 const restoCount = withCoords.length - grupoCount;
 
 // Pins = flat list; overlapping-coordinate spidering (deterministic pixel-ring
-// offsets, like RC Maps' OrgMap) is computed client-side where pixel math lives.
+// offsets) is computed client-side where pixel math lives.
 const pins = withCoords.map((o) => ({
     id: o.id,
     name: o.name,
@@ -27,11 +37,138 @@ const pins = withCoords.map((o) => ({
     lat: o.lat,
     lng: o.lng,
 }));
+
+// --- Comarca label centroids + region bounds -------------------------------
+// Region of interest: name → area-weighted centroid of the largest ring(s).
+// "Altiplano de Granada" spans two OSM comarcas (Baza + Huéscar) → one label,
+// computed as the area-weighted centroid across both features.
+
+function ringArea(ring: number[][]): number {
+    let sum = 0;
+    for (let i = 0; i < ring.length - 1; i++) {
+        const [x1, y1] = ring[i];
+        const [x2, y2] = ring[i + 1];
+        sum += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(sum) / 2;
+}
+
+function ringCentroid(ring: number[][]): { lng: number; lat: number } {
+    let a = 0;
+    let cx = 0;
+    let cy = 0;
+    for (let i = 0; i < ring.length - 1; i++) {
+        const [x1, y1] = ring[i];
+        const [x2, y2] = ring[i + 1];
+        const cross = x1 * y2 - x2 * y1;
+        a += cross;
+        cx += (x1 + x2) * cross;
+        cy += (y1 + y2) * cross;
+    }
+    if (a === 0) return { lng: ring[0][0], lat: ring[0][1] };
+    return { lng: cx / (3 * a), lat: cy / (3 * a) };
+}
+
+type RegionBounds = {
+    minLng: number;
+    minLat: number;
+    maxLng: number;
+    maxLat: number;
+};
+
+function featureLargestRing(f: any): number[][] | null {
+    const rings: number[][][] =
+        f.geometry?.type === "Polygon"
+            ? f.geometry.coordinates
+            : f.geometry?.type === "MultiPolygon"
+              ? f.geometry.coordinates.flat()
+              : [];
+    let best = null;
+    let bestArea = -1;
+    for (const r of rings) {
+        const a = ringArea(r);
+        if (a > bestArea) {
+            bestArea = a;
+            best = r;
+        }
+    }
+    return best;
+}
+
+const labelGroups = new Map<
+    string,
+    { core: boolean; items: { lng: number; lat: number; area: number }[] }
+>();
+let bounds: RegionBounds = {
+    minLng: Infinity,
+    minLat: Infinity,
+    maxLng: -Infinity,
+    maxLat: -Infinity,
+};
+
+for (const f of REGION_JSON.features ?? []) {
+    const ring = featureLargestRing(f);
+    if (!ring) continue;
+    for (const [lng, lat] of ring) {
+        if (lng < bounds.minLng) bounds.minLng = lng;
+        if (lng > bounds.maxLng) bounds.maxLng = lng;
+        if (lat < bounds.minLat) bounds.minLat = lat;
+        if (lat > bounds.maxLat) bounds.maxLat = lat;
+    }
+    const name: string = f.properties?.name ?? "Comarca";
+    const core = !!f.properties?.core;
+    const g = labelGroups.get(name) ?? { core, items: [] };
+    const c = ringCentroid(ring);
+    g.items.push({ lng: c.lng, lat: c.lat, area: ringArea(ring) });
+    labelGroups.set(name, g);
+}
+
+const labels = [...labelGroups.entries()].map(([name, g]) => {
+    const totalArea = g.items.reduce((s, i) => s + i.area, 0);
+    if (totalArea === 0) {
+        const first = g.items[0];
+        return {
+            name,
+            core: g.core,
+            lat: first?.lat ?? 0,
+            lng: first?.lng ?? 0,
+        };
+    }
+    const lat = g.items.reduce((s, i) => s + i.lat * i.area, 0) / totalArea;
+    const lng = g.items.reduce((s, i) => s + i.lng * i.area, 0) / totalArea;
+    return { name, core: g.core, lat, lng };
+});
+
+const mapData = { pins, region: REGION_JSON, labels, bounds };
 ---
 
 <section class="org-map-block reveal" id="mapa">
     <div class="org-map-block__frame">
-        <div id="org-map" data-pins={JSON.stringify(pins)}></div>
+        <div id="org-map" data-map-data={JSON.stringify(mapData)}></div>
+        <div class="org-map-inset" aria-hidden="true">
+            <svg
+                class="org-map-inset__svg"
+                viewBox={INSET_JSON.viewBox}
+                role="img"
+            >
+                <path class="org-map-inset__outline" d={INSET_JSON.path}></path>
+                <circle
+                    class="org-map-inset__pulse"
+                    cx={INSET_JSON.dot.x}
+                    cy={INSET_JSON.dot.y}
+                    r="0.9"
+                ></circle>
+                <circle
+                    class="org-map-inset__dot"
+                    cx={INSET_JSON.dot.x}
+                    cy={INSET_JSON.dot.y}
+                    r="0.32"
+                ></circle>
+            </svg>
+            <span class="org-map-inset__caption">
+                {INSET_JSON.regionName ?? "Altiplano Estepario"}
+            </span>
+        </div>
     </div>
 
     <div class="org-map-legend">
@@ -49,12 +186,29 @@ const pins = withCoords.map((o) => ({
             ></span>
             Resto de organizaciones · {restoCount}
         </span>
+        <span class="org-map-legend__item">
+            <span
+                class="org-map-legend__swatch org-map-legend__swatch--core"
+                aria-hidden="true"
+            ></span>
+            Altiplano de Granada
+        </span>
+        <span class="org-map-legend__item">
+            <span
+                class="org-map-legend__swatch org-map-legend__swatch--comarca"
+                aria-hidden="true"
+            ></span>
+            Comarcas esteparias
+        </span>
         {missing.length > 0 && (
             <span class="org-map-legend__missing">
                 ⚠ {missing.length} organizaciones sin coordenadas (no se
                 muestran en el mapa)
             </span>
         )}
+        <span class="org-map-legend__osm">
+            © OpenStreetMap contributors · límites OSM (ODbL)
+        </span>
     </div>
 </section>
 
@@ -76,6 +230,74 @@ const pins = withCoords.map((o) => ({
     #org-map {
         width: 100%;
         height: 100%;
+    }
+
+    .org-map-inset {
+        position: absolute;
+        top: var(--space-4);
+        left: var(--space-4);
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-3) var(--space-2);
+        background: var(--paper);
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 0 0 var(--border-subtle);
+        pointer-events: none;
+    }
+
+    .org-map-inset__svg {
+        width: 84px;
+        height: auto;
+        display: block;
+    }
+
+    .org-map-inset__outline {
+        fill: var(--surface-1);
+        stroke: var(--rule);
+        stroke-width: 0.14;
+        stroke-linejoin: round;
+    }
+
+    .org-map-inset__dot {
+        fill: var(--pillar-flow-3);
+        stroke: var(--paper);
+        stroke-width: 0.16;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    .org-map-inset__pulse {
+        fill: var(--pillar-flow-3);
+        opacity: 0.55;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: org-map-inset-pulse 2.6s ease-out infinite;
+    }
+
+    @keyframes org-map-inset-pulse {
+        0% {
+            transform: scale(0.35);
+            opacity: 0.55;
+        }
+        70% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+    }
+
+    .org-map-inset__caption {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        text-align: center;
     }
 
     .org-map-legend {
@@ -113,9 +335,62 @@ const pins = withCoords.map((o) => ({
         background: var(--pillar-tissue-3);
     }
 
+    .org-map-legend__swatch {
+        width: 0.9rem;
+        height: 0.65rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .org-map-legend__swatch--core {
+        background: rgba(255, 122, 0, 0.2);
+        border: 2px solid var(--pillar-flow-4);
+    }
+
+    .org-map-legend__swatch--comarca {
+        background: rgba(143, 232, 74, 0.16);
+        border: 1px solid var(--pillar-tissue-4);
+    }
+
     .org-map-legend__missing {
         color: var(--danger-mid);
         text-transform: none;
+    }
+
+    .org-map-legend__osm {
+        margin-left: auto;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--border);
+    }
+
+    @media (max-width: 767px) {
+        .org-map-legend__osm {
+            margin-left: 0;
+            width: 100%;
+        }
+    }
+
+    /* Comarca labels — DOM markers (MapLibre symbol layers need a glyphs
+       endpoint; DOM keeps the site fonts), mono uppercase, paper halo. */
+    .comarca-label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: var(--muted);
+        text-shadow:
+            0 0 3px var(--paper),
+            0 0 8px var(--paper),
+            0 0 14px var(--paper);
+        pointer-events: none;
+        user-select: none;
+        padding: 0.1rem 0.35rem;
+    }
+
+    .comarca-label--core {
+        color: var(--pillar-flow-4);
+        font-weight: 600;
     }
 
     /* Map pins — round paper-ring dots with glow; hover scale goes on the INNER
@@ -178,15 +453,17 @@ const pins = withCoords.map((o) => ({
         const container = document.getElementById("org-map");
         if (!container) return;
 
-        const pins = JSON.parse(container.dataset.pins || "[]");
-        if (pins.length === 0) {
-            container.innerHTML =
-                '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.85rem;padding:1rem;text-align:center;">Aún no hay organizaciones geolocalizadas para mostrar.</div>';
-            return;
-        }
+        const data = JSON.parse(container.dataset.mapData || "{}");
+        const { pins = [], region = null, labels = [], bounds = null } = data;
 
-        const avgLat = pins.reduce((s, p) => s + p.lat, 0) / pins.length;
-        const avgLng = pins.reduce((s, p) => s + p.lng, 0) / pins.length;
+        const hasRegion =
+            region && region.features && region.features.length > 0;
+        const regionCenter = bounds
+            ? {
+                  lat: (bounds.minLat + bounds.maxLat) / 2,
+                  lng: (bounds.minLng + bounds.maxLng) / 2,
+              }
+            : null;
 
         const map = new maplibregl.Map({
             container,
@@ -204,11 +481,82 @@ const pins = withCoords.map((o) => ({
                 },
                 layers: [{ id: "osm", type: "raster", source: "osm" }],
             },
-            center: [avgLng || -1.35, avgLat || 41.15],
-            zoom: pins.length === 1 ? 10 : 8.5,
+            center: [regionCenter?.lng ?? -2.6, regionCenter?.lat ?? 37.6],
+            zoom: 8.3,
+            maxZoom: 14,
         });
 
         map.addControl(new maplibregl.NavigationControl(), "bottom-left");
+
+        // Exposed for debugging/automation (layer inspection, programmatic pan).
+        container.__map = map;
+
+        // Region overlay + comarca labels go in once the style is ready.
+        map.on("load", () => {
+            if (hasRegion) {
+                map.addSource("altiplano-region", {
+                    type: "geojson",
+                    data: region,
+                });
+                map.addLayer({
+                    id: "altiplano-region-fill",
+                    type: "fill",
+                    source: "altiplano-region",
+                    paint: {
+                        "fill-color": [
+                            "case",
+                            ["get", "core"],
+                            "rgba(255,122,0,0.20)",
+                            "rgba(143,232,74,0.16)",
+                        ],
+                        "fill-outline-color": "rgba(0,0,0,0)",
+                    },
+                });
+                map.addLayer({
+                    id: "altiplano-region-line",
+                    type: "line",
+                    source: "altiplano-region",
+                    paint: {
+                        "line-color": [
+                            "case",
+                            ["get", "core"],
+                            "#8A2200",
+                            "#2C5A0D",
+                        ],
+                        "line-width": ["case", ["get", "core"], 2, 1.1],
+                    },
+                });
+
+                for (const label of labels) {
+                    const el = document.createElement("div");
+                    el.className =
+                        "comarca-label" +
+                        (label.core ? " comarca-label--core" : "");
+                    el.textContent = label.name;
+                    new maplibregl.Marker({
+                        element: el,
+                        anchor: "center",
+                    })
+                        .setLngLat([label.lng, label.lat])
+                        .addTo(map);
+                }
+            }
+
+            // Framing: pins when there are any, the comarca region otherwise.
+            if (pins.length > 0) {
+                const pb = new maplibregl.LngLatBounds();
+                for (const p of pins) pb.extend([p.lng, p.lat]);
+                map.fitBounds(pb, { padding: 48, maxZoom: 10 });
+            } else if (bounds) {
+                map.fitBounds(
+                    [
+                        [bounds.minLng, bounds.minLat],
+                        [bounds.maxLng, bounds.maxLat],
+                    ],
+                    { padding: 32, maxZoom: 9.5 },
+                );
+            }
+        });
 
         // Spider overlapping pins: several orgs share a town centroid, so identical
         // rounded coordinates get a deterministic ring of 16px pixel offsets.
@@ -233,8 +581,6 @@ const pins = withCoords.map((o) => ({
                 });
             }
         }
-
-        const bounds = new maplibregl.LngLatBounds();
 
         for (const p of pins) {
             const colorVar = p.grupo ? "--pillar-flow-3" : "--pillar-tissue-3";
@@ -296,12 +642,6 @@ const pins = withCoords.map((o) => ({
                     setTimeout(() => card.classList.remove("is-flash"), 1600);
                 }
             });
-
-            bounds.extend([p.lng, p.lat]);
-        }
-
-        if (pins.length > 1) {
-            map.fitBounds(bounds, { padding: 48, maxZoom: 10 });
         }
     }
 
