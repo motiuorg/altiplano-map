@@ -58,18 +58,8 @@ try {
     interventionRecords = [];
 }
 
-// Build-time schema summary (property NAMES only, no values) — makes it easy to pin
-// the property mapping in databases.yaml after a Notion schema change.
-if (!USE_FIXTURE && orgRecords[0] && interventionRecords[0]) {
-    console.log(
-        "[notion] actores properties: " +
-            Object.keys(orgRecords[0].properties).join(", "),
-    );
-    console.log(
-        "[notion] intervenciones properties: " +
-            Object.keys(interventionRecords[0].properties).join(", "),
-    );
-}
+// Build-time schema summary is logged per section inside fetchRecords() — property
+// NAMES only, no values — pin the mapping in databases.yaml from the CI log.
 
 const orgFilters = {
     escalaProperty: dbConfig.organizations.filters?.escala_property,

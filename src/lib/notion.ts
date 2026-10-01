@@ -59,8 +59,12 @@ export async function fetchSection(section: SectionConfig): Promise<NormalizedRe
   return fetchRecords(section);
 }
 
-async function fetchRecords(section: Pick<SectionConfig, 'database_id' | 'data_source_id'>): Promise<NormalizedRecord[]> {
+async function fetchRecords(
+  section: Pick<SectionConfig, 'database_id' | 'data_source_id'> & { name?: string },
+): Promise<NormalizedRecord[]> {
   const notion = getClient();
+  const label = section.name ?? section.database_id;
+  const log = (msg: string) => console.log(`[notion] ${label}: ${msg}`);
 
   const collect = async (fetchPage: (cursor?: string) => Promise<any>): Promise<NormalizedRecord[]> => {
     const out: NormalizedRecord[] = [];
@@ -73,6 +77,9 @@ async function fetchRecords(section: Pick<SectionConfig, 'database_id' | 'data_s
     return out;
   };
 
+  // Post to a data source (new Notion data model). Querying a data source id via
+  // a *database* endpoint returns invalid_request_url, and vice versa — so every
+  // id is tried against both endpoints below.
   const queryDataSource = (id: string, cursor?: string): Promise<any> =>
     notion.request({
       // No leading slash: the SDK joins this onto "https://api.notion.com/v1/".
@@ -81,44 +88,76 @@ async function fetchRecords(section: Pick<SectionConfig, 'database_id' | 'data_s
       body: cursor ? { start_cursor: cursor } : {},
     });
 
-  // Preferred path: an explicit data source id (new Notion data model).
-  if (section.data_source_id) {
-    return collect((cursor) => queryDataSource(section.data_source_id!, cursor));
-  }
+  // Try one id against the data-source endpoint; returns null on failure.
+  const tryDataSource = (id: string): Promise<NormalizedRecord[] | null> =>
+    collect((cursor) => queryDataSource(id, cursor)).catch((err: any) => {
+      log(`data_sources/${id}/query → ${err?.code}: ${err?.message}`);
+      return null;
+    });
 
-  // Classic path: query the database directly. If the database holds several data
-  // sources, enumerate them (databases.retrieve) and query each, deduped by page id.
-  try {
-    return await collect((cursor) =>
-      notion.databases.query({ database_id: section.database_id, start_cursor: cursor })
-    );
-  } catch (err: any) {
-    const isDataSourceError =
-      err?.code === 'object_not_found' ||
-      (err?.code === 'validation_error' && /multiple data sources/i.test(err?.message ?? ''));
-    if (!isDataSourceError) throw err;
+  // Classic database query; if the database page holds several data sources,
+  // enumerate them via retrieve and query each (deduped by page id, preserving
+  // order across sources). Returns null if nothing could be queried.
+  const tryDatabase = (id: string): Promise<NormalizedRecord[] | null> =>
+    collect((cursor) =>
+      notion.databases.query({ database_id: id, start_cursor: cursor }),
+    ).catch(async (err: any) => {
+      const code = err?.code ?? '';
+      const msg = err?.message ?? '';
+      log(`databases/${id}/query → ${code}: ${msg}`);
+      const isDataSourceError =
+        code === 'object_not_found' ||
+        (code === 'validation_error' && /multiple data sources/i.test(msg));
+      if (!isDataSourceError) return null;
 
-    const ids: string[] = [];
-    try {
-      const db: any = await notion.databases.retrieve({ database_id: section.database_id });
-      for (const ds of db?.data_sources ?? []) if (ds?.id) ids.push(ds.id);
-    } catch {
-      // retrieve failed too — nothing else to try with this id
-    }
-    if (ids.length === 0) throw err;
-
-    const seen = new Set<string>();
-    const all: NormalizedRecord[] = [];
-    for (const id of ids) {
-      for (const r of await collect((cursor) => queryDataSource(id, cursor))) {
-        if (!seen.has(r.id)) {
-          seen.add(r.id);
-          all.push(r);
+      // Enumerate the page's data sources and query each one.
+      try {
+        const db: any = await notion.databases.retrieve({ database_id: id });
+        const ids: string[] = [];
+        for (const ds of db?.data_sources ?? []) if (ds?.id) ids.push(ds.id);
+        if (ids.length === 0) return null;
+        log(`database has ${ids.length} data source(s)`);
+        const seen = new Set<string>();
+        const all: NormalizedRecord[] = [];
+        for (const dsId of ids) {
+          const rows = await tryDataSource(dsId);
+          if (!rows) continue;
+          for (const r of rows) {
+            if (!seen.has(r.id)) {
+              seen.add(r.id);
+              all.push(r);
+            }
+          }
         }
+        return all.length > 0 ? all : null;
+      } catch (e2: any) {
+        log(`databases/${id} (retrieve) → ${e2?.code}: ${e2?.message}`);
+        return null;
       }
+    });
+
+  // Candidate paths, most specific first. Each id is tried against the data-source
+  // endpoint AND the database endpoint, because the two id kinds are
+  // indistinguishable from the URL alone (a page id queried as a data source and a
+  // data source id queried as a database both give invalid_request_url).
+  const candidates: Promise<NormalizedRecord[] | null>[] = [];
+  const ids = [
+    ...new Set(
+      [section.data_source_id, section.database_id].filter((x): x is string => !!x),
+    ),
+  ];
+  for (const id of ids) candidates.push(tryDataSource(id));
+  for (const id of ids) candidates.push(tryDatabase(id));
+
+  for (const attempt of candidates) {
+    const rows = await attempt;
+    if (rows) {
+      log(`${rows.length} rows`);
+      log(`properties: ${Object.keys(rows[0].properties).join(', ')}`);
+      return rows;
     }
-    return all;
   }
+  throw new Error(`No query path worked for ${label}`);
 }
 
 export function normalizePage(page: any): NormalizedRecord {

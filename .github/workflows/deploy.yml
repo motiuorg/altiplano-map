@@ -38,6 +38,13 @@ jobs:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         run: npm run build
 
+      # TEMPORARY debug: dump the Notion schema so databases.yaml can be pinned.
+      # Remove this step (and scripts/schema-probe.cjs) once pinning is done.
+      - name: Schema probe
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        run: node scripts/schema-probe.cjs || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
