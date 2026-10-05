@@ -142,7 +142,7 @@ const labels = [...labelGroups.entries()].map(([name, g]) => {
 const mapData = { pins, region: REGION_JSON, labels, bounds };
 ---
 
-<section class="org-map-block reveal" id="mapa">
+<section class="org-map-block" id="mapa">
     <div class="org-map-block__frame">
         <div id="org-map" data-map-data={JSON.stringify(mapData)}></div>
         <div class="org-map-inset" aria-hidden="true">
@@ -192,23 +192,22 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                 muestran en el mapa)
             </span>
         )}
-        <span class="org-map-legend__osm">
-            © OpenStreetMap contributors · límites OSM (ODbL)
-        </span>
     </div>
 </section>
 
 <style is:global>
     .org-map-block {
         width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .org-map-block__frame {
         position: relative;
         width: 100%;
-        height: min(560px, 68vh);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
+        flex: 1 1 auto;
+        min-height: 0;
         overflow: hidden;
         background: var(--surface-2);
     }
@@ -291,7 +290,8 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         align-items: center;
         flex-wrap: wrap;
         gap: var(--space-4) var(--space-6);
-        padding: var(--space-4) 0 0;
+        padding: var(--space-3) var(--space-5);
+        border-top: 1px solid var(--border-subtle);
         font-family: var(--mono);
         font-size: var(--text-xs);
         text-transform: uppercase;
@@ -335,20 +335,6 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
     .org-map-legend__missing {
         color: var(--danger-mid);
         text-transform: none;
-    }
-
-    .org-map-legend__osm {
-        margin-left: auto;
-        text-transform: none;
-        letter-spacing: 0;
-        color: var(--border);
-    }
-
-    @media (max-width: 767px) {
-        .org-map-legend__osm {
-            margin-left: 0;
-            width: 100%;
-        }
     }
 
     /* Comarca labels — DOM markers (MapLibre symbol layers need a glyphs
@@ -395,6 +381,50 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
 
     .org-pin:hover .org-pin__inner {
         transform: scale(1.9);
+    }
+
+.org-cluster {
+        min-width: 34px;
+        height: 34px;
+        padding: 0 6px;
+        border-radius: 17px;
+        background: var(--umber);
+        color: var(--paper);
+        border: 2.5px solid var(--paper);
+        box-shadow: 0 3px 10px rgba(34, 26, 18, 0.35);
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: background var(--t-fast);
+    }
+
+    .org-cluster:hover {
+        background: var(--pillar-flow-4);
+    }
+
+    .org-cluster.is-open {
+        background: var(--pillar-flow-4);
+        box-shadow: 0 0 0 5px color-mix(in srgb, var(--pillar-flow-3) 30%, transparent);
+    }
+
+    .org-cluster--grupo {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--pillar-flow-3) 70%, transparent), 0 3px 10px rgba(34, 26, 18, 0.35);
+    }
+
+    .org-pin--spread {
+        animation: org-pin-pop 220ms ease-out both;
+    }
+
+    @keyframes org-pin-pop {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
     .maplibregl-ctrl-bottom-left {
@@ -522,91 +552,201 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
             }
         });
 
-        // Spider overlapping pins: several orgs share a town centroid, so identical
-        // rounded coordinates get a deterministic ring of 16px pixel offsets.
-        const offsets = new Map();
-        {
-            const groups = new Map();
-            for (const p of pins) {
-                const key = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
-                const g = groups.get(key);
-                if (g) g.push(p);
-                else groups.set(key, [p]);
-            }
-            for (const group of groups.values()) {
-                if (group.length < 2) continue;
-                group.sort((a, b) => a.name.localeCompare(b.name));
-                group.forEach((m, i) => {
-                    const ang = (2 * Math.PI * i) / group.length - Math.PI / 2;
-                    offsets.set(m.id, [
-                        Math.round(Math.cos(ang) * 16),
-                        Math.round(Math.sin(ang) * 16),
-                    ]);
-                });
-            }
-        }
+        // ---- Pins & clusters ------------------------------------------------
+        // Orgs that share a location collapse into ONE numbered dot. Clicking it
+        // zooms in and fans the members out around it on concentric rings, joined
+        // to the centre by thin spokes. The offsets are geographic (not pixels), so
+        // the fan scales with the map when you zoom. Click the dot again, click the
+        // map or press Esc to collapse it.
+        const FAN_ZOOM = 14;
 
-        for (const p of pins) {
-            const colorVar = p.grupo ? "--pillar-flow-3" : "--pillar-tissue-3";
+        const slugCard = (id) =>
+            document.querySelector('.org-card[data-org-id="' + id + '"]');
+        const flashCard = (id) => {
+            const card = slugCard(id);
+            if (!card) return;
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("is-flash");
+            setTimeout(() => card.classList.remove("is-flash"), 1600);
+        };
 
+        const popupHtml = (p) => `
+        <div style="padding:1rem 1.1rem;font-family:var(--sans);max-width:340px;">
+          ${
+              p.grupo
+                  ? '<div style="margin-bottom:0.7rem;font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--pillar-flow-4);">● Grupo de trabajo</div>'
+                  : ""
+          }
+          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--fg);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
+          ${p.place ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
+          ${p.desc ? `<div style="font-size:0.85rem;color:var(--fg);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
+          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">↗ Sitio web</a>` : ""}
+        </div>`;
+
+        function makePin(p, lngLat, extraClass) {
             const el = document.createElement("div");
-            el.className = "org-pin";
-            el.style.setProperty("--pin-color", `var(${colorVar})`);
+            el.className = "org-pin" + (extraClass ? " " + extraClass : "");
+            el.style.setProperty(
+                "--pin-color",
+                p.grupo ? "var(--pillar-flow-3)" : "var(--pillar-tissue-3)",
+            );
             el.innerHTML = '<span class="org-pin__inner"></span>';
-
             const marker = new maplibregl.Marker({
                 element: el,
                 anchor: "center",
-                offset: offsets.get(p.id) ?? [0, 0],
             })
-                .setLngLat([p.lng, p.lat])
+                .setLngLat(lngLat)
                 .addTo(map);
-
             const popup = new maplibregl.Popup({
                 offset: 18,
                 closeButton: false,
                 closeOnClick: false,
                 className: "org-pin-popup",
                 maxWidth: "340px",
-            }).setHTML(`
-        <div style="padding:1rem 1.1rem;font-family:var(--sans);max-width:340px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.7rem;">
-            <span style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;">${
-                p.grupo
-                    ? '<span style="color:var(--pillar-flow-4);">● Grupo de trabajo</span>'
-                    : '<span style="color:var(--pillar-tissue-4);">● Organización</span>'
-            }</span>
-          </div>
-          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--fg);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
-          ${p.place ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
-          ${p.desc ? `<div style="font-size:0.85rem;color:var(--fg);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
-          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">↗ Sitio web</a>` : ""}
-        </div>
-      `);
-
+            }).setHTML(popupHtml(p));
             marker.setPopup(popup);
-            marker
-                .getElement()
-                .addEventListener("mouseenter", () => marker.togglePopup());
-            marker
-                .getElement()
-                .addEventListener("mouseleave", () => marker.togglePopup());
-            marker.getElement().addEventListener("click", (e) => {
+            el.addEventListener("mouseenter", () => marker.togglePopup());
+            el.addEventListener("mouseleave", () => marker.togglePopup());
+            el.addEventListener("click", (e) => {
                 e.stopPropagation();
-                // Scroll to + flash the corresponding card in the gallery
-                const card = document.querySelector(
-                    '.org-card[data-org-id="' + p.id + '"]',
-                );
-                if (card) {
-                    card.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                    });
-                    card.classList.add("is-flash");
-                    setTimeout(() => card.classList.remove("is-flash"), 1600);
+                flashCard(p.id);
+            });
+            return marker;
+        }
+
+        // Group by identical (rounded) coordinates.
+        const groups = new Map();
+        for (const p of pins) {
+            const key = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+            const g = groups.get(key);
+            if (g) g.push(p);
+            else groups.set(key, [p]);
+        }
+
+        // Fan layout: concentric rings, ~40px between neighbours, in metres at
+        // FAN_ZOOM so it keeps its proportions as the map zooms.
+        function fanOffsets(n, lat) {
+            const mPerPx =
+                (156543.03 * Math.cos((lat * Math.PI) / 180)) /
+                Math.pow(2, FAN_ZOOM);
+            const pts = [];
+            let ring = 0;
+            while (pts.length < n) {
+                const r = 58 + ring * 46; // px
+                const cap = Math.max(5, Math.floor((2 * Math.PI * r) / 42));
+                const count = Math.min(cap, n - pts.length);
+                const phase = ring % 2 ? Math.PI / count : 0;
+                for (let i = 0; i < count; i++) {
+                    const ang =
+                        phase + (2 * Math.PI * i) / count - Math.PI / 2;
+                    pts.push([
+                        Math.cos(ang) * r * mPerPx,
+                        Math.sin(ang) * r * mPerPx,
+                    ]);
                 }
+                ring++;
+            }
+            return pts;
+        }
+
+        let openCluster = null; // { el, markers, group }
+        const SPOKES_SRC = "cluster-spokes";
+
+        function setSpokes(features) {
+            const src = map.getSource(SPOKES_SRC);
+            if (src)
+                src.setData({ type: "FeatureCollection", features });
+        }
+
+        function collapse() {
+            if (!openCluster) return;
+            openCluster.markers.forEach((m) => m.remove());
+            openCluster.el.classList.remove("is-open");
+            openCluster = null;
+            setSpokes([]);
+        }
+
+        function expand(cluster) {
+            collapse();
+            const { group, lng, lat, el } = cluster;
+            const offs = fanOffsets(group.length, lat);
+            const mPerDegLat = 111320;
+            const mPerDegLng = 111320 * Math.cos((lat * Math.PI) / 180);
+            const markers = [];
+            const features = [];
+            group.forEach((p, i) => {
+                const [dx, dy] = offs[i];
+                // screen y grows downwards, latitude upwards
+                const pos = [lng + dx / mPerDegLng, lat - dy / mPerDegLat];
+                markers.push(makePin(p, pos, "org-pin--spread"));
+                features.push({
+                    type: "Feature",
+                    properties: {},
+                    geometry: { type: "LineString", coordinates: [[lng, lat], pos] },
+                });
+            });
+            el.classList.add("is-open");
+            openCluster = { el, markers, group };
+            setSpokes(features);
+            map.easeTo({
+                center: [lng, lat],
+                zoom: Math.max(map.getZoom(), FAN_ZOOM - 0.5),
+                duration: 600,
             });
         }
+
+        const addSpokesLayer = () => {
+            if (map.getSource(SPOKES_SRC)) return;
+            map.addSource(SPOKES_SRC, {
+                type: "geojson",
+                data: { type: "FeatureCollection", features: [] },
+            });
+            map.addLayer({
+                id: "cluster-spokes-line",
+                type: "line",
+                source: SPOKES_SRC,
+                paint: {
+                    "line-color": "#221a12",
+                    "line-width": 1.2,
+                    "line-opacity": 0.55,
+                },
+            });
+        };
+        if (map.loaded()) addSpokesLayer();
+        else map.on("load", addSpokesLayer);
+
+        for (const group of groups.values()) {
+            const first = group[0];
+            if (group.length === 1) {
+                makePin(first, [first.lng, first.lat]);
+                continue;
+            }
+            const el = document.createElement("div");
+            el.className =
+                "org-cluster" +
+                (group.some((g) => g.grupo) ? " org-cluster--grupo" : "");
+            el.textContent = String(group.length);
+            el.title = `${group.length} organizaciones en este lugar`;
+            el.setAttribute("role", "button");
+            const cluster = { group, lng: first.lng, lat: first.lat, el };
+            el.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (openCluster && openCluster.el === el) collapse();
+                else expand(cluster);
+            });
+            new maplibregl.Marker({ element: el, anchor: "center" })
+                .setLngLat([first.lng, first.lat])
+                .addTo(map);
+        }
+
+        map.on("click", collapse);
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") collapse();
+        });
+        // Fan collapses when the user zooms far back out.
+        map.on("zoomend", () => {
+            if (openCluster && map.getZoom() < 11) collapse();
+        });
     }
 
     if (document.readyState === "loading") {

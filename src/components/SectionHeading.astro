@@ -1,17 +1,17 @@
 ---
 // Section heading: number + mono overline + serif display title + hairline rule.
 export interface Props {
-  number: string;
+  number?: string;
   overline: string;
   title: string;
   intro?: string;
 }
 
-const { number, overline, title, intro = '' } = Astro.props;
+const { number = '', overline, title, intro = '' } = Astro.props;
 ---
 
 <div class="section-head reveal">
-  <p class="overline"><span class="section-head__num">{number}</span> {overline}</p>
+  <p class="overline">{number && <span class="section-head__num">{number}</span>}{number && " "}{overline}</p>
   <h2 class="display section-head__title">{title}</h2>
   {intro && <p class="lede section-head__intro">{intro}</p>}
   <div class="section-head__rule" aria-hidden="true"></div>

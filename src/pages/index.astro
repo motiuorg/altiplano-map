@@ -1,150 +1,41 @@
 ---
-// Altiplano Estepario — home: hero, organizations map, organizations gallery,
-// interventions gallery. Build-time Notion fetch; USE_FIXTURE=1 renders the local
-// fixture dataset (see src/lib/fixture.ts) for visual iteration.
+// Altiplano Estepario — landing = Organizaciones: intro on the left, map on the
+// right (half screen each), then the filterable organizations gallery.
 import Layout from "../components/Layout.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
-import InterventionCard from "../components/InterventionCard.astro";
-import {
-    loadDatabaseConfig,
-    fetchSection,
-    fetchViewOrder,
-} from "../lib/notion";
-import type { NormalizedRecord } from "../lib/notion";
-import {
-    normalizeOrg,
-    keepOrg,
-    normalizeIntervention,
-    interventionOrgNames,
-} from "../lib/records";
-import type { InterventionRecord } from "../lib/records";
-import { FIXTURE_ORGANIZATIONS, FIXTURE_INTERVENTIONS } from "../lib/fixture";
+import { loadSiteData } from "../lib/data";
 
-// Value coercion: Vite can hand env vars back as booleans/numbers (or strings).
-const isTruthy = (v: any) =>
-    v === true ||
-    v === 1 ||
-    (typeof v === "string" && ["1", "true", "yes"].includes(v.toLowerCase()));
-
-const USE_FIXTURE = isTruthy(
-    import.meta.env.USE_FIXTURE ?? process.env.USE_FIXTURE,
-);
-const dbConfig = loadDatabaseConfig();
-
-let orgRecords: NormalizedRecord[] = [];
-let interventionRecords: NormalizedRecord[] = [];
-let fetchViewOrderDone: string[] | null = null;
-let dataError = "";
-let dataSource = "notion";
-
-try {
-    if (USE_FIXTURE) {
-        orgRecords = FIXTURE_ORGANIZATIONS;
-        interventionRecords = FIXTURE_INTERVENTIONS;
-        dataSource = "fixture";
-    } else {
-        const key =
-            import.meta.env.NOTION_API_KEY ?? process.env.NOTION_API_KEY;
-        if (!key)
-            throw new Error(
-                "Sin NOTION_API_KEY: añádela al .env o usa USE_FIXTURE=1",
-            );
-        const [orgs, itvs, viewOrder] = await Promise.all([
-            fetchSection(dbConfig.organizations),
-            fetchSection(dbConfig.interventions),
-            fetchViewOrder(dbConfig.interventions.view_id),
-        ]);
-        orgRecords = orgs;
-        interventionRecords = itvs;
-        fetchViewOrderDone = viewOrder;
-    }
-} catch (e: any) {
-    dataError = e?.message ?? String(e);
-    orgRecords = [];
-    interventionRecords = [];
-}
-
-// Build-time schema summary is logged per section inside fetchRecords() — property
-// NAMES only, no values — pin the mapping in databases.yaml from the CI log.
-
-const orgFilters = {
-    escalaProperty: dbConfig.organizations.filters?.escala_property,
-    escalaValue: dbConfig.organizations.filters?.escala_value,
-    assumeOrganization:
-        dbConfig.organizations.filters?.assume_organization ?? false,
-};
-
-const orgs = orgRecords.map((r) => normalizeOrg(r, orgFilters)).filter(keepOrg);
-const orgMap = new Map(orgs.map((o) => [o.id, o]));
-
-// The gallery mirrors the Intervenciones view (its own filter + sort): the view
-// query returns the matching page ids in view order, so we order the normalized
-// records by it (falling back to data-source order when the view query fails).
-const itvById = new Map(
-    interventionRecords.map((r) => [r.id, normalizeIntervention(r)]),
-);
-const interventions =
-    fetchViewOrderDone && fetchViewOrderDone.length > 0
-        ? fetchViewOrderDone
-              .map((id) => itvById.get(id))
-              .filter((i): i is InterventionRecord => !!i)
-        : [...itvById.values()];
+const { orgs, dataError, dataSource } = await loadSiteData();
 
 const grupoCount = orgs.filter((o) => o.grupoTrabajo).length;
 const restoCount = orgs.length - grupoCount;
-
-// Distinct áreas de trabajo for the intervention filter chips
-const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
-    (a, b) => a.localeCompare(b),
+const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
+    a.localeCompare(b, "es"),
 );
 ---
 
 <Layout
-    title="Altiplano Estepario — Mapa de organizaciones e intervenciones"
-    description="Mapa abierto de las organizaciones e intervenciones del paisaje del Altiplano Estepario."
+    title="Altiplano Estepario — Organizaciones"
+    description="Mapa abierto de las organizaciones del paisaje del Altiplano Estepario."
+    current="organizaciones"
 >
-    <!-- ============ HERO ============ -->
-    <section class="hero">
-        <div class="hero__blob" aria-hidden="true"></div>
-        <div class="container hero__inner">
-            <p class="overline">Mapa abierto del paisaje estepario</p>
-            <h1 class="display hero__title">
+    <section class="landing">
+        <div class="landing__intro">
+            <h1 class="display landing__title">
                 El Altiplano
                 <br />
                 Estepario
             </h1>
-            <p class="lede hero__lede">
+            <p class="lede landing__lede">
                 Las organizaciones que trabajan por la regeneración de este
                 paisaje, y el portfolio de intervenciones que están
-                construyendo. Datos vivos desde Notion, actualizados cada 6
-                horas.
+                construyendo.
             </p>
-
-            <div class="hero__stats">
-                <span class="hero__stat">
-                    <strong>{orgs.length}</strong>
-                    organizaciones
-                </span>
-                <span class="hero__stat">
-                    <strong>{grupoCount}</strong>
-                    en el grupo de trabajo
-                </span>
-                <span class="hero__stat">
-                    <strong>{interventions.length}</strong>
-                    intervenciones
-                </span>
-            </div>
-
-            <div class="hero__actions">
-                <a class="btn" href="#mapa">
-                    Ver el mapa
-                </a>
-                <a class="btn btn--outline" href="#intervenciones">
-                    Ver intervenciones
-                </a>
-            </div>
+        </div>
+        <div class="landing__map">
+            <OrgMap orgs={orgs} />
         </div>
     </section>
 
@@ -152,11 +43,6 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         <div class="container">
             <div class="data-banner" role="alert">
                 <strong>⚠ Datos no disponibles.</strong> {dataError}
-                <span class="data-banner__hint">
-                    Comparte las dos bases de datos de Notion con la integración
-                    y vuelve a construir, o usa <code>USE_FIXTURE=1</code> para
-                    desarrollo.
-                </span>
             </div>
         </div>
     )}
@@ -164,36 +50,20 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         <div class="container">
             <div class="data-banner data-banner--fixture">
                 <strong>Modo fixture.</strong> Estás viendo el dataset de
-                desarrollo (<code>USE_FIXTURE=1</code>), no los datos reales de
-                Notion.
+                desarrollo (<code>USE_FIXTURE=1</code>), no los datos reales.
             </div>
         </div>
     )}
 
-    <!-- ============ 01 · MAP ============ -->
-    <section class="section" id="mapa">
+    <section class="section" id="organizaciones">
         <div class="container">
             <SectionHeading
-                number="01"
-                overline="El territorio"
-                title="Mapa de organizaciones"
-                intro="Cada punto es una organización del altiplano. Las marcadas en naranja participan en el grupo de trabajo; el resto forman parte del tejido territorial. Pasa el cursor para ver el detalle y haz clic para localizar su tarjeta."
-            />
-            <OrgMap orgs={orgs} />
-        </div>
-    </section>
-
-    <!-- ============ 02 · ORGANIZATIONS ============ -->
-    <section class="section section--alt" id="organizaciones">
-        <div class="container">
-            <SectionHeading
-                number="02"
                 overline="Quién está aquí"
                 title="Organizaciones"
-                intro={`El directorio completo de organizaciones del altiplano: ${orgs.length} entidades, de las cuales ${grupoCount} están en el grupo de trabajo.`}
+                intro={`${orgs.length} entidades del altiplano, de las cuales ${grupoCount} forman parte del grupo de trabajo.`}
             />
 
-            <div class="filter-bar" data-gallery-filter-bar="orgs">
+            <div class="filter-bar" data-filter-bar>
                 <button class="chip is-active" data-key="grupo" data-value="">
                     Todos
                 </button>
@@ -203,13 +73,24 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
                 <button class="chip" data-key="grupo" data-value="resto">
                     Resto · {restoCount}
                 </button>
-                <span class="filter-bar__count" data-visible-count="orgs">
+                {tipos.length > 0 && (
+                    <label class="filter-select">
+                        <span class="filter-bar__label">Tipo</span>
+                        <select data-key="tipo" aria-label="Filtrar por tipo">
+                            <option value="">Todos los tipos</option>
+                            {tipos.map((t) => (
+                                <option value={t.toLowerCase()}>{t}</option>
+                            ))}
+                        </select>
+                    </label>
+                )}
+                <span class="filter-bar__count" data-visible-count>
                     {orgs.length} mostradas
                 </span>
             </div>
 
             {orgs.length > 0 ? (
-                <div class="org-grid" data-gallery="orgs">
+                <div class="org-grid">
                     {orgs.map((org) => (
                         <OrgCard org={org} />
                     ))}
@@ -219,266 +100,78 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
                     No hay organizaciones que cumplan los criterios todavía.
                 </p>
             )}
-            <p class="empty-note" data-empty="orgs" hidden>
+            <p class="empty-note" data-empty hidden>
                 Ninguna organización coincide con el filtro.
             </p>
-        </div>
-    </section>
-
-    <!-- ============ 03 · INTERVENTIONS ============ -->
-    <section class="section" id="intervenciones">
-        <div class="container">
-            <SectionHeading
-                number="03"
-                overline="El portfolio"
-                title="Intervenciones"
-                intro={`Proyectos e intervenciones del paisaje con su valor ajustado a 5 años y su viabilidad comercial.`}
-            />
-
-            <div class="filter-bar" data-gallery-filter-bar="itv">
-                <span class="filter-bar__label">Área de trabajo</span>
-                <button class="chip is-active" data-key="area" data-value="">
-                    Todas
-                </button>
-                {areas.map((area) => (
-                    <button
-                        class="chip"
-                        data-key="area"
-                        data-value={area.toLowerCase()}
-                    >
-                        {area}
-                    </button>
-                ))}
-                <span
-                    class="filter-bar__label"
-                    style="margin-left: var(--space-4);"
-                >
-                    Viabilidad
-                </span>
-                <button class="chip is-active" data-key="viable" data-value="">
-                    Todas
-                </button>
-                <button class="chip" data-key="viable" data-value="si">
-                    Viable comercialmente
-                </button>
-                <button class="chip" data-key="viable" data-value="no">
-                    No viable
-                </button>
-                <span class="filter-bar__count" data-visible-count="itv">
-                    {interventions.length} mostradas
-                </span>
-            </div>
-
-            {interventions.length > 0 ? (
-                <div class="itv-grid" data-gallery="itv">
-                    {interventions.map((itv) => (
-                        <InterventionCard
-                            intervention={itv}
-                            orgNames={interventionOrgNames(itv, orgMap)}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <p class="empty-note">
-                    No hay intervenciones publicadas todavía.
-                </p>
-            )}
-            <p class="empty-note" data-empty="itv" hidden>
-                Ninguna intervención coincide con el filtro.
-            </p>
-        </div>
-    </section>
-
-    <!-- ============ METHODOLOGY ============ -->
-    <section class="section section--alt" id="metodologia">
-        <div class="container">
-            <SectionHeading
-                number="04"
-                overline="Cómo se construye"
-                title="Metodología y fuentes"
-            />
-            <div class="method">
-                <div class="method__block">
-                    <p class="overline">Datos</p>
-                    <p class="copy-sm">
-                        Organizaciones e intervenciones viven en dos bases de
-                        datos de Notion del espacio del Altiplano Estepario.
-                        Este sitio se regenera desde ellas cada 6 horas — editar
-                        Notion es editar el mapa.
-                    </p>
-                </div>
-                <div class="method__block">
-                    <p class="overline">Criterios de inclusión</p>
-                    <ul class="method__list">
-                        <li>
-                            Solo organizaciones — las personas a título
-                            individual quedan fuera.
-                        </li>
-                        <li>Solo entidades dentro del altiplano estepario.</li>
-                        <li>
-                            Las organizaciones del grupo de trabajo se marcan en
-                            naranja.
-                        </li>
-                    </ul>
-                </div>
-                <div class="method__block">
-                    <p class="overline">Proyecto</p>
-                    <p class="copy-sm">
-                        Un trabajo de articulación del paisaje financiero y
-                        territorial del Altiplano Estepario, en el ecosistema de{" "}
-                        <a
-                            href="https://motiu.org"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Motiu
-                        </a>
-                        .
-                    </p>
-                </div>
-            </div>
         </div>
     </section>
 </Layout>
 
 <script>
-    // Generic gallery filtering: chips carry data-key/data-value; cards carry
-    // matching data-{key} attributes (pipe-joined values).
-
-    document
-        .querySelectorAll<HTMLElement>("[data-gallery-filter-bar]")
-        .forEach((bar) => {
-            const galleryId = bar.dataset.galleryFilterBar;
-            const gallery = document.querySelector<HTMLElement>(
-                `[data-gallery="${galleryId}"]`,
-            );
-            const empty = document.querySelector<HTMLElement>(
-                `[data-empty="${galleryId}"]`,
-            );
-            const counter = bar.querySelector<HTMLElement>(
-                `[data-visible-count="${galleryId}"]`,
-            );
-            const state = new Map(); // key → active value
-
-            const apply = () => {
-                let visible = 0;
-                if (gallery) {
-                    for (const card of gallery.querySelectorAll<HTMLElement>(
-                        ":scope > .org-card, :scope > .itv-card",
-                    )) {
-                        let show = true;
-                        for (const [key, value] of state) {
-                            if (!value) continue;
-                            // Values are pipe-joined so multi-word values ("espacios
-                            // naturales") survive the split
-                            const cardVal = (card.dataset[key] ?? "")
-                                .split("|")
-                                .filter(Boolean);
-                            if (!cardVal.includes(value)) {
-                                show = false;
-                                break;
-                            }
-                        }
-                        card.style.display = show ? "" : "none";
-                        if (show) visible++;
-                    }
-                }
-                if (counter) counter.textContent = `${visible} mostradas`;
-                if (empty) empty.hidden = visible !== 0;
-            };
-
-            bar.querySelectorAll<HTMLElement>(".chip").forEach((chip) => {
-                chip.addEventListener("click", () => {
-                    const key = chip.dataset.key;
-                    const value = chip.dataset.value;
-                    state.set(key, value ?? "");
-                    bar.querySelectorAll<HTMLElement>(
-                        `.chip[data-key="${key}"]`,
-                    ).forEach((c) =>
-                        c.classList.toggle("is-active", c === chip),
-                    );
-                    apply();
-                });
-            });
-        });
+    import { initGalleryFilters } from "../scripts/gallery-filter";
+    initGalleryFilters();
 </script>
 
 <style>
-    /* ============ hero ============ */
-    .hero {
-        position: relative;
-        overflow: hidden;
-        padding: var(--space-20) 0 var(--space-16);
+    /* ============ landing: intro (left) + map (right), half each ============ */
+    .landing {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        height: calc(100vh - 4rem);
+        min-height: 560px;
+        border-bottom: 1px solid var(--border-subtle);
         background:
             radial-gradient(
-                48rem 26rem at 82% 8%,
-                color-mix(in srgb, var(--pillar-flow-1) 40%, transparent),
+                40rem 24rem at 10% 12%,
+                color-mix(in srgb, var(--pillar-flow-1) 34%, transparent),
                 transparent 70%
             ),
             radial-gradient(
-                40rem 24rem at 6% 90%,
-                color-mix(in srgb, var(--pillar-tissue-2) 26%, transparent),
+                36rem 22rem at 6% 96%,
+                color-mix(in srgb, var(--pillar-tissue-2) 24%, transparent),
                 transparent 70%
             ),
             var(--bg);
     }
 
-    .hero__inner {
-        position: relative;
-        z-index: 1;
+    .landing__intro {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        justify-content: center;
         gap: var(--space-6);
-        padding-bottom: var(--space-8);
-        border-bottom: 1px solid var(--border-subtle);
+        padding: var(--space-12) var(--space-12) var(--space-12)
+            max(var(--gutter), calc((100vw - 1280px) / 2));
     }
 
-    .hero__title {
-        font-size: clamp(3rem, 9vw, 5.25rem);
+    .landing__title {
+        font-size: clamp(3rem, 6.5vw, 5.25rem);
         color: var(--fg);
     }
 
-    .hero__lede {
-        margin-bottom: var(--space-4);
+    .landing__map {
+        min-height: 0;
+        border-left: 1px solid var(--border);
     }
 
-    .hero__stats {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-4) var(--space-10);
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-    }
-
-    .hero__stat strong {
-        display: block;
-        font-family: var(--serif);
-        font-size: var(--text-2xl);
-        font-weight: 400;
-        color: var(--fg);
-        letter-spacing: -0.01em;
-    }
-
-    .hero__actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-3);
+    @media (max-width: 900px) {
+        .landing {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 70vh;
+            height: auto;
+        }
+        .landing__intro {
+            padding: var(--space-12) var(--gutter) var(--space-8);
+        }
+        .landing__map {
+            border-left: 0;
+            border-top: 1px solid var(--border);
+        }
     }
 
     /* ============ sections ============ */
     .section {
         padding: var(--space-20) 0;
         scroll-margin-top: 4.5rem;
-    }
-
-    .section--alt {
-        background: var(--surface-1);
-        border-top: 1px solid var(--border-subtle);
-        border-bottom: 1px solid var(--border-subtle);
     }
 
     /* ============ filter bars ============ */
@@ -490,13 +183,30 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         margin-bottom: var(--space-6);
     }
 
+    .filter-select {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin-left: var(--space-3);
+    }
+
+    .filter-select select {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        padding: 0.4rem 0.6rem;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        max-width: 18rem;
+    }
+
     .filter-bar__label {
         font-family: var(--mono);
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.08em;
         color: var(--muted);
-        margin-right: var(--space-1);
     }
 
     .filter-bar__count {
@@ -509,16 +219,9 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         white-space: nowrap;
     }
 
-    /* ============ grids ============ */
     .org-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: var(--space-5);
-    }
-
-    .itv-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
         gap: var(--space-5);
     }
 
@@ -531,7 +234,6 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         text-align: center;
     }
 
-    /* ============ banners ============ */
     .data-banner {
         margin-top: var(--space-6);
         padding: var(--space-4) var(--space-5);
@@ -539,8 +241,6 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         background: color-mix(in srgb, var(--danger-mid) 7%, var(--bg));
         font-size: var(--text-sm);
         line-height: 1.55;
-        display: grid;
-        gap: var(--space-1);
     }
 
     .data-banner code {
@@ -549,39 +249,8 @@ const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
         padding: 0.05rem 0.3rem;
     }
 
-    .data-banner__hint {
-        color: var(--muted);
-        font-size: var(--text-xs);
-    }
-
     .data-banner--fixture {
         border-color: var(--border);
         background: color-mix(in srgb, var(--pillar-flow-2) 14%, var(--bg));
-    }
-
-    /* ============ methodology ============ */
-    .method {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: var(--space-8);
-    }
-
-    .method__block {
-        display: grid;
-        gap: var(--space-3);
-        align-content: start;
-    }
-
-    .method__list {
-        margin: 0;
-        padding-left: var(--space-5);
-        display: grid;
-        gap: var(--space-2);
-    }
-
-    .method__list li {
-        font-size: var(--text-sm);
-        line-height: 1.55;
-        color: color-mix(in srgb, var(--fg) 88%, var(--muted));
     }
 </style>

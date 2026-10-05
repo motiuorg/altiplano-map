@@ -13,19 +13,22 @@ const { org } = Astro.props;
 <article
   class="org-card reveal"
   data-org-id={org.id}
+  data-filterable
   data-grupo={org.grupoTrabajo ? 'grupo' : 'resto'}
+  data-tipo={org.tipos.map((t) => t.toLowerCase()).join('|')}
   data-name={org.name.toLowerCase()}
 >
   <div class="org-card__head">
     <h3 class="org-card__name">{org.name}</h3>
-    {org.grupoTrabajo ? (
-      <span class="badge badge--flow">Grupo de trabajo</span>
-    ) : (
-      <span class="badge badge--paper">Organización</span>
-    )}
   </div>
 
   {org.placeName && <p class="org-card__place">📍 {org.placeName}</p>}
+
+  {org.tipos.length > 0 && (
+    <p class="org-card__tipos">
+      {org.tipos.map((t) => <span class="org-card__tipo">{t}</span>)}
+    </p>
+  )}
 
   {org.description && <p class="org-card__desc">{org.description}</p>}
 
@@ -35,9 +38,7 @@ const { org } = Astro.props;
         ↗ Sitio web
       </a>
     )}
-    {org.zona.length > 0 && (
-      <span class="org-card__zona">{org.zona.join(' · ')}</span>
-    )}
+    {org.grupoTrabajo && <span class="badge badge--flow">Grupo de trabajo</span>}
   </div>
 </article>
 
@@ -98,6 +99,7 @@ const { org } = Astro.props;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
+    min-height: 2rem;
     border-top: 1px solid var(--border-subtle);
     padding-top: var(--space-3);
   }
@@ -109,13 +111,24 @@ const { org } = Astro.props;
     letter-spacing: 0.06em;
   }
 
-  .org-card__zona {
-    font-size: var(--text-2xs);
+  .org-card__tipos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .org-card__tipo {
     font-family: var(--mono);
+    font-size: var(--text-2xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--muted);
-    text-align: right;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    padding: 0.15rem 0.45rem;
+  }
+
+.org-card__foot .badge {
+    margin-left: auto;
   }
 
   @media (max-width: 640px) {

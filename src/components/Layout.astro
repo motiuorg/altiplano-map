@@ -5,10 +5,19 @@
 export interface Props {
     title: string;
     description?: string;
+    current?: "organizaciones" | "intervenciones";
 }
 
-const { title, description = "" } = Astro.props;
-const siteTitle = "Altiplano Estepario";
+const { title, description = "", current = "organizaciones" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const links = [
+    { key: "organizaciones", label: "Organizaciones", href: base },
+    {
+        key: "intervenciones",
+        label: "Intervenciones",
+        href: base + "intervenciones/",
+    },
+];
 ---
 
 <!doctype html>
@@ -410,6 +419,10 @@ const siteTitle = "Altiplano Estepario";
                 color: var(--bg);
             }
 
+            [data-filterable][hidden] {
+                display: none !important;
+            }
+
             /* Scroll reveal */
             .reveal {
                 opacity: 0;
@@ -485,17 +498,15 @@ const siteTitle = "Altiplano Estepario";
                 text-decoration: none;
             }
 
-            .site-nav__num {
-                color: var(--pillar-flow-3);
-                margin-right: 0.3em;
+            .site-nav__link.is-current {
+                color: var(--fg);
+                border-bottom: 2px solid var(--pillar-flow-3);
+                padding-bottom: 0.2rem;
             }
 
             @media (max-width: 640px) {
                 .site-nav__links {
                     gap: var(--space-3);
-                }
-                .site-nav__link .site-nav__num {
-                    display: none;
                 }
             }
 
@@ -571,28 +582,27 @@ const siteTitle = "Altiplano Estepario";
     <body>
         <header class="site-nav">
             <div class="container site-nav__inner">
-                <a class="site-nav__brand" href="#top">
+                <a class="site-nav__brand" href={base}>
                     Altiplano&nbsp;Estepario
                 </a>
                 <nav aria-label="Secciones">
                     <ul class="site-nav__links">
-                        <li>
-                            <a class="site-nav__link" href="#mapa">
-                                <span class="site-nav__num">01</span>Mapa
-                            </a>
-                        </li>
-                        <li>
-                            <a class="site-nav__link" href="#organizaciones">
-                                <span class="site-nav__num">02</span>
-                                Organizaciones
-                            </a>
-                        </li>
-                        <li>
-                            <a class="site-nav__link" href="#intervenciones">
-                                <span class="site-nav__num">03</span>
-                                Intervenciones
-                            </a>
-                        </li>
+                        {links.map((l) => (
+                            <li>
+                                <a
+                                    class:list={[
+                                        "site-nav__link",
+                                        { "is-current": l.key === current },
+                                    ]}
+                                    href={l.href}
+                                    aria-current={
+                                        l.key === current ? "page" : undefined
+                                    }
+                                >
+                                    {l.label}
+                                </a>
+                            </li>
+                        ))}
                     </ul>
                 </nav>
             </div>
@@ -613,9 +623,8 @@ const siteTitle = "Altiplano Estepario";
                             Altiplano Estepario
                         </p>
                         <p class="copy-sm" style="max-width: 44ch;">
-                            Mapa abierto de organizaciones e intervenciones del
-                            paisaje estepario. Los datos viven en Notion y el
-                            sitio se reconstruye cada 6 horas.
+                            Mapa abierto de las organizaciones e intervenciones
+                            del paisaje del Altiplano Estepario.
                         </p>
                     </div>
                     <div>
@@ -626,15 +635,11 @@ const siteTitle = "Altiplano Estepario";
                             Secciones
                         </p>
                         <ul>
-                            <li>
-                                <a href="#mapa">Mapa</a>
-                            </li>
-                            <li>
-                                <a href="#organizaciones">Organizaciones</a>
-                            </li>
-                            <li>
-                                <a href="#intervenciones">Intervenciones</a>
-                            </li>
+                            {links.map((l) => (
+                                <li>
+                                    <a href={l.href}>{l.label}</a>
+                                </li>
+                            ))}
                         </ul>
                     </div>
                     <div>
@@ -654,14 +659,11 @@ const siteTitle = "Altiplano Estepario";
                                     motiu.org
                                 </a>
                             </li>
-                            <li>
-                                <a href="#metodologia">Metodología y fuentes</a>
-                            </li>
                         </ul>
                     </div>
                 </div>
                 <div class="site-footer__bottom">
-                    <span>Datos: Notion · Deploy: GitHub Pages</span>
+                    <span>© OpenStreetMap contributors · límites OSM (ODbL)</span>
                     <span>CC BY-SA 4.0</span>
                 </div>
             </div>

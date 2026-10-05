@@ -2,7 +2,7 @@
 // Intervention card — the 5 requested fields plus org chips. Carries data-*
 // attributes for the gallery filters (data-area, data-viable).
 import type { InterventionRecord } from "../lib/records";
-import { formatValor } from "../lib/records";
+import { formatValor, formatEuro } from "../lib/records";
 
 export interface Props {
     intervention: InterventionRecord;
@@ -18,21 +18,22 @@ const viableClass =
         : itv.viable
           ? "badge--success"
           : "badge--danger";
+const recLabel =
+    itv.recurrente === null ? "—" : itv.recurrente ? "Recurrente" : "No recurrente";
+const capitales = [itv.capital1, itv.capital2].filter(Boolean);
 ---
 
 <article
-    class="itv-card reveal"
-    data-org-id={itv.id}
+    class="itv-card"
+    data-filterable
+    data-item-id={itv.id}
     data-area={itv.areaTrabajo.map((a) => a.toLowerCase()).join("|")}
     data-viable={itv.viable === null ? "unknown" : itv.viable ? "si" : "no"}
+    data-org={itv.orgIds.join("|")}
+    data-fin={itv.financiacion ?? ""}
 >
     <div class="itv-card__head">
         <h3 class="itv-card__name">{itv.name}</h3>
-        {itv.areaTrabajo.length > 0 && (
-            <span class="badge badge--tissue">
-                {itv.areaTrabajo.join(" · ")}
-            </span>
-        )}
     </div>
 
     {itv.description && <p class="itv-card__desc">{itv.description}</p>}
@@ -52,6 +53,28 @@ const viableClass =
             <dt>Valor ajustado a 5 años</dt>
             <dd class="itv-card__valor">
                 {formatValor(itv.valor5Anos, itv.valor5AnosRaw)}
+            </dd>
+        </div>
+        <div class="itv-card__fact">
+            <dt>Financiación total</dt>
+            <dd class="itv-card__valor">{formatEuro(itv.financiacion)}</dd>
+        </div>
+        <div class="itv-card__fact">
+            <dt>Número de años</dt>
+            <dd>{itv.anos ?? "—"}</dd>
+        </div>
+        <div class="itv-card__fact">
+            <dt>Recurrencia</dt>
+            <dd>{recLabel}</dd>
+        </div>
+        <div class="itv-card__fact">
+            <dt>Tipo de capital</dt>
+            <dd>
+                {capitales.length > 0 ? (
+                    capitales.map((c) => <span class="itv-card__org">{c}</span>)
+                ) : (
+                    <span class="itv-card__org itv-card__org--empty">—</span>
+                )}
             </dd>
         </div>
         <div class="itv-card__fact">

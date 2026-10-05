@@ -6,12 +6,20 @@ estética editorial-orgánica de motiu.org.
 
 ## Qué muestra
 
-- **Mapa de organizaciones** — MapLibre sobre OpenStreetMap. Naranja = organizaciones
-  del **grupo de trabajo**; lima = el resto. Click en un punto → salta a la tarjeta.
-- **Galería de organizaciones** — filtrable por grupo de trabajo.
-- **Galería de intervenciones** — con los campos: nombre, descripción, organización,
-  área de trabajo, **valor ajustado a 5 años** y **viabilidad comercial**, con filtros
-  por área y viabilidad.
+Dos páginas:
+
+- **Organizaciones** (portada) — mitad izquierda texto, mitad derecha el mapa
+  (MapLibre sobre OpenStreetMap). Naranja = **grupo de trabajo** (solo "Miembro");
+  lima = el resto. Las organizaciones en el mismo lugar se agrupan en un punto con
+  número que se abre en abanico al hacer clic. Debajo, la galería (grupo de trabajo
+  primero), filtrable por grupo y por **tipo**.
+- **Intervenciones** — tarjetas o tabla (selector), con valor ajustado a 5 años,
+  financiación total, número de años, recurrencia y tipo de capital 1/2. Filtros
+  desplegables por área de trabajo, viabilidad comercial y organización, y un
+  deslizador de rango para la financiación.
+
+Los campos nuevos de intervenciones se buscan por nombre aproximado en
+`src/lib/records.ts` (`normalizeIntervention`); fíjalos allí si difieren en Notion.
 
 ## Criterios de inclusión (organizaciones)
 

@@ -101,6 +101,28 @@ export function anyValues(props: Record<string, any>, candidates: string[]): str
   return [];
 }
 
+// Accent/case-insensitive property lookup by regex — used for the intervention
+// fields whose exact Notion names are not pinned yet. `exclude` skips look-alikes
+// (e.g. "Valor ajustado a 5 años" when looking for the number of years).
+function normKey(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function isEmptyValue(v: any): boolean {
+  return v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0);
+}
+
+export function pickFuzzy(props: Record<string, any>, patterns: RegExp[], exclude?: RegExp): any {
+  for (const re of patterns) {
+    for (const key of Object.keys(props)) {
+      const n = normKey(key);
+      if (!re.test(n) || (exclude && exclude.test(n))) continue;
+      if (!isEmptyValue(props[key])) return props[key];
+    }
+  }
+  return undefined;
+}
+
 // ---------------------------------------------------------------------------
 // Organizations
 // ---------------------------------------------------------------------------
@@ -129,6 +151,7 @@ export interface OrgRecord {
   inAltiplano: boolean;
   grupoTrabajo: boolean;
   tipo: string;
+  tipos: string[]; // "Tipo" multi-select values, shown on cards + used as a filter
   zona: string[];
 }
 
@@ -217,6 +240,7 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
     inAltiplano,
     grupoTrabajo,
     tipo,
+    tipos: anyValues(props, ['Tipo']),
     zona,
   };
 }
@@ -245,6 +269,11 @@ export interface InterventionRecord {
   valor5AnosRaw: string;
   viable: boolean | null; // null = unknown
   viableRaw: string;
+  financiacion: number | null; // total financing
+  anos: number | null; // number of years
+  recurrente: boolean | null; // null = unknown
+  capital1: string;
+  capital2: string;
 }
 
 const YES_VALUES = ['sí', 'si', 'yes', 'y', 'true', '1', 'viable', 'comercialmente viable', 'sí, es viable', 'es viable'];
@@ -280,6 +309,16 @@ function parseViable(raw: any): { viable: boolean | null; text: string } {
   return { viable: null, text };
 }
 
+function firstNumber(raw: any): number | null {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return parseValor5Anos(v).value;
+}
+
+function firstString(raw: any): string {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return v === undefined || v === null ? '' : String(v).trim();
+}
+
 export function normalizeIntervention(record: NormalizedRecord): InterventionRecord {
   const props = record.properties;
   const name = pickString(props, INTERVENTION_PROPERTY_NAMES.name) || 'Sin nombre';
@@ -288,6 +327,22 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
   const areaTrabajo = anyValues(props, INTERVENTION_PROPERTY_NAMES.areaTrabajo);
   const { value: valor5Anos, text: valor5AnosRaw } = parseValor5Anos(pickProp(props, INTERVENTION_PROPERTY_NAMES.valor5Anos));
   const { viable, text: viableRaw } = parseViable(pickProp(props, INTERVENTION_PROPERTY_NAMES.viable));
+  const financiacion = firstNumber(
+    pickProp(props, ['Financiación total', 'Financiacion total', 'Financiación necesaria', 'Financiación', 'Financiacion']) ??
+      pickFuzzy(props, [/financiaci\w* total|total.*financi|financi\w* necesaria/, /^financiaci/, /inversi\w* total|coste total|presupuesto/], /valor|tipo/),
+  );
+  const anos = firstNumber(
+    pickProp(props, ['Número de años', 'Numero de años', 'N.º de años', 'Años', 'Duración (años)']) ??
+      pickFuzzy(props, [/numero de anos|n\W*o de anos|duracion/, /^anos$/, /anos/], /valor/),
+  );
+  const recRaw = pickProp(props, ['Recurrente', '¿Es recurrente?', 'Es recurrente']) ?? pickFuzzy(props, [/recurrent/]);
+  const recurrente = parseViable(Array.isArray(recRaw) ? recRaw[0] : recRaw).viable;
+  const capital1 = firstString(
+    pickProp(props, ['Tipo de capital 1', 'Tipo de Capital 1', 'Capital 1']) ?? pickFuzzy(props, [/tipo de capital\s*1|capital\s*1/]),
+  );
+  const capital2 = firstString(
+    pickProp(props, ['Tipo de capital 2', 'Tipo de Capital 2', 'Capital 2']) ?? pickFuzzy(props, [/tipo de capital\s*2|capital\s*2/]),
+  );
   return {
     id: record.id,
     url: record.url,
@@ -299,12 +354,21 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
     valor5AnosRaw,
     viable,
     viableRaw,
+    financiacion,
+    anos,
+    recurrente,
+    capital1,
+    capital2,
   };
 }
 
 export function formatValor(v: number | null, raw: string): string {
   if (v === null) return raw || '—';
   return `${v.toLocaleString('es-ES')} €`;
+}
+
+export function formatEuro(v: number | null): string {
+  return v === null ? '—' : `${v.toLocaleString('es-ES')} €`;
 }
 
 // Resolve intervention → organization names through the org records
