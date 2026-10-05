@@ -328,14 +328,14 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
   const { value: valor5Anos, text: valor5AnosRaw } = parseValor5Anos(pickProp(props, INTERVENTION_PROPERTY_NAMES.valor5Anos));
   const { viable, text: viableRaw } = parseViable(pickProp(props, INTERVENTION_PROPERTY_NAMES.viable));
   const financiacion = firstNumber(
-    pickProp(props, ['Financiación total', 'Financiacion total', 'Financiación necesaria', 'Financiación', 'Financiacion']) ??
-      pickFuzzy(props, [/financiaci\w* total|total.*financi|financi\w* necesaria/, /^financiaci/, /inversi\w* total|coste total|presupuesto/], /valor|tipo/),
+    pickProp(props, ['Financiamiento total', 'Financiación total', 'Financiacion total', 'Financiación necesaria', 'Financiación', 'Financiacion']) ??
+      pickFuzzy(props, [/financiamiento total|financiaci\w* total|total.*financi|financi\w* necesaria/, /^financiaci/, /inversi\w* total|coste total|presupuesto/], /valor|tipo/),
   );
   const anos = firstNumber(
-    pickProp(props, ['Número de años', 'Numero de años', 'N.º de años', 'Años', 'Duración (años)']) ??
+    pickProp(props, ['Numero de años', 'Número de años', 'N.º de años', 'Años', 'Duración (años)']) ??
       pickFuzzy(props, [/numero de anos|n\W*o de anos|duracion/, /^anos$/, /anos/], /valor/),
   );
-  const recRaw = pickProp(props, ['Recurrente', '¿Es recurrente?', 'Es recurrente']) ?? pickFuzzy(props, [/recurrent/]);
+  const recRaw = pickProp(props, ['Recurrente anualmente', 'Recurrente', '¿Es recurrente?', 'Es recurrente']) ?? pickFuzzy(props, [/recurrent/]);
   const recurrente = parseViable(Array.isArray(recRaw) ? recRaw[0] : recRaw).viable;
   const capital1 = firstString(
     pickProp(props, ['Tipo de capital 1', 'Tipo de Capital 1', 'Capital 1']) ?? pickFuzzy(props, [/tipo de capital\s*1|capital\s*1/]),
