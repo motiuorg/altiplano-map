@@ -181,24 +181,10 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         </span>
         <span class="org-map-legend__item">
             <span
-                class="org-map-legend__dot org-map-legend__dot--resto"
+                class="org-map-legend__swatch org-map-legend__swatch--region"
                 aria-hidden="true"
             ></span>
-            Resto de organizaciones · {restoCount}
-        </span>
-        <span class="org-map-legend__item">
-            <span
-                class="org-map-legend__swatch org-map-legend__swatch--core"
-                aria-hidden="true"
-            ></span>
-            Altiplano de Granada
-        </span>
-        <span class="org-map-legend__item">
-            <span
-                class="org-map-legend__swatch org-map-legend__swatch--comarca"
-                aria-hidden="true"
-            ></span>
-            Comarcas esteparias
+            Altiplano Estepario
         </span>
         {missing.length > 0 && (
             <span class="org-map-legend__missing">
@@ -341,14 +327,9 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         border-radius: var(--radius-sm);
     }
 
-    .org-map-legend__swatch--core {
-        background: rgba(255, 122, 0, 0.2);
-        border: 2px solid var(--pillar-flow-4);
-    }
-
-    .org-map-legend__swatch--comarca {
-        background: rgba(143, 232, 74, 0.16);
-        border: 1px solid var(--pillar-tissue-4);
+    .org-map-legend__swatch--region {
+        background: rgba(122, 104, 76, 0.16);
+        border: 1.5px solid #6b5a3e;
     }
 
     .org-map-legend__missing {
@@ -386,11 +367,6 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         pointer-events: none;
         user-select: none;
         padding: 0.1rem 0.35rem;
-    }
-
-    .comarca-label--core {
-        color: var(--pillar-flow-4);
-        font-weight: 600;
     }
 
     /* Map pins — round paper-ring dots with glow; hover scale goes on the INNER
@@ -503,12 +479,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                     type: "fill",
                     source: "altiplano-region",
                     paint: {
-                        "fill-color": [
-                            "case",
-                            ["get", "core"],
-                            "rgba(255,122,0,0.20)",
-                            "rgba(143,232,74,0.16)",
-                        ],
+                        "fill-color": "rgba(122,104,76,0.16)",
                         "fill-outline-color": "rgba(0,0,0,0)",
                     },
                 });
@@ -517,21 +488,14 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                     type: "line",
                     source: "altiplano-region",
                     paint: {
-                        "line-color": [
-                            "case",
-                            ["get", "core"],
-                            "#8A2200",
-                            "#2C5A0D",
-                        ],
-                        "line-width": ["case", ["get", "core"], 2, 1.1],
+                        "line-color": "#6b5a3e",
+                        "line-width": 1.5,
                     },
                 });
 
                 for (const label of labels) {
                     const el = document.createElement("div");
-                    el.className =
-                        "comarca-label" +
-                        (label.core ? " comarca-label--core" : "");
+                    el.className = "comarca-label";
                     el.textContent = label.name;
                     new maplibregl.Marker({
                         element: el,

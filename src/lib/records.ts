@@ -190,14 +190,8 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
   // Grupo de trabajo: checkbox true, or a select/multi-select membership value.
   // Real schema (Actores "Grupo de Trabajo" select): Miembro / Relevante /
   // Menos Relevante / Coordinación Internacional / Ex miembro / (null).
-  // Everything except "Ex miembro" and empty counts as a current member.
-  const GT_MEMBER = [
-    'miembro',
-    'relevante',
-    'menos relevante',
-    'coordinación internacional',
-    'coordinacion internacional',
-  ];
+  // Only "Miembro" belongs to the grupo de trabajo; every other value is "resto".
+  const GT_MEMBER = ['miembro'];
   const GT_FORMER = ['ex miembro', 'ex-miembro', 'exmiembro'];
   const gtRaw = pickProp(props, ORG_PROPERTY_NAMES.grupoTrabajo);
   const gtVals = flatValues(gtRaw).map((v) => v.toLowerCase());
