@@ -1,0 +1,383 @@
+---
+// Simulador económico — coste de la transición regenerativa por finca tipo, con
+// módulo de crédito y escalado al paisaje. Datos de Notion a build-time (ver
+// src/lib/simulador/data.ts); el cálculo corre en el navegador.
+import Layout from "../components/Layout.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { loadSimuladorData } from "../lib/simulador/data";
+
+const { datos } = await loadSimuladorData();
+// Safe to inline: escape "<" so no value can close the script element.
+const json = JSON.stringify(datos).replace(/</g, "\\u003c");
+---
+
+<Layout
+    title="Altiplano Estepario — Simulador económico"
+    description="Coste de la transición regenerativa por finca tipo en el Altiplano Estepario: flujo a 10 años, capacidad de repago y escala del paisaje."
+    current="simulador"
+>
+    <section class="section sim">
+        <div class="container">
+            <SectionHeading
+                overline="Análisis económico"
+                title="Simulador económico"
+                intro="Cuánto cuesta pasar a manejo eco-regenerativo frente a seguir como hoy, cuánta financiación necesita cada finca tipo en su peor momento, si podría devolver un préstamo y cuánto suma en el paisaje."
+            />
+            <p class="sim-meta" id="meta"></p>
+
+            <div class="filter-bar">
+                <label class="filter-select">
+                    <span class="filter-bar__label">Finca tipo</span>
+                    <select id="f-arq"></select>
+                </label>
+                <label class="filter-select">
+                    <span class="filter-bar__label">Nivel de transición</span>
+                    <select id="f-esc"></select>
+                </label>
+                <div class="filter-select">
+                    <span class="filter-bar__label">Supuestos</span>
+                    <div class="sim-seg" id="f-conj">
+                        <button class="chip" data-v="pesimista">Pesimista</button>
+                        <button class="chip is-active" data-v="central" aria-pressed="true">Central</button>
+                        <button class="chip" data-v="optimista">Optimista</button>
+                    </div>
+                </div>
+                <div class="filter-select">
+                    <span class="filter-bar__label">Ayudas PAC</span>
+                    <div class="sim-seg" id="f-pac">
+                        <button class="chip is-active" data-v="1" aria-pressed="true">100%</button>
+                        <button class="chip" data-v="0.5">50%</button>
+                        <button class="chip" data-v="0">0%</button>
+                    </div>
+                </div>
+                <div class="filter-select">
+                    <span class="filter-bar__label">Ingresos inciertos</span>
+                    <div class="sim-toggles">
+                        <label class="sim-toggle"><input type="checkbox" id="f-prima" /> Prima regenerativa</label>
+                        <label class="sim-toggle"><input type="checkbox" id="f-carb" /> Carbono</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-bar">
+                <div class="view-switch" role="tablist" id="tabs">
+                    <button class="chip is-active" role="tab" data-tab="finca" aria-selected="true">Finca tipo</button>
+                    <button class="chip" role="tab" data-tab="credito">Crédito</button>
+                    <button class="chip" role="tab" data-tab="paisaje">Paisaje</button>
+                    <button class="chip" role="tab" data-tab="sensibilidad">Sensibilidad</button>
+                    <button class="chip" role="tab" data-tab="supuestos">Supuestos</button>
+                </div>
+            </div>
+
+            <!-- FINCA -->
+            <section data-panel="finca">
+                <div class="sim-grid sim-kpis" id="finca-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">Flujo neto de la transición</h3>
+                        <p class="sim-card__sub">€/ha frente a seguir como hoy · barras: año · línea: acumulado</p>
+                        <div class="legend"><span><i style="background:var(--pos)"></i>Neto anual (+)</span><span><i style="background:var(--neg)"></i>Neto anual (−)</span><span><i class="line" style="background:var(--ink-2)"></i>Acumulado</span></div>
+                        <div id="ch-flujo"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">De dónde sale el resultado a 10 años</h3>
+                        <p class="sim-card__sub">Suma 2027–2036 por partida, €/ha</p>
+                        <div id="ch-cascada"></div>
+                    </div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">Detalle por año</h3>
+                    <p class="sim-card__sub">€/ha, diferencia frente a seguir como hoy</p>
+                    <div class="table-wrap" id="tb-finca"></div>
+                </div>
+            </section>
+
+            <!-- CRÉDITO -->
+            <section data-panel="credito" hidden>
+                <div class="sim-card sim-card--controls">
+                    <div class="sim-row" id="cred-sliders"></div>
+                    <p class="sim-card__sub">El préstamo cubre la necesidad máxima de financiación acumulada de la finca tipo. El DSCR compara la caja disponible (margen actual + efecto operativo de la transición) con la cuota.</p>
+                </div>
+                <div class="sim-grid sim-kpis" id="cred-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">Cobertura del servicio de la deuda (DSCR)</h3>
+                        <p class="sim-card__sub">Veces · línea discontinua: umbral exigible</p>
+                        <div id="ch-dscr"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">Caja disponible frente a cuota</h3>
+                        <p class="sim-card__sub">€ por finca y año</p>
+                        <div class="legend"><span><i style="background:var(--s1)"></i>Caja disponible</span><span><i style="background:var(--s2)"></i>Servicio de la deuda</span></div>
+                        <div id="ch-cfads"></div>
+                    </div>
+                </div>
+                <div id="cred-aviso"></div>
+            </section>
+
+            <!-- PAISAJE -->
+            <section data-panel="paisaje" hidden>
+                <div class="sim-card sim-card--controls">
+                    <div class="sim-row" id="pai-sliders"></div>
+                    <p class="sim-card__sub">Superficie de la zona combinada (Landscape Plan 2022) × cuota convencional/ecológica × captación. Las fincas entran de forma escalonada en 10 años. No depende de la finca tipo seleccionada.</p>
+                </div>
+                <div class="sim-grid sim-kpis" id="pai-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">Necesidad de financiación por finca tipo</h3>
+                        <p class="sim-card__sub">Millones de €, necesidad máxima acumulada</p>
+                        <div id="ch-pai-arq"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">Flujo neto del paisaje</h3>
+                        <p class="sim-card__sub">Millones de € por año, todas las cohortes</p>
+                        <div id="ch-pai-flujo"></div>
+                    </div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">Por finca tipo</h3>
+                    <div class="table-wrap" id="tb-paisaje"></div>
+                </div>
+            </section>
+
+            <!-- SENSIBILIDAD -->
+            <section data-panel="sensibilidad" hidden>
+                <div class="sim-card chart">
+                    <h3 class="sim-card__title">Qué supuestos mueven más el resultado</h3>
+                    <p class="sim-card__sub">Cambio en el VAN a 10 años (€/ha) al llevar cada supuesto a su valor bajo y alto, manteniendo el resto en el escenario elegido. Junto a cada supuesto se indica la confianza del dato.</p>
+                    <div class="legend"><span><i style="background:var(--neg)"></i>Peor que el escenario</span><span><i style="background:var(--pos)"></i>Mejor que el escenario</span></div>
+                    <div id="ch-tornado"></div>
+                </div>
+            </section>
+
+            <!-- SUPUESTOS -->
+            <section data-panel="supuestos" hidden>
+                <div class="filter-bar">
+                    <label class="filter-select">
+                        <span class="filter-bar__label">Cultivo</span>
+                        <select id="s-cultivo"></select>
+                    </label>
+                    <label class="filter-select">
+                        <span class="filter-bar__label">Confianza</span>
+                        <select id="s-conf"><option value="">Todas</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+                    </label>
+                    <label class="filter-select sim-search">
+                        <span class="filter-bar__label">Buscar</span>
+                        <input id="s-q" type="search" placeholder="parámetro, fuente…" />
+                    </label>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">Parámetros</h3>
+                    <p class="sim-card__sub">Valores bajo, central y alto de cada supuesto. El conjunto pesimista u optimista toma el extremo desfavorable o favorable para la finca.</p>
+                    <div class="table-wrap" id="tb-param"></div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">Prácticas regenerativas</h3>
+                    <p class="sim-card__sub">Coste por hectárea de superficie de la finca (cobertura y frecuencia ya aplicadas en el modelo)</p>
+                    <div class="table-wrap" id="tb-prac"></div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">Trayectorias</h3>
+                    <p class="sim-card__sub">Evolución año a año · nivel de transición seleccionado</p>
+                    <div class="table-wrap" id="tb-tray"></div>
+                </div>
+            </section>
+        </div>
+        <div id="tip" hidden></div>
+    </section>
+</Layout>
+
+<script type="application/json" id="sim-data" set:html={json} />
+
+<script>
+    import Modelo from "../lib/simulador/model.js";
+    import { iniciarSimulador } from "../scripts/simulador.js";
+    const datos = JSON.parse(document.getElementById("sim-data")!.textContent!);
+    iniciarSimulador(datos, Modelo);
+</script>
+
+<style is:global>
+    /* Chart roles — positive/negative pair derived from the neural (blue) and flow
+       (orange) pillars; validated for colour-vision deficiency and >= 3:1 on paper. */
+    .sim {
+        --pos: #0077c8;
+        --neg: #e8590c;
+        --s1: #0077c8;
+        --s2: #e8590c;
+        --ink-2: color-mix(in srgb, var(--umber) 80%, var(--paper));
+        --surface: var(--bg);
+        --grid: color-mix(in srgb, var(--rule) 18%, transparent);
+        --axis: color-mix(in srgb, var(--rule) 55%, transparent);
+        padding: var(--space-16) 0 var(--space-20);
+    }
+
+    .sim .sim-meta {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: calc(-1 * var(--space-6)) 0 var(--space-8);
+    }
+
+    /* filter bar — same pattern as Intervenciones */
+    .sim .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: var(--space-4) var(--space-6);
+        margin-bottom: var(--space-4);
+    }
+    .sim .filter-select {
+        display: inline-flex;
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+    .sim .filter-select select,
+    .sim .filter-select input[type="search"] {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        padding: 0.45rem 0.6rem;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        min-width: 11rem;
+        max-width: 22rem;
+    }
+    .sim .sim-search input { width: 100%; max-width: none; }
+    .sim .sim-search { flex: 1 1 14rem; }
+    .sim .filter-bar__label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+    .sim .sim-seg { display: inline-flex; }
+    .sim .sim-seg .chip + .chip { margin-left: -1px; }
+    .sim .sim-seg .chip { padding: 0.45rem 0.75rem; }
+    .sim .sim-toggles { display: flex; gap: var(--space-4); flex-wrap: wrap; min-height: 2rem; align-items: center; }
+    .sim .sim-toggle {
+        display: inline-flex; align-items: center; gap: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--fg); cursor: pointer;
+    }
+    .sim .sim-toggle input { accent-color: var(--pillar-flow-3); }
+
+    .sim .view-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin: var(--space-4) 0 var(--space-8);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border-subtle);
+    }
+    .sim .view-switch { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
+
+    /* cards & KPI tiles — itv-card language */
+    .sim .sim-grid { display: grid; gap: var(--space-5); }
+    .sim .sim-kpis { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-bottom: var(--space-5); }
+    .sim .sim-cols { grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+    .sim .sim-card {
+        border: 1px solid var(--border-subtle);
+        background: var(--bg);
+        padding: var(--space-6);
+        min-width: 0;
+    }
+    .sim .sim-card--table,
+    .sim .sim-card--controls { margin-bottom: var(--space-5); }
+    .sim .sim-cols + .sim-card--table { margin-top: var(--space-5); }
+    .sim .sim-card__title {
+        font-family: var(--serif);
+        font-size: var(--text-md);
+        font-weight: 400;
+        line-height: 1.22;
+    }
+    .sim .sim-card__sub {
+        font-size: var(--text-sm);
+        color: var(--muted);
+        margin: var(--space-2) 0 var(--space-4);
+    }
+    .sim .sim-card--controls .sim-card__sub { margin: var(--space-4) 0 0; }
+    .sim .kpi .lbl {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+    .sim .kpi .val {
+        font-family: var(--serif);
+        font-size: var(--text-xl);
+        line-height: var(--leading-display);
+        margin-top: var(--space-3);
+        display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+    }
+    .sim .kpi .note { font-size: var(--text-sm); color: var(--muted); margin-top: var(--space-2); }
+    .sim .note-box {
+        font-size: var(--text-sm);
+        border-left: 2px solid var(--pillar-flow-3);
+        background: var(--surface-1);
+        padding: var(--space-4) var(--space-5);
+        margin-top: var(--space-5);
+    }
+
+    /* sliders */
+    .sim .sim-row { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-8); }
+    .sim .slider { display: flex; flex-direction: column; gap: var(--space-2); flex: 1 1 11rem; min-width: 11rem; }
+    .sim .slider span {
+        display: flex; justify-content: space-between; gap: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+    }
+    .sim .slider b { color: var(--fg); font-weight: 500; letter-spacing: 0; }
+    .sim input[type="range"] { width: 100%; accent-color: var(--fg); }
+
+    /* charts */
+    .sim .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .sim .chart text { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .sim .chart .lbl-ink { fill: var(--ink-2); }
+    .sim .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+    .sim .chart .baseline { stroke: var(--axis); stroke-width: 1; }
+    .sim .chart .hit { fill: transparent; }
+    .sim .chart .hit:hover, .sim .chart .hit:focus { fill: color-mix(in srgb, var(--fg) 5%, transparent); outline: none; }
+    .sim .legend {
+        display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-bottom: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    }
+    .sim .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+    .sim .legend i.line { height: 2px; width: 14px; vertical-align: 3px; }
+
+    #tip {
+        position: fixed; pointer-events: none; z-index: 60;
+        background: var(--paper); color: var(--umber);
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 8px 28px rgba(34, 26, 18, 0.14);
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--text-xs); max-width: 18rem;
+    }
+    #tip .t { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--rule); margin-bottom: var(--space-2); }
+    #tip .r { display: flex; align-items: center; gap: var(--space-2); }
+    #tip .r b { font-family: var(--mono); font-weight: 500; }
+    #tip .k { width: 12px; height: 2px; display: inline-block; }
+
+    /* tables — itv-table language */
+    .sim .table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); }
+    .sim table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    .sim th, .sim td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
+    .sim thead th {
+        background: var(--surface-1);
+        font-family: var(--mono); font-size: var(--text-2xs); font-weight: 400;
+        text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); white-space: nowrap;
+    }
+    .sim tbody th { font-family: var(--serif); font-weight: 400; }
+    .sim td.num, .sim th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+    .sim td.neg { color: var(--danger-mid); }
+    .sim td small { display: block; font-family: var(--mono); font-size: var(--text-2xs); color: var(--muted); margin-top: 2px; }
+    .sim tbody tr:hover { background: var(--surface-1); }
+
+    @media (max-width: 640px) {
+        .sim .sim-card { padding: var(--space-4); }
+        .sim .kpi .val { font-size: var(--text-lg); }
+    }
+</style>

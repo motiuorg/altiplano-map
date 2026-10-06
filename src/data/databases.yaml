@@ -50,3 +50,24 @@ interventions:
     areaTrabajo: [Area de trabajo]
     valor5Anos: [Valor ajustado a 5 años]
     viable: [¿Es viable comercialmente?]
+# Simulador económico — modelo de coste de transición. Las bases viven bajo la
+# página "Análisis Económico del Territorio" y deben estar compartidas con la
+# integración del NOTION_API_KEY. Si no lo están (o falla la consulta), la página
+# usa la copia publicada en src/data/simulador.json.
+simulador:
+  supuestos:
+    name: Supuestos del modelo
+    database_id: 79b8cb0d-976f-4712-ab4d-94ce4cc03208
+    data_source_id: 3929e630-8a93-4c47-9f1a-6bf620586e04
+  practicas:
+    name: Prácticas regenerativas
+    database_id: f8689cc1-fc9d-4e1e-94d0-a7825a8f12c3
+    data_source_id: 6a18a5f7-0f73-46dc-a88e-47a3075850c3
+  trayectorias:
+    name: Trayectorias de transición
+    database_id: 9d543fdd-b338-449e-9583-263639252eca
+    data_source_id: f2c0882f-a2d3-42e7-a61b-dc3c66b92cc2
+  arquetipos:
+    name: Arquetipos de finca
+    database_id: 9ca506f0-202d-4291-89d6-3183f52b90c9
+    data_source_id: ca8475f1-6945-4cfd-9314-b43e8ea90550

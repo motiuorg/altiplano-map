@@ -5,7 +5,7 @@
 export interface Props {
     title: string;
     description?: string;
-    current?: "organizaciones" | "intervenciones";
+    current?: "organizaciones" | "intervenciones" | "simulador";
 }
 
 const { title, description = "", current = "organizaciones" } = Astro.props;
@@ -16,6 +16,11 @@ const links = [
         key: "intervenciones",
         label: "Intervenciones",
         href: base + "intervenciones/",
+    },
+    {
+        key: "simulador",
+        label: "Simulador económico",
+        href: base + "simulador/",
     },
 ];
 ---
@@ -624,7 +629,8 @@ const links = [
                         </p>
                         <p class="copy-sm" style="max-width: 44ch;">
                             Mapa abierto de las organizaciones e intervenciones
-                            del paisaje del Altiplano Estepario.
+                            del paisaje del Altiplano Estepario, y simulador del
+                            coste de su transición regenerativa.
                         </p>
                     </div>
                     <div>

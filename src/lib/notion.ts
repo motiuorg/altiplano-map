@@ -36,6 +36,7 @@ export interface SectionConfig {
 export interface DatabaseConfig {
   organizations: SectionConfig;
   interventions: SectionConfig;
+  simulador?: Record<'supuestos' | 'practicas' | 'trayectorias' | 'arquetipos', SectionConfig>;
 }
 
 export function loadDatabaseConfig(): DatabaseConfig {

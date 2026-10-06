@@ -1,12 +1,12 @@
 # Altiplano Estepario
 
-Mapa abierto de organizaciones e intervenciones del Altiplano Estepario — un sitio
-estático (Astro + MapLibre) alimentado por dos bases de datos de Notion, con la
-estética editorial-orgánica de motiu.org.
+Mapa abierto de organizaciones e intervenciones del Altiplano Estepario, y simulador
+económico de su transición regenerativa — un sitio estático (Astro + MapLibre)
+alimentado por bases de datos de Notion, con la estética editorial-orgánica de motiu.org.
 
 ## Qué muestra
 
-Dos páginas:
+Tres páginas:
 
 - **Organizaciones** (portada) — mitad izquierda texto, mitad derecha el mapa
   (MapLibre sobre OpenStreetMap). Naranja = **grupo de trabajo** (solo "Miembro");
@@ -17,6 +17,11 @@ Dos páginas:
   financiación total, número de años, recurrencia y tipo de capital 1/2. Filtros
   desplegables por área de trabajo, viabilidad comercial y organización, y un
   deslizador de rango para la financiación.
+
+- **Simulador económico** (`/simulador/`) — coste de la transición eco-regenerativa
+  por finca tipo (almendro, olivar, cereal, pistacho): flujo a 10 años, necesidad de
+  financiación, capacidad de repago de un préstamo (DSCR), escala del paisaje y
+  sensibilidad. El cálculo corre en el navegador (`src/lib/simulador/model.js`).
 
 Los campos nuevos de intervenciones se buscan por nombre aproximado en
 `src/lib/records.ts` (`normalizeIntervention`); fíjalos allí si difieren en Notion.
@@ -62,7 +67,25 @@ Repo: **`motiuorg/altiplano-map`** → https://motiuorg.github.io/altiplano-map/
 | `src/lib/records.ts` | Normalización de organizaciones e intervenciones + filtros |
 | `src/lib/fixture.ts` | Dataset de desarrollo (USE_FIXTURE=1) |
 | `src/components/OrgMap.astro` | Mapa MapLibre con pins de dos colores |
-| `src/pages/index.astro` | La página única: hero, mapa, galerías, metodología |
+| `src/pages/index.astro` | Organizaciones: hero, mapa, galerías, metodología |
+| `src/pages/intervenciones.astro` | Intervenciones: tarjetas / tabla con filtros |
+| `src/pages/simulador.astro` | Simulador económico |
+| `src/lib/simulador/` | Motor de cálculo + carga de datos del simulador |
+| `src/scripts/simulador.js` | Gráficos e interacción del simulador |
+
+## Simulador económico: datos
+
+- Lee cuatro bases de Notion (Supuestos, Prácticas, Trayectorias, Arquetipos), definidas
+  en `src/data/databases.yaml` → `simulador`. Tienen que estar **compartidas con la
+  integración** del `NOTION_API_KEY` (en Notion: ··· → Conexiones).
+- Solo se publica lo que el modelo necesita: las notas internas, el estado de
+  validación, los enlaces a Notion y la base de necesidades de datos no salen nunca
+  (`src/lib/simulador/data.ts`).
+- Si Notion no responde o las bases no están compartidas, se usa la copia
+  `src/data/simulador.json` (no rompe el build).
+- El motor es una copia de `Altiplano Estepario/8 Análisis Económico/simulador/model.js`
+  del vault, donde están los tests y la metodología. Si cambia la lógica, actualizar
+  ambos.
 
 ## Licencias
 
