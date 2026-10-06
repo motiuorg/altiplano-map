@@ -7,9 +7,12 @@ import { formatValor, formatEuro } from "../lib/records";
 export interface Props {
     intervention: InterventionRecord;
     orgNames: string[];
+    // false inside the org side panel: not part of the page filters
+    filterable?: boolean;
+    showOrg?: boolean;
 }
 
-const { intervention: itv, orgNames } = Astro.props;
+const { intervention: itv, orgNames, filterable = true, showOrg = true } = Astro.props;
 const viableLabel =
     itv.viable === null ? "" : itv.viable ? "Sí, viable" : "No viable";
 const viableClass =
@@ -25,7 +28,7 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
 
 <article
     class="itv-card"
-    data-filterable
+    data-filterable={filterable}
     data-item-id={itv.id}
     data-area={itv.areaTrabajo.map((a) => a.toLowerCase()).join("|")}
     data-viable={itv.viable === null ? "unknown" : itv.viable ? "si" : "no"}
@@ -40,6 +43,16 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
 
     <dl class="itv-card__facts">
         <div class="itv-card__fact">
+            <dt>Área de trabajo</dt>
+            <dd>
+                {itv.areaTrabajo.length > 0 ? (
+                    itv.areaTrabajo.map((a) => <span class="itv-card__org">{a}</span>)
+                ) : (
+                    <span class="itv-card__org itv-card__org--empty">—</span>
+                )}
+            </dd>
+        </div>
+        {showOrg && <div class="itv-card__fact">
             <dt>Organización(es)</dt>
             <dd>
                 {orgNames.length > 0 ? (
@@ -48,7 +61,7 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
                     <span class="itv-card__org itv-card__org--empty">—</span>
                 )}
             </dd>
-        </div>
+        </div>}
         <div class="itv-card__fact">
             <dt>Valor ajustado a 5 años</dt>
             <dd class="itv-card__valor">

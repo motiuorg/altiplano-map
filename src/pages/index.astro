@@ -5,9 +5,20 @@ import Layout from "../components/Layout.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
+import InterventionCard from "../components/InterventionCard.astro";
 import { loadSiteData } from "../lib/data";
+import { interventionOrgNames } from "../lib/records";
 
-const { orgs, dataError, dataSource } = await loadSiteData();
+const { orgs, orgMap, interventions, dataError, dataSource } =
+    await loadSiteData();
+
+// Side panel: grupo de trabajo orgs only, each with its associated interventions.
+const panelOrgs = orgs
+    .filter((o) => o.grupoTrabajo)
+    .map((o) => ({
+        org: o,
+        itvs: interventions.filter((i) => i.orgIds.includes(o.id)),
+    }));
 
 const grupoCount = orgs.filter((o) => o.grupoTrabajo).length;
 const restoCount = orgs.length - grupoCount;
@@ -105,11 +116,120 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             </p>
         </div>
     </section>
+
+    <!-- ============ SIDE PANEL: grupo de trabajo organization detail ============ -->
+    <div class="org-panel" id="org-panel" hidden>
+        <div class="org-panel__overlay" data-close-panel></div>
+        <aside
+            class="org-panel__sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detalle de la organización"
+        >
+            <button
+                type="button"
+                class="org-panel__close"
+                data-close-panel
+                aria-label="Cerrar"
+            >
+                ✕
+            </button>
+            {panelOrgs.map(({ org, itvs }) => (
+                <section class="org-panel__body" data-panel-org={org.id} hidden>
+                    <span class="badge badge--flow">Grupo de trabajo</span>
+                    <h2 class="org-panel__title">{org.name}</h2>
+                    {org.placeName && (
+                        <p class="org-panel__place">📍 {org.placeName}</p>
+                    )}
+                    {org.tipos.length > 0 && (
+                        <p class="org-panel__tipos">
+                            {org.tipos.map((t) => (
+                                <span class="org-panel__tipo">{t}</span>
+                            ))}
+                        </p>
+                    )}
+                    {org.description && (
+                        <p class="org-panel__desc">{org.description}</p>
+                    )}
+                    {org.website && (
+                        <a
+                            class="org-panel__link"
+                            href={org.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            ↗ Sitio web
+                        </a>
+                    )}
+
+                    <h3 class="org-panel__subtitle">
+                        Intervenciones asociadas · {itvs.length}
+                    </h3>
+                    {itvs.length > 0 ? (
+                        <div class="org-panel__itvs">
+                            {itvs.map((itv) => (
+                                <InterventionCard
+                                    intervention={itv}
+                                    orgNames={interventionOrgNames(itv, orgMap)}
+                                    filterable={false}
+                                    showOrg={false}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p class="empty-note">
+                            Esta organización no tiene intervenciones asociadas
+                            todavía.
+                        </p>
+                    )}
+                </section>
+            ))}
+        </aside>
+    </div>
 </Layout>
 
 <script>
     import { initGalleryFilters } from "../scripts/gallery-filter";
     initGalleryFilters();
+
+    // Side panel
+    const panel = document.getElementById("org-panel")!;
+    const sheet = panel.querySelector<HTMLElement>(".org-panel__sheet")!;
+    let lastTrigger: HTMLElement | null = null;
+
+    const openPanel = (orgId: string, trigger: HTMLElement) => {
+        panel
+            .querySelectorAll<HTMLElement>("[data-panel-org]")
+            .forEach((s) => (s.hidden = s.dataset.panelOrg !== orgId));
+        lastTrigger = trigger;
+        panel.hidden = false;
+        document.body.style.overflow = "hidden";
+        sheet.scrollTop = 0;
+        requestAnimationFrame(() => panel.classList.add("is-open"));
+        panel.querySelector<HTMLElement>(".org-panel__close")?.focus();
+    };
+
+    const closePanel = () => {
+        if (panel.hidden) return;
+        panel.classList.remove("is-open");
+        document.body.style.overflow = "";
+        setTimeout(() => (panel.hidden = true), 220);
+        lastTrigger?.focus();
+    };
+
+    document
+        .querySelectorAll<HTMLElement>("[data-open-org]")
+        .forEach((btn) =>
+            btn.addEventListener("click", () =>
+                openPanel(btn.dataset.openOrg!, btn),
+            ),
+        );
+    panel
+        .querySelectorAll("[data-close-panel]")
+        .forEach((el) => el.addEventListener("click", closePanel));
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closePanel();
+    });
 </script>
 
 <style>
@@ -120,18 +240,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         height: calc(100vh - 4rem);
         min-height: 560px;
         border-bottom: 1px solid var(--border-subtle);
-        background:
-            radial-gradient(
-                40rem 24rem at 10% 12%,
-                color-mix(in srgb, var(--pillar-flow-1) 34%, transparent),
-                transparent 70%
-            ),
-            radial-gradient(
-                36rem 22rem at 6% 96%,
-                color-mix(in srgb, var(--pillar-tissue-2) 24%, transparent),
-                transparent 70%
-            ),
-            var(--bg);
+        background: var(--bg);
     }
 
     .landing__intro {
@@ -166,6 +275,136 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             border-left: 0;
             border-top: 1px solid var(--border);
         }
+    }
+
+    /* ============ side panel ============ */
+    .org-panel {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+    }
+
+    .org-panel[hidden] {
+        display: none;
+    }
+
+    .org-panel__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(34, 26, 18, 0.4);
+        opacity: 0;
+        transition: opacity 200ms ease;
+    }
+
+    .org-panel__sheet {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(560px, 100vw);
+        overflow-y: auto;
+        background: var(--bg);
+        border-left: 1px solid var(--border);
+        padding: var(--space-12) var(--space-8) var(--space-12);
+        transform: translateX(100%);
+        transition: transform 220ms ease;
+    }
+
+    .org-panel.is-open .org-panel__overlay {
+        opacity: 1;
+    }
+
+    .org-panel.is-open .org-panel__sheet {
+        transform: none;
+    }
+
+    .org-panel__close {
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--fg);
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .org-panel__close:hover {
+        background: var(--fg);
+        color: var(--bg);
+    }
+
+    .org-panel__body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+
+    .org-panel__body[hidden] {
+        display: none;
+    }
+
+    .org-panel__title {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: var(--text-xl);
+        line-height: 1.1;
+    }
+
+    .org-panel__place {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        color: var(--muted);
+    }
+
+    .org-panel__tipos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-1);
+    }
+
+    .org-panel__tipo {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: var(--surface-1);
+        border: 1px solid var(--border-subtle);
+        padding: 0.15rem 0.45rem;
+    }
+
+    .org-panel__desc {
+        font-size: var(--text-sm);
+        line-height: 1.65;
+    }
+
+    .org-panel__link {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .org-panel__subtitle {
+        align-self: stretch;
+        margin-top: var(--space-6);
+        padding-top: var(--space-5);
+        border-top: 1px solid var(--border);
+        font-family: var(--mono);
+        font-weight: 400;
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+
+    .org-panel__itvs {
+        align-self: stretch;
+        display: grid;
+        gap: var(--space-4);
     }
 
     /* ============ sections ============ */

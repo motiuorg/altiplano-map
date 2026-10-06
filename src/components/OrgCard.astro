@@ -19,7 +19,13 @@ const { org } = Astro.props;
   data-name={org.name.toLowerCase()}
 >
   <div class="org-card__head">
-    <h3 class="org-card__name">{org.name}</h3>
+    <h3 class="org-card__name">
+      {org.grupoTrabajo ? (
+        <button type="button" class="org-card__name-btn" data-open-org={org.id}>{org.name}</button>
+      ) : (
+        org.name
+      )}
+    </h3>
   </div>
 
   {org.placeName && <p class="org-card__place">📍 {org.placeName}</p>}
@@ -78,6 +84,20 @@ const { org } = Astro.props;
     font-size: var(--text-md);
     font-weight: 400;
     line-height: 1.2;
+  }
+
+  .org-card__name-btn {
+    all: unset;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--pillar-flow-3);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  .org-card__name-btn:hover,
+  .org-card__name-btn:focus-visible {
+    color: var(--pillar-flow-4);
   }
 
   .org-card__place {

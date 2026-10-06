@@ -89,6 +89,7 @@ const viableText = (v: boolean | null) =>
                 {hasFin && sliderMax > sliderMin && (
                     <div class="range" data-range="fin">
                         <span class="filter-bar__label">Financiación total</span>
+                        <div class="range__row">
                         <div class="range__control">
                             <div class="range__track"></div>
                             <div class="range__fill" data-range-fill></div>
@@ -112,6 +113,7 @@ const viableText = (v: boolean | null) =>
                             />
                         </div>
                         <span class="range__out" data-range-out></span>
+                        </div>
                     </div>
                 )}
             </div>
@@ -276,9 +278,17 @@ const viableText = (v: boolean | null) =>
         min-width: 16rem;
     }
 
+    .range__row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        height: 2rem; /* same height as the select boxes beside it */
+    }
+
     .range__control {
         position: relative;
         height: 1.6rem;
+        width: 11rem;
     }
 
     .range__track,
