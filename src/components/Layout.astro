@@ -4,7 +4,6 @@
 
 import { t, pagePath } from "../lib/i18n";
 import type { Lang, Page } from "../lib/i18n";
-import { showPaisajeNav } from "../lib/site";
 
 export interface Props {
     title: string;
@@ -24,13 +23,7 @@ const links = [
     { key: "organizaciones", label: t(lang, "nav.orgs") },
     { key: "intervenciones", label: t(lang, "nav.itvs") },
     { key: "simulador", label: t(lang, "nav.sim") },
-    // Prototype entry, controlled by prototype_nav.paisaje in src/data/site.yaml
-    ...(showPaisajeNav()
-        ? [{ key: "paisaje", label: t(lang, "nav.paisaje"), tag: t(lang, "nav.proto") }]
-        : []),
-].map((l) => ({ tag: "", ...l, href: pagePath(base, lang, l.key as Page) }));
-// The prototype page exists in Spanish only
-const switchable = current !== "paisaje";
+].map((l) => ({ ...l, href: pagePath(base, lang, l.key as Page) }));
 const otherLang: Lang = lang === "es" ? "en" : "es";
 const switchHref = pagePath(base, otherLang, current);
 ---
@@ -562,15 +555,6 @@ const switchHref = pagePath(base, otherLang, current);
                 }
             }
 
-            .site-nav__tag {
-                margin-left: 0.4em;
-                font-size: 0.55rem;
-                letter-spacing: 0.06em;
-                border: 1px dashed currentColor;
-                padding: 0.05rem 0.3rem;
-                vertical-align: 0.1em;
-            }
-
             .site-nav__link.is-current {
                 color: var(--fg);
                 border-bottom: 2px solid var(--pillar-flow-3);
@@ -673,7 +657,6 @@ const switchHref = pagePath(base, otherLang, current);
                                     }
                                 >
                                     {l.label}
-                                    {l.tag && <span class="site-nav__tag">{l.tag}</span>}
                                 </a>
                             </li>
                         ))}
@@ -695,8 +678,7 @@ const switchHref = pagePath(base, otherLang, current);
                     </a>
                     <a
                         class:list={["lang-toggle__opt", { "is-active": lang === "en" }]}
-                        href={lang === "en" || !switchable ? undefined : switchHref}
-                        title={!switchable ? "Maqueta solo en español" : undefined}
+                        href={lang === "en" ? undefined : switchHref}
                         hreflang="en"
                         lang="en"
                         aria-current={lang === "en" ? "true" : undefined}
