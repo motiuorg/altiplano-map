@@ -6,7 +6,7 @@ import EN from "../data/simulador-en.json";
 // Off for now: Notion data (names, units, types, confidence) is shown as written.
 const TRANSLATE_NOTION_DATA = false;
 
-export function iniciarSimulador(D, M, langCode) {
+export function iniciarSimulador(D, M, langCode, precios) {
   "use strict";
   const lang = langCode === "en" ? "en" : "es";
   const S = STR[lang];
@@ -41,12 +41,12 @@ export function iniciarSimulador(D, M, langCode) {
   const st = {
     arquetipo: D.arquetipos[0].clave, escenario: "completa", conjunto: "central", pac: 1,
     primaRegen: false, carbono: false, tab: "finca",
-    credito: {}, tam: null, adopcion: null, superficies: {},
+    credito: {}, tam: null, adopcion: null, superficies: {}, overrides: {},
   };
   const P = Object.fromEntries(D.parametros.map((r) => [r.clave, r]));
   const opts = () => ({
     arquetipo: st.arquetipo, escenario: st.escenario, conjunto: st.conjunto, pac: st.pac,
-    primaRegen: st.primaRegen, carbono: st.carbono,
+    primaRegen: st.primaRegen, carbono: st.carbono, overrides: { ...st.overrides },
   });
 
   // ------------------------------------------------------------------ tooltip
@@ -203,6 +203,84 @@ export function iniciarSimulador(D, M, langCode) {
     $("#tb-finca").innerHTML = h;
   }
 
+  // ------------------------------------------------------------------ PRECIOS
+  // Price and premium sliders for the selected crop. Values become model overrides
+  // (they apply to every tab, including the landscape) until "Restablecer".
+  const prefijo = () => D.arquetipos.find((a) => a.clave === st.arquetipo).prefijo;
+  const LONJA = { "alm.precio": "comuna", "alm.precio_eco": "ecologica" };
+  function clavesPrecio() {
+    const c = prefijo();
+    return [c + ".precio", P[c + ".precio_eco"] ? c + ".precio_eco" : c + ".prima_eco", "g.prima_regen"].filter((k) => P[k]);
+  }
+  const etiqueta = (k) =>
+    k.endsWith(".precio") ? S.pConv(P[k].unidad)
+    : k.endsWith(".precio_eco") ? S.pEco(P[k].unidad)
+    : k.endsWith(".prima_eco") ? S.pPremEco
+    : S.pRegen;
+  const esPct = (k) => P[k].unidad.startsWith("%");
+  const fmtK = (k, v) => (esPct(k) ? pct(v) : nf2.format(v) + " €");
+  const valorActual = (k) => (k in st.overrides ? st.overrides[k] : M.valorDe(P[k], st.conjunto));
+  function referencia(k) {
+    const r = P[k];
+    if (LONJA[k] && precios) {
+      const serie = precios.campanas.map((x) => x[LONJA[k]]);
+      const a = precios.actual;
+      return S.refLonja(precios.campanas[0].campana, precios.campanas[precios.campanas.length - 1].campana,
+        nf2.format(Math.min(...serie)), nf2.format(Math.max(...serie)), nf2.format(r.central), a.semana, a.anio, nf2.format(a[LONJA[k]])) +
+        ` <button type="button" data-actual="${esc(k)}">${esc(S.useCurrent)}</button>`;
+    }
+    if (k === "g.prima_regen") return esc(S.refRegen);
+    return esc(S.refRange(fmtK(k, r.bajo), fmtK(k, r.alto), tx("confianza", r.confianza || "").toLowerCase()));
+  }
+  function construirPrecios() {
+    $("#precio-sliders").innerHTML = clavesPrecio().map((k) => {
+      const r = P[k], v = valorActual(k);
+      const extra = LONJA[k] && precios ? [precios.actual[LONJA[k]]] : [];
+      const lo = esPct(k) ? 0 : Math.floor(Math.min(r.bajo, v, ...extra) * 0.6 * 10) / 10;
+      const hi = esPct(k) ? Math.max(0.15, r.alto * 1.5) : Math.ceil(Math.max(r.alto, v, ...extra) * 1.35 * 10) / 10;
+      const step = esPct(k) ? 0.005 : 0.05;
+      const ticks = [r.bajo, r.central, r.alto, ...extra].map((t) => `<option value="${t}"></option>`).join("");
+      return `<label class="slider${k in st.overrides ? " is-ajustado" : ""}" data-k="${esc(k)}"><span>${esc(etiqueta(k))} <b>${esc(fmtK(k, v))}</b></span>` +
+        `<input type="range" min="${lo}" max="${hi}" step="${step}" value="${v}" list="dl-${esc(k)}"><datalist id="dl-${esc(k)}">${ticks}</datalist>` +
+        `<span class="ref">${referencia(k)}</span></label>`;
+    }).join("");
+    $("#precio-reset").disabled = !clavesPrecio().some((k) => k in st.overrides);
+  }
+  function fijar(k, v) {
+    st.overrides[k] = v;
+    if (k === "g.prima_regen" && !st.primaRegen) { st.primaRegen = true; $("#f-prima").checked = true; }
+    const lab = $(`#precio-sliders [data-k="${k}"]`);
+    if (lab) { lab.classList.add("is-ajustado"); lab.querySelector("b").textContent = fmtK(k, v); lab.querySelector("input").value = v; }
+    $("#precio-reset").disabled = false;
+    render();
+  }
+  function setupPrecios() {
+    const cont = $("#precio-sliders");
+    cont.addEventListener("input", (e) => {
+      const lab = e.target.closest("[data-k]");
+      if (lab && e.target.type === "range") fijar(lab.dataset.k, +e.target.value);
+    });
+    cont.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-actual]");
+      if (b) { e.preventDefault(); fijar(b.dataset.actual, precios.actual[LONJA[b.dataset.actual]]); }
+    });
+    $("#precio-reset").addEventListener("click", () => {
+      for (const k of clavesPrecio()) delete st.overrides[k];
+      construirPrecios(); render();
+    });
+    construirPrecios();
+  }
+  function renderLonja() {
+    if (!precios || !$("#tb-lonja")) return;
+    const a = precios.actual;
+    let h = `<table><thead><tr><th>${esc(S.thSeason)}</th><th class="num">${esc(S.thComuna)}</th><th class="num">${esc(S.thEco)}</th><th class="num">${esc(S.thEcoDiff)}</th></tr></thead><tbody>`;
+    for (const c of precios.campanas)
+      h += `<tr><td>${esc(c.campana)}</td><td class="num">${nf2.format(c.comuna)}</td><td class="num">${nf2.format(c.ecologica)}</td><td class="num">+${pct(c.ecologica / c.comuna - 1)}</td></tr>`;
+    h += `<tr><th>${esc(S.currentWeek(a.semana, a.anio))}</th><td class="num"><b>${nf2.format(a.comuna)}</b></td><td class="num"><b>${nf2.format(a.ecologica)}</b></td><td class="num">+${pct(a.ecologica / a.comuna - 1)}</td></tr>`;
+    h += `</tbody></table><p class="sim-card__sub" style="margin:var(--space-3) 0 0">${esc(S.sources)}: ${precios.fuentes.map((f) => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ")}. ${esc(S.currentSrc)}: <a href="${esc(a.url)}" target="_blank" rel="noopener">CARM</a>.</p>`;
+    $("#tb-lonja").innerHTML = h;
+  }
+
   // ------------------------------------------------------------------ CREDITO
   const credDefs = [
     ["pct", S.pctFin, 0, 1, 0.05, pct],
@@ -234,7 +312,7 @@ export function iniciarSimulador(D, M, langCode) {
   function renderCredito() {
     const o = opts();
     const f = M.simularFinca(D, o);
-    const c = M.simularCredito(D, f, { ...o, overrides: { tam: st.tam } }, st.credito);
+    const c = M.simularCredito(D, f, { ...o, overrides: { ...o.overrides, tam: st.tam } }, st.credito);
     const ok = c.dscrMin != null && c.dscrMin >= c.umbral;
     kpis($("#cred-kpis"), [
       { lbl: S.cLoan, val: eur(c.principal), note: S.cLoanNote(nf0.format(c.tam), eur(f.necesidadPico), pct(c.condiciones.pct)) },
@@ -374,7 +452,7 @@ export function iniciarSimulador(D, M, langCode) {
       else if (st.tab === "credito") renderCredito();
       else if (st.tab === "paisaje") renderPaisaje();
       else if (st.tab === "sensibilidad") renderSensibilidad();
-      else if (st.tab === "supuestos") renderSupuestos();
+      else if (st.tab === "supuestos") { renderLonja(); renderSupuestos(); }
     } catch (e) { console.error(e); }
   }
   function seg(id, key, parse) {
@@ -384,12 +462,14 @@ export function iniciarSimulador(D, M, langCode) {
     }));
   }
   function init() {
-    $("#meta").textContent = S.meta(String(D.meta.generado).slice(0, 10), D.parametros.length, D.practicas.length);
+    $("#meta").textContent = S.meta(String(D.meta.generado).slice(0, 10), D.parametros.length, D.practicas.length) +
+      (precios ? S.metaLonja(precios.actual.semana, precios.actual.anio) : "");
     $("#f-arq").innerHTML = D.arquetipos.map((a) => `<option value="${esc(a.clave)}">${esc(an(a.clave, a.nombre))}</option>`).join("");
     $("#f-esc").innerHTML = Object.entries(D.meta.escenarios).map(([k, v]) => `<option value="${esc(k)}">${esc(lang === "en" && TRANSLATE_NOTION_DATA ? EN.escenarios[k] || v : v)}</option>`).join("");
-    $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); render(); });
+    $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); construirPrecios(); render(); });
     $("#f-esc").addEventListener("change", (e) => { st.escenario = e.target.value; render(); });
     seg("#f-conj", "conjunto", String);
+    $$("#f-conj button").forEach((b) => b.addEventListener("click", construirPrecios));
     seg("#f-pac", "pac", Number);
     $("#f-prima").addEventListener("change", (e) => { st.primaRegen = e.target.checked; render(); });
     $("#f-carb").addEventListener("change", (e) => { st.carbono = e.target.checked; render(); });
@@ -399,7 +479,7 @@ export function iniciarSimulador(D, M, langCode) {
       $$("[data-panel]").forEach((p) => { p.hidden = p.dataset.panel !== st.tab; });
       render();
     }));
-    setupCredito(); syncTam(); setupPaisaje(); setupSupuestos();
+    setupCredito(); syncTam(); setupPaisaje(); setupSupuestos(); setupPrecios();
     const hash = location.hash.slice(1);
     const tb = hash && $(`#tabs button[data-tab="${hash}"]`);
     if (tb) tb.click(); else render();

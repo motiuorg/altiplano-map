@@ -146,19 +146,19 @@
   },
   {
    "clave": "g.prima_regen",
-   "nombre": "Prima de precio regenerativa (sobre ecológico)",
+   "nombre": "Sobreprecio regenerativo sobre el precio ecológico (con certificado)",
    "categoria": "Precio",
    "cultivo": "Todos",
    "linea_base": "Todas",
-   "bajo": 0,
-   "central": 0.1,
-   "alto": 0.2,
+   "bajo": 0.03,
+   "central": 0.05,
+   "alto": 0.1,
    "unidad": "%",
    "sentido": 1,
-   "fuente": "Estimación de costes de transición por hectárea (Commonland / AlVelAl, 2026)",
+   "fuente": "Comercializadoras del territorio (2022–2025)",
    "url": "",
-   "tipo": "Estimación interna",
-   "confianza": "Baja"
+   "tipo": "Dato territorio",
+   "confianza": "Media"
   },
   {
    "clave": "g.precio_co2",
@@ -370,35 +370,35 @@
   },
   {
    "clave": "alm.precio",
-   "nombre": "Precio almendra grano (convencional)",
+   "nombre": "Precio almendra comuna (convencional)",
    "categoria": "Precio",
    "cultivo": "Almendro",
    "linea_base": "Todas",
-   "bajo": 3,
-   "central": 4,
-   "alto": 5.1,
+   "bajo": 2.99,
+   "central": 4.03,
+   "alto": 5.06,
    "unidad": "€/kg",
    "sentido": 1,
-   "fuente": "CARM / ESAM — Precios campo semana 38 2025 (Mercamurcia)",
-   "url": "https://esam.carm.es/wp-content/uploads/2025/10/PRECIOS-CAMPO-SEMANA-38_2025.pdf",
+   "fuente": "Lonja de Murcia — medias por campaña 2021/22–2025/26 (UPCT histórico + CARM resumen semanal)",
+   "url": "https://synergynuts.upct.es/precio-almendra/lonja-murcia/",
    "tipo": "Investigación web",
-   "confianza": "Media"
+   "confianza": "Alta"
   },
   {
-   "clave": "alm.prima_eco",
-   "nombre": "Prima precio ecológico",
+   "clave": "alm.precio_eco",
+   "nombre": "Precio almendra ecológica",
    "categoria": "Precio",
    "cultivo": "Almendro",
    "linea_base": "Todas",
-   "bajo": 0.1,
-   "central": 0.16,
-   "alto": 0.25,
-   "unidad": "%",
+   "bajo": 5.29,
+   "central": 6.29,
+   "alto": 8.17,
+   "unidad": "€/kg",
    "sentido": 1,
-   "fuente": "CARM / ESAM — Precios campo semana 38 2025 (Mercamurcia)",
-   "url": "https://esam.carm.es/wp-content/uploads/2025/10/PRECIOS-CAMPO-SEMANA-38_2025.pdf",
+   "fuente": "Lonja de Murcia — medias por campaña 2021/22–2025/26 (UPCT histórico + CARM resumen semanal)",
+   "url": "https://synergynuts.upct.es/precio-almendra/lonja-murcia/",
    "tipo": "Investigación web",
-   "confianza": "Media"
+   "confianza": "Alta"
   },
   {
    "clave": "alm.coste_caja.conv",
@@ -1190,15 +1190,15 @@
    "categoria": "Precio",
    "cultivo": "Pistacho",
    "linea_base": "Todas",
-   "bajo": 4.5,
-   "central": 6.5,
-   "alto": 8,
+   "bajo": 6.45,
+   "central": 7.45,
+   "alto": 9.5,
    "unidad": "€/kg",
    "sentido": 1,
-   "fuente": "IMIDRA (ene 2026) — Rentabilidad del pistacho en secano y regadío",
-   "url": "https://www.comunidad.madrid/docs/assets/2026/03/25/rentabilidad_del_pistacho_en_secano_y_en_regadio.pdf",
-   "tipo": "Proxy",
-   "confianza": "Baja"
+   "fuente": "Comercializadoras del territorio (2022–2025)",
+   "url": "",
+   "tipo": "Dato territorio",
+   "confianza": "Media"
   },
   {
    "clave": "pis.prima_eco",
@@ -1755,8 +1755,65 @@
  ],
  "trayectorias": [
   {
-   "clave": "prima_regen",
-   "nombre": "Rampa de la prima regenerativa",
+   "clave": "prima_regen.eco",
+   "nombre": "Sobreprecio regenerativo cobrado — eco (con certificado, desde el año 2)",
+   "escenario": "mejora",
+   "valores": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fuente": "Supuesto del equipo técnico",
+   "confianza": "Media"
+  },
+  {
+   "clave": "prima_regen.eco",
+   "nombre": "Sobreprecio regenerativo cobrado — eco (con certificado, desde el año 2)",
+   "escenario": "parcial",
+   "valores": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fuente": "Supuesto del equipo técnico",
+   "confianza": "Media"
+  },
+  {
+   "clave": "prima_regen.eco",
+   "nombre": "Sobreprecio regenerativo cobrado — eco (con certificado, desde el año 2)",
+   "escenario": "completa",
+   "valores": [
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "fuente": "Supuesto del equipo técnico",
+   "confianza": "Media"
+  },
+  {
+   "clave": "prima_regen.conv",
+   "nombre": "Sobreprecio regenerativo cobrado — conv. (con certificado, desde el año 4)",
    "escenario": "mejora",
    "valores": [
     0,
@@ -1888,8 +1945,8 @@
    "confianza": "Media"
   },
   {
-   "clave": "prima_regen",
-   "nombre": "Rampa de la prima regenerativa",
+   "clave": "prima_regen.conv",
+   "nombre": "Sobreprecio regenerativo cobrado — conv. (con certificado, desde el año 4)",
    "escenario": "parcial",
    "valores": [
     0,
@@ -2021,16 +2078,16 @@
    "confianza": "Media"
   },
   {
-   "clave": "prima_regen",
-   "nombre": "Rampa de la prima regenerativa",
+   "clave": "prima_regen.conv",
+   "nombre": "Sobreprecio regenerativo cobrado — conv. (con certificado, desde el año 4)",
    "escenario": "completa",
    "valores": [
     0,
     0,
     0,
-    0.25,
-    0.5,
-    0.75,
+    1,
+    1,
+    1,
     1,
     1,
     1,
@@ -2206,7 +2263,7 @@
   }
  ],
  "meta": {
-  "generado": "2026-10-06 09:31 UTC",
+  "generado": "2026-10-07 10:35 UTC",
   "escenarios": {
    "completa": "Transición completa (eco-regenerativa certificada)",
    "parcial": "Transición parcial (50% de intensidad, sin certificar)",

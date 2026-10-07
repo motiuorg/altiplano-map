@@ -23,8 +23,14 @@ const FUENTES_PUBLICAS: Record<string, string> = {
   'Estimations and figures for EIB (Commonland/AlVelAl 2025)': 'Estimaciones de costes de transición (Commonland / AlVelAl, 2025)',
   'Estimación Costes Transición Eco-Regenerativa por Hectárea (abr 2026)': 'Estimación de costes de transición por hectárea (Commonland / AlVelAl, 2026)',
   'Supuesto interno (equipo Altiplano)': 'Supuesto del equipo técnico',
+  'Almendrehesa — Plan económico-financiero 25-28 (interno; compras 2022–2025)': 'Comercializadoras del territorio (2022–2025)',
 };
-const fuente = (f: string) => FUENTES_PUBLICAS[f] ?? f ?? '';
+// Belt and braces: never publish a single commercializer's name.
+const ANONIMIZAR = /almendrehesa|habitat/i;
+const fuente = (f: string) => {
+  const out = FUENTES_PUBLICAS[f] ?? f ?? '';
+  return ANONIMIZAR.test(out) ? 'Comercializadoras del territorio' : out;
+};
 const url = (u: string | null) => (u && !u.includes('notion.com') && !u.includes('notion.so') ? u : '');
 
 const ORDEN_CULTIVO = ['Todos', 'Almendro', 'Olivo', 'Cereal', 'Pistacho'];

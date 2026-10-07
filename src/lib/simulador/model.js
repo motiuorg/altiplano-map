@@ -105,9 +105,14 @@
     const conv = arq.linea_base === "Convencional";
     const lb = conv ? "conv" : "eco";
 
+    // Prices: crops with a market series for organic (almond) carry their own
+    // organic price; the rest derive it from the conventional price + % premium.
+    const precioConv = v(c + ".precio");
+    const precioEco = v(c + ".precio_eco", null) ?? precioConv * (1 + v(c + ".prima_eco"));
+
     // Baseline
     const rend0 = v(c + ".rend") * (conv ? 1 : v(c + ".rend_eco"));
-    const precio0 = v(c + ".precio") * (conv ? 1 : 1 + v(c + ".prima_eco"));
+    const precio0 = conv ? precioConv : precioEco;
     const ingreso0 = rend0 * precio0;
     const margenBase = ingreso0 + v(c + ".pago_basico") - v(c + ".coste_caja." + lb);
 
@@ -134,11 +139,11 @@
 
       L.rendimiento = ingreso0 * dRend * (1 - s);
       L.reserva = -ingreso0 * s;
-      L.prima_eco = conv ? rend0 * prodFactor * precio0 * v(c + ".prima_eco") * tr.certificado[i] : 0;
-      L.prima_regen = opts.primaRegen
-        ? rend0 * prodFactor * precio0 * (1 + (conv ? v(c + ".prima_eco") * tr.certificado[i] : 0)) *
-          v("g.prima_regen") * tr.prima_regen[i]
-        : 0;
+      L.prima_eco = conv ? rend0 * prodFactor * (precioEco - precioConv) * tr.certificado[i] : 0;
+      // Regenerative premium: % over the organic price, paid only with certificate
+      // (trajectory prima_regen.conv / prima_regen.eco).
+      const certRegen = (tr["prima_regen." + lb] || tr.prima_regen || [])[i] || 0;
+      L.prima_regen = opts.primaRegen ? rend0 * prodFactor * precioEco * v("g.prima_regen") * certRegen : 0;
       L.ecorregimen = v(c + ".ecorreg") * (1 - yaEco) * A * pac;
       L.ayuda_eco = conv ? v(c + ".ayuda_eco") * tr.conversion[i] * pac : 0;
       L.carbono = opts.carbono && y >= 3

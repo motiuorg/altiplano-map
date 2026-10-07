@@ -1,0 +1,54 @@
+{
+ "fuente": "Lonja de Murcia (Mercamurcia), almendra en grano, precio sobre almacén agricultor",
+ "fuentes": [
+  {
+   "nombre": "UPCT — histórico Lonja de Murcia",
+   "url": "https://synergynuts.upct.es/precio-almendra/lonja-murcia/"
+  },
+  {
+   "nombre": "CARM — Resumen semanal de precios",
+   "url": "https://esam.carm.es/"
+  }
+ ],
+ "campanas": [
+  {
+   "campana": "2021/22",
+   "comuna": 3.68,
+   "ecologica": 8.17,
+   "semanas": 21
+  },
+  {
+   "campana": "2022/23",
+   "comuna": 3.63,
+   "ecologica": 5.93,
+   "semanas": 21
+  },
+  {
+   "campana": "2023/24",
+   "comuna": 2.99,
+   "ecologica": 5.29,
+   "semanas": 30
+  },
+  {
+   "campana": "2024/25",
+   "comuna": 4.81,
+   "ecologica": 5.39,
+   "semanas": 38
+  },
+  {
+   "campana": "2025/26",
+   "comuna": 5.06,
+   "ecologica": 6.67,
+   "semanas": 52
+  }
+ ],
+ "actual": {
+  "fecha": "2026-10-05",
+  "semana": 40,
+  "anio": 2026,
+  "comuna": 5.31,
+  "ecologica": 7.89,
+  "url": "https://esam.carm.es/wp-content/uploads/2026/10/PRECIOS-CAMPO-SEMANA-40_2026.pdf",
+  "origen": "copia"
+ }
+}

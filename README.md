@@ -83,6 +83,12 @@ Repo: **`motiuorg/altiplano-map`** → https://motiuorg.github.io/altiplano-map/
   (`src/lib/simulador/data.ts`).
 - Si Notion no responde o las bases no están compartidas, se usa la copia
   `src/data/simulador.json` (no rompe el build).
+- **Precio actual de la almendra:** en cada build se lee el último resumen semanal de
+  precios de la CARM (Lonja de Murcia, comuna y ecológica) en
+  `src/lib/simulador/precio-actual.ts`. Si falla, se usa el último valor guardado en
+  `src/data/precio-almendra.json`, que también guarda las medias por campaña.
+- Las fuentes que nombran a una comercializadora concreta se publican como
+  «Comercializadoras del territorio».
 - El motor es una copia de `Altiplano Estepario/8 Análisis Económico/simulador/model.js`
   del vault, donde están los tests y la metodología. Si cambia la lógica, actualizar
   ambos.

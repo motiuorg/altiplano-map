@@ -5,6 +5,7 @@
 import Layout from "../components/Layout.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import { loadSimuladorData } from "../lib/simulador/data";
+import { precioActualAlmendra, historicoAlmendra } from "../lib/simulador/precio-actual";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -70,7 +71,12 @@ const T = ({
     "practicesSub": "Coste por hectárea de superficie de la finca (cobertura y frecuencia ya aplicadas en el modelo)",
     "traj": "Trayectorias",
     "trajSub": "Evolución año a año · nivel de transición seleccionado",
-    "ph": "parámetro, fuente…"
+    "ph": "parámetro, fuente…",
+    "pricesTitle": "Precios y sobreprecio",
+    "pricesSub": "Ajusta los precios del cultivo de la finca tipo seleccionada y el sobreprecio regenerativo. Afectan a todas las pestañas.",
+    "reset": "Restablecer",
+    "lonjaTitle": "Precio de la almendra en la Lonja de Murcia",
+    "lonjaSub": "Media de cada campaña (septiembre–agosto), €/kg grano, sobre almacén agricultor. El rango bajo–alto del simulador es la peor y la mejor campaña; el central, la media."
   },
   "en": {
     "title_": "Altiplano Estepario — Economic simulator",
@@ -130,13 +136,19 @@ const T = ({
     "practicesSub": "Cost per hectare of farm area (coverage and frequency already applied in the model)",
     "traj": "Trajectories",
     "trajSub": "Year-by-year evolution · selected transition level",
-    "ph": "parameter, source…"
+    "ph": "parameter, source…",
+    "pricesTitle": "Prices and premium",
+    "pricesSub": "Adjust the crop prices of the selected typical farm and the regenerative premium. They apply to every tab.",
+    "reset": "Reset",
+    "lonjaTitle": "Almond price at the Lonja de Murcia",
+    "lonjaSub": "Average of each season (September–August), €/kg kernel, farm-gate warehouse. The simulator's low–high range is the worst and best season; the central value is the average."
   }
 } as Record<Lang, Record<string, string>>)[lang];
 
-const { datos } = await loadSimuladorData();
+const [{ datos }, actual] = await Promise.all([loadSimuladorData(), precioActualAlmendra()]);
+const precios = { actual, campanas: historicoAlmendra.campanas, fuentes: historicoAlmendra.fuentes };
 // Safe to inline: escape "<" so no value can close the script element.
-const json = JSON.stringify(datos).replace(/</g, "\\u003c");
+const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 ---
 
 <Layout
@@ -188,6 +200,14 @@ const json = JSON.stringify(datos).replace(/</g, "\\u003c");
                 </div>
             </div>
 
+            <div class="sim-card sim-card--controls sim-precios">
+                <div class="sim-precios__head">
+                    <h3 class="sim-card__title">{T.pricesTitle}</h3>
+                    <button class="chip" id="precio-reset" disabled>{T.reset}</button>
+                </div>
+                <p class="sim-card__sub">{T.pricesSub}</p>
+                <div class="sim-row" id="precio-sliders"></div>
+            </div>
             <div class="view-bar">
                 <div class="view-switch" role="tablist" id="tabs">
                     <button class="chip is-active" role="tab" data-tab="finca" aria-selected="true">{T.farm}</button>
@@ -296,6 +316,11 @@ const json = JSON.stringify(datos).replace(/</g, "\\u003c");
                     </label>
                 </div>
                 <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.lonjaTitle}</h3>
+                    <p class="sim-card__sub">{T.lonjaSub}</p>
+                    <div class="table-wrap" id="tb-lonja"></div>
+                </div>
+                <div class="sim-card sim-card--table">
                     <h3 class="sim-card__title">{T.params}</h3>
                     <p class="sim-card__sub">{T.paramsSub}</p>
                     <div class="table-wrap" id="tb-param"></div>
@@ -321,8 +346,8 @@ const json = JSON.stringify(datos).replace(/</g, "\\u003c");
 <script>
     import Modelo from "../lib/simulador/model.js";
     import { iniciarSimulador } from "../scripts/simulador.js";
-    const datos = JSON.parse(document.getElementById("sim-data")!.textContent!);
-    iniciarSimulador(datos, Modelo, document.documentElement.lang);
+    const { datos, precios } = JSON.parse(document.getElementById("sim-data")!.textContent!);
+    iniciarSimulador(datos, Modelo, document.documentElement.lang, precios);
 </script>
 
 <style is:global>
@@ -451,6 +476,18 @@ const json = JSON.stringify(datos).replace(/</g, "\\u003c");
         padding: var(--space-4) var(--space-5);
         margin-top: var(--space-5);
     }
+
+    .sim .sim-precios__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
+    .sim .sim-precios .sim-card__sub { margin: var(--space-2) 0 var(--space-5); }
+    .sim .chip[disabled] { opacity: 0.4; cursor: default; }
+    .sim .slider .ref { font-size: var(--text-xs); color: var(--muted); line-height: 1.45; text-transform: none; letter-spacing: 0; font-family: var(--sans); display: block; }
+    .sim .slider .ref button {
+        font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em;
+        background: none; border: 0; border-bottom: 1px solid var(--pillar-flow-3); padding: 0; margin-left: var(--space-1);
+        color: var(--fg); cursor: pointer;
+    }
+    .sim .slider.is-ajustado > span:first-child b::after { content: var(--ajustado, " · ajustado"); color: var(--pillar-flow-4); font-family: var(--mono); font-size: var(--text-2xs); }
+    :root[lang="en"] .sim { --ajustado: " · adjusted"; }
 
     /* sliders */
     .sim .sim-row { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-8); }
