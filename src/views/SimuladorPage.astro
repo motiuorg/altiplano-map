@@ -1,0 +1,512 @@
+---
+// Simulador económico — coste de la transición regenerativa por finca tipo, con
+// módulo de crédito y escalado al paisaje. Datos de Notion a build-time (ver
+// src/lib/simulador/data.ts); el cálculo corre en el navegador.
+import Layout from "../components/Layout.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { loadSimuladorData } from "../lib/simulador/data";
+import type { Lang } from "../lib/i18n";
+
+export interface Props {
+    lang?: Lang;
+}
+const { lang = "es" } = Astro.props;
+const T = ({
+  "es": {
+    "title_": "Altiplano Estepario — Simulador económico",
+    "desc_": "Coste de la transición regenerativa por finca tipo en el Altiplano Estepario: flujo a 10 años, capacidad de repago y escala del paisaje.",
+    "overline": "Análisis económico",
+    "heading": "Simulador económico",
+    "intro": "Cuánto cuesta pasar a manejo eco-regenerativo frente a seguir como hoy, cuánta financiación necesita cada finca tipo en su peor momento, si podría devolver un préstamo y cuánto suma en el paisaje.",
+    "farm": "Finca tipo",
+    "level": "Nivel de transición",
+    "assump": "Supuestos",
+    "pess": "Pesimista",
+    "central": "Central",
+    "opt": "Optimista",
+    "pac": "Ayudas PAC",
+    "uncertain": "Ingresos inciertos",
+    "prima": "Prima regenerativa",
+    "carbon": "Carbono",
+    "tabCredit": "Crédito",
+    "tabLandscape": "Paisaje",
+    "tabSens": "Sensibilidad",
+    "flowTitle": "Flujo neto de la transición",
+    "flowSub": "€/ha frente a seguir como hoy · barras: año · línea: acumulado",
+    "lgPos": "Neto anual (+)",
+    "lgNeg": "Neto anual (−)",
+    "lgCum": "Acumulado",
+    "wfTitle": "De dónde sale el resultado a 10 años",
+    "wfSub": "Suma 2027–2036 por partida, €/ha",
+    "detailTitle": "Detalle por año",
+    "detailSub": "€/ha, diferencia frente a seguir como hoy",
+    "credNote": "El préstamo cubre la necesidad máxima de financiación acumulada de la finca tipo. El DSCR compara la caja disponible (margen actual + efecto operativo de la transición) con la cuota.",
+    "dscrTitle": "Cobertura del servicio de la deuda (DSCR)",
+    "dscrSub": "Veces · línea discontinua: umbral exigible",
+    "cfTitle": "Caja disponible frente a cuota",
+    "cfSub": "€ por finca y año",
+    "lgCash": "Caja disponible",
+    "lgDebt": "Servicio de la deuda",
+    "landNote": "Superficie de la zona combinada (Landscape Plan 2022) × cuota convencional/ecológica × captación. Las fincas entran de forma escalonada en 10 años. No depende de la finca tipo seleccionada.",
+    "needTitle": "Necesidad de financiación por finca tipo",
+    "needSub": "Millones de €, necesidad máxima acumulada",
+    "landFlowTitle": "Flujo neto del paisaje",
+    "landFlowSub": "Millones de € por año, todas las cohortes",
+    "perFarm": "Por finca tipo",
+    "tornTitle": "Qué supuestos mueven más el resultado",
+    "tornSub": "Cambio en el VAN a 10 años (€/ha) al llevar cada supuesto a su valor bajo y alto, manteniendo el resto en el escenario elegido. Junto a cada supuesto se indica la confianza del dato.",
+    "lgWorse": "Peor que el escenario",
+    "lgBetter": "Mejor que el escenario",
+    "crop": "Cultivo",
+    "conf": "Confianza",
+    "all": "Todas",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja",
+    "search": "Buscar",
+    "params": "Parámetros",
+    "paramsSub": "Valores bajo, central y alto de cada supuesto. El conjunto pesimista u optimista toma el extremo desfavorable o favorable para la finca.",
+    "practices": "Prácticas regenerativas",
+    "practicesSub": "Coste por hectárea de superficie de la finca (cobertura y frecuencia ya aplicadas en el modelo)",
+    "traj": "Trayectorias",
+    "trajSub": "Evolución año a año · nivel de transición seleccionado",
+    "ph": "parámetro, fuente…"
+  },
+  "en": {
+    "title_": "Altiplano Estepario — Economic simulator",
+    "desc_": "Cost of the regenerative transition per typical farm in the Altiplano Estepario: 10-year cash flow, repayment capacity and landscape scale.",
+    "overline": "Economic analysis",
+    "heading": "Economic simulator",
+    "intro": "How much it costs to move to eco-regenerative management compared with carrying on as today, how much financing each typical farm needs at its worst moment, whether it could repay a loan, and what it adds up to across the landscape.",
+    "farm": "Typical farm",
+    "level": "Transition level",
+    "assump": "Assumptions",
+    "pess": "Pessimistic",
+    "central": "Central",
+    "opt": "Optimistic",
+    "pac": "CAP support",
+    "uncertain": "Uncertain income",
+    "prima": "Regenerative premium",
+    "carbon": "Carbon",
+    "tabCredit": "Credit",
+    "tabLandscape": "Landscape",
+    "tabSens": "Sensitivity",
+    "flowTitle": "Net cash flow of the transition",
+    "flowSub": "€/ha versus carrying on as today · bars: year · line: cumulative",
+    "lgPos": "Annual net (+)",
+    "lgNeg": "Annual net (−)",
+    "lgCum": "Cumulative",
+    "wfTitle": "Where the 10-year result comes from",
+    "wfSub": "Sum 2027–2036 by item, €/ha",
+    "detailTitle": "Detail by year",
+    "detailSub": "€/ha, difference versus carrying on as today",
+    "credNote": "The loan covers the typical farm's peak cumulative financing need. The DSCR compares available cash (current margin + operating effect of the transition) with the repayment.",
+    "dscrTitle": "Debt service coverage (DSCR)",
+    "dscrSub": "Times · dashed line: required threshold",
+    "cfTitle": "Available cash versus repayment",
+    "cfSub": "€ per farm and year",
+    "lgCash": "Available cash",
+    "lgDebt": "Debt service",
+    "landNote": "Area of the combined zone (Landscape Plan 2022) × conventional/organic share × uptake. Farms join gradually over 10 years. It does not depend on the selected typical farm.",
+    "needTitle": "Financing need by typical farm",
+    "needSub": "Millions of €, peak cumulative need",
+    "landFlowTitle": "Net cash flow of the landscape",
+    "landFlowSub": "Millions of € per year, all cohorts",
+    "perFarm": "By typical farm",
+    "tornTitle": "Which assumptions move the result most",
+    "tornSub": "Change in the 10-year NPV (€/ha) when each assumption is moved to its low and high value, keeping the rest in the chosen scenario. The confidence of the data is shown next to each assumption.",
+    "lgWorse": "Worse than the scenario",
+    "lgBetter": "Better than the scenario",
+    "crop": "Crop",
+    "conf": "Confidence",
+    "all": "All",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "search": "Search",
+    "params": "Parameters",
+    "paramsSub": "Low, central and high values of each assumption. The pessimistic or optimistic set takes the unfavourable or favourable extreme for the farm.",
+    "practices": "Regenerative practices",
+    "practicesSub": "Cost per hectare of farm area (coverage and frequency already applied in the model)",
+    "traj": "Trajectories",
+    "trajSub": "Year-by-year evolution · selected transition level",
+    "ph": "parameter, source…"
+  }
+} as Record<Lang, Record<string, string>>)[lang];
+
+const { datos } = await loadSimuladorData();
+// Safe to inline: escape "<" so no value can close the script element.
+const json = JSON.stringify(datos).replace(/</g, "\\u003c");
+---
+
+<Layout
+    title={T.title_}
+    description={T.desc_}
+    lang={lang}
+    current="simulador"
+>
+    <section class="section sim">
+        <div class="container">
+            <SectionHeading
+                overline={T.overline}
+                title={T.heading}
+                intro={T.intro}
+            />
+            <p class="sim-meta" id="meta"></p>
+
+            <div class="filter-bar">
+                <label class="filter-select">
+                    <span class="filter-bar__label">{T.farm}</span>
+                    <select id="f-arq"></select>
+                </label>
+                <label class="filter-select">
+                    <span class="filter-bar__label">{T.level}</span>
+                    <select id="f-esc"></select>
+                </label>
+                <div class="filter-select">
+                    <span class="filter-bar__label">{T.assump}</span>
+                    <div class="sim-seg" id="f-conj">
+                        <button class="chip" data-v="pesimista">{T.pess}</button>
+                        <button class="chip is-active" data-v="central" aria-pressed="true">{T.central}</button>
+                        <button class="chip" data-v="optimista">{T.opt}</button>
+                    </div>
+                </div>
+                <div class="filter-select">
+                    <span class="filter-bar__label">{T.pac}</span>
+                    <div class="sim-seg" id="f-pac">
+                        <button class="chip is-active" data-v="1" aria-pressed="true">100%</button>
+                        <button class="chip" data-v="0.5">50%</button>
+                        <button class="chip" data-v="0">0%</button>
+                    </div>
+                </div>
+                <div class="filter-select">
+                    <span class="filter-bar__label">{T.uncertain}</span>
+                    <div class="sim-toggles">
+                        <label class="sim-toggle"><input type="checkbox" id="f-prima" /> {T.prima}</label>
+                        <label class="sim-toggle"><input type="checkbox" id="f-carb" /> {T.carbon}</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-bar">
+                <div class="view-switch" role="tablist" id="tabs">
+                    <button class="chip is-active" role="tab" data-tab="finca" aria-selected="true">{T.farm}</button>
+                    <button class="chip" role="tab" data-tab="credito">{T.tabCredit}</button>
+                    <button class="chip" role="tab" data-tab="paisaje">{T.tabLandscape}</button>
+                    <button class="chip" role="tab" data-tab="sensibilidad">{T.tabSens}</button>
+                    <button class="chip" role="tab" data-tab="supuestos">{T.assump}</button>
+                </div>
+            </div>
+
+            <!-- FINCA -->
+            <section data-panel="finca">
+                <div class="sim-grid sim-kpis" id="finca-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.flowTitle}</h3>
+                        <p class="sim-card__sub">{T.flowSub}</p>
+                        <div class="legend"><span><i style="background:var(--pos)"></i>{T.lgPos}</span><span><i style="background:var(--neg)"></i>{T.lgNeg}</span><span><i class="line" style="background:var(--ink-2)"></i>{T.lgCum}</span></div>
+                        <div id="ch-flujo"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.wfTitle}</h3>
+                        <p class="sim-card__sub">{T.wfSub}</p>
+                        <div id="ch-cascada"></div>
+                    </div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.detailTitle}</h3>
+                    <p class="sim-card__sub">{T.detailSub}</p>
+                    <div class="table-wrap" id="tb-finca"></div>
+                </div>
+            </section>
+
+            <!-- CRÉDITO -->
+            <section data-panel="credito" hidden>
+                <div class="sim-card sim-card--controls">
+                    <div class="sim-row" id="cred-sliders"></div>
+                    <p class="sim-card__sub">{T.credNote}</p>
+                </div>
+                <div class="sim-grid sim-kpis" id="cred-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.dscrTitle}</h3>
+                        <p class="sim-card__sub">{T.dscrSub}</p>
+                        <div id="ch-dscr"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.cfTitle}</h3>
+                        <p class="sim-card__sub">{T.cfSub}</p>
+                        <div class="legend"><span><i style="background:var(--s1)"></i>{T.lgCash}</span><span><i style="background:var(--s2)"></i>{T.lgDebt}</span></div>
+                        <div id="ch-cfads"></div>
+                    </div>
+                </div>
+                <div id="cred-aviso"></div>
+            </section>
+
+            <!-- PAISAJE -->
+            <section data-panel="paisaje" hidden>
+                <div class="sim-card sim-card--controls">
+                    <div class="sim-row" id="pai-sliders"></div>
+                    <p class="sim-card__sub">{T.landNote}</p>
+                </div>
+                <div class="sim-grid sim-kpis" id="pai-kpis"></div>
+                <div class="sim-grid sim-cols">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.needTitle}</h3>
+                        <p class="sim-card__sub">{T.needSub}</p>
+                        <div id="ch-pai-arq"></div>
+                    </div>
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.landFlowTitle}</h3>
+                        <p class="sim-card__sub">{T.landFlowSub}</p>
+                        <div id="ch-pai-flujo"></div>
+                    </div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.perFarm}</h3>
+                    <div class="table-wrap" id="tb-paisaje"></div>
+                </div>
+            </section>
+
+            <!-- SENSIBILIDAD -->
+            <section data-panel="sensibilidad" hidden>
+                <div class="sim-card chart">
+                    <h3 class="sim-card__title">{T.tornTitle}</h3>
+                    <p class="sim-card__sub">{T.tornSub}</p>
+                    <div class="legend"><span><i style="background:var(--neg)"></i>{T.lgWorse}</span><span><i style="background:var(--pos)"></i>{T.lgBetter}</span></div>
+                    <div id="ch-tornado"></div>
+                </div>
+            </section>
+
+            <!-- SUPUESTOS -->
+            <section data-panel="supuestos" hidden>
+                <div class="filter-bar">
+                    <label class="filter-select">
+                        <span class="filter-bar__label">{T.crop}</span>
+                        <select id="s-cultivo"></select>
+                    </label>
+                    <label class="filter-select">
+                        <span class="filter-bar__label">{T.conf}</span>
+                        <select id="s-conf"><option value="">{T.all}</option><option>{T.high}</option><option>{T.medium}</option><option>{T.low}</option></select>
+                    </label>
+                    <label class="filter-select sim-search">
+                        <span class="filter-bar__label">{T.search}</span>
+                        <input id="s-q" type="search" placeholder={T.ph} />
+                    </label>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.params}</h3>
+                    <p class="sim-card__sub">{T.paramsSub}</p>
+                    <div class="table-wrap" id="tb-param"></div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.practices}</h3>
+                    <p class="sim-card__sub">{T.practicesSub}</p>
+                    <div class="table-wrap" id="tb-prac"></div>
+                </div>
+                <div class="sim-card sim-card--table">
+                    <h3 class="sim-card__title">{T.traj}</h3>
+                    <p class="sim-card__sub">{T.trajSub}</p>
+                    <div class="table-wrap" id="tb-tray"></div>
+                </div>
+            </section>
+        </div>
+        <div id="tip" hidden></div>
+    </section>
+</Layout>
+
+<script type="application/json" id="sim-data" set:html={json} />
+
+<script>
+    import Modelo from "../lib/simulador/model.js";
+    import { iniciarSimulador } from "../scripts/simulador.js";
+    const datos = JSON.parse(document.getElementById("sim-data")!.textContent!);
+    iniciarSimulador(datos, Modelo, document.documentElement.lang);
+</script>
+
+<style is:global>
+    /* Chart roles — positive/negative pair derived from the neural (blue) and flow
+       (orange) pillars; validated for colour-vision deficiency and >= 3:1 on paper. */
+    .sim {
+        --pos: #0077c8;
+        --neg: #e8590c;
+        --s1: #0077c8;
+        --s2: #e8590c;
+        --ink-2: color-mix(in srgb, var(--umber) 80%, var(--paper));
+        --surface: var(--bg);
+        --grid: color-mix(in srgb, var(--rule) 18%, transparent);
+        --axis: color-mix(in srgb, var(--rule) 55%, transparent);
+        padding: var(--space-16) 0 var(--space-20);
+    }
+
+    .sim .sim-meta {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: calc(-1 * var(--space-6)) 0 var(--space-8);
+    }
+
+    /* filter bar — same pattern as Intervenciones */
+    .sim .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: var(--space-4) var(--space-6);
+        margin-bottom: var(--space-4);
+    }
+    .sim .filter-select {
+        display: inline-flex;
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+    .sim .filter-select select,
+    .sim .filter-select input[type="search"] {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        padding: 0.45rem 0.6rem;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        min-width: 11rem;
+        max-width: 22rem;
+    }
+    .sim .sim-search input { width: 100%; max-width: none; }
+    .sim .sim-search { flex: 1 1 14rem; }
+    .sim .filter-bar__label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+    .sim .sim-seg { display: inline-flex; }
+    .sim .sim-seg .chip + .chip { margin-left: -1px; }
+    .sim .sim-seg .chip { padding: 0.45rem 0.75rem; }
+    .sim .sim-toggles { display: flex; gap: var(--space-4); flex-wrap: wrap; min-height: 2rem; align-items: center; }
+    .sim .sim-toggle {
+        display: inline-flex; align-items: center; gap: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--fg); cursor: pointer;
+    }
+    .sim .sim-toggle input { accent-color: var(--pillar-flow-3); }
+
+    .sim .view-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin: var(--space-4) 0 var(--space-8);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border-subtle);
+    }
+    .sim .view-switch { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
+
+    /* cards & KPI tiles — itv-card language */
+    .sim .sim-grid { display: grid; gap: var(--space-5); }
+    .sim .sim-kpis { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-bottom: var(--space-5); }
+    .sim .sim-cols { grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+    .sim .sim-card {
+        border: 1px solid var(--border-subtle);
+        background: var(--bg);
+        padding: var(--space-6);
+        min-width: 0;
+    }
+    .sim .sim-card--table,
+    .sim .sim-card--controls { margin-bottom: var(--space-5); }
+    .sim .sim-cols + .sim-card--table { margin-top: var(--space-5); }
+    .sim .sim-card__title {
+        font-family: var(--serif);
+        font-size: var(--text-md);
+        font-weight: 400;
+        line-height: 1.22;
+    }
+    .sim .sim-card__sub {
+        font-size: var(--text-sm);
+        color: var(--muted);
+        margin: var(--space-2) 0 var(--space-4);
+    }
+    .sim .sim-card--controls .sim-card__sub { margin: var(--space-4) 0 0; }
+    .sim .kpi .lbl {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+    .sim .kpi .val {
+        font-family: var(--serif);
+        font-size: var(--text-xl);
+        line-height: var(--leading-display);
+        margin-top: var(--space-3);
+        display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+    }
+    .sim .kpi .note { font-size: var(--text-sm); color: var(--muted); margin-top: var(--space-2); }
+    .sim .note-box {
+        font-size: var(--text-sm);
+        border-left: 2px solid var(--pillar-flow-3);
+        background: var(--surface-1);
+        padding: var(--space-4) var(--space-5);
+        margin-top: var(--space-5);
+    }
+
+    /* sliders */
+    .sim .sim-row { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-8); }
+    .sim .slider { display: flex; flex-direction: column; gap: var(--space-2); flex: 1 1 11rem; min-width: 11rem; }
+    .sim .slider span {
+        display: flex; justify-content: space-between; gap: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+    }
+    .sim .slider b { color: var(--fg); font-weight: 500; letter-spacing: 0; }
+    .sim input[type="range"] { width: 100%; accent-color: var(--fg); }
+
+    /* charts */
+    .sim .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .sim .chart text { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .sim .chart .lbl-ink { fill: var(--ink-2); }
+    .sim .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+    .sim .chart .baseline { stroke: var(--axis); stroke-width: 1; }
+    .sim .chart .hit { fill: transparent; }
+    .sim .chart .hit:hover, .sim .chart .hit:focus { fill: color-mix(in srgb, var(--fg) 5%, transparent); outline: none; }
+    .sim .legend {
+        display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-bottom: var(--space-2);
+        font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    }
+    .sim .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+    .sim .legend i.line { height: 2px; width: 14px; vertical-align: 3px; }
+
+    #tip {
+        position: fixed; pointer-events: none; z-index: 60;
+        background: var(--paper); color: var(--umber);
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 8px 28px rgba(34, 26, 18, 0.14);
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--text-xs); max-width: 18rem;
+    }
+    #tip .t { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--rule); margin-bottom: var(--space-2); }
+    #tip .r { display: flex; align-items: center; gap: var(--space-2); }
+    #tip .r b { font-family: var(--mono); font-weight: 500; }
+    #tip .k { width: 12px; height: 2px; display: inline-block; }
+
+    /* tables — itv-table language */
+    .sim .table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); }
+    .sim table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    .sim th, .sim td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
+    .sim thead th {
+        background: var(--surface-1);
+        font-family: var(--mono); font-size: var(--text-2xs); font-weight: 400;
+        text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); white-space: nowrap;
+    }
+    .sim tbody th { font-family: var(--serif); font-weight: 400; }
+    .sim td.num, .sim th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+    .sim td.neg { color: var(--danger-mid); }
+    .sim td small { display: block; font-family: var(--mono); font-size: var(--text-2xs); color: var(--muted); margin-top: 2px; }
+    .sim tbody tr:hover { background: var(--surface-1); }
+
+    @media (max-width: 640px) {
+        .sim .sim-card { padding: var(--space-4); }
+        .sim .kpi .val { font-size: var(--text-lg); }
+    }
+</style>

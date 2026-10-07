@@ -362,13 +362,13 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
   };
 }
 
-export function formatValor(v: number | null, raw: string): string {
+export function formatValor(v: number | null, raw: string, locale = 'es-ES'): string {
   if (v === null) return raw || '—';
-  return `${v.toLocaleString('es-ES')} €`;
+  return `${v.toLocaleString(locale)} €`;
 }
 
-export function formatEuro(v: number | null): string {
-  return v === null ? '—' : `${v.toLocaleString('es-ES')} €`;
+export function formatEuro(v: number | null, locale = 'es-ES'): string {
+  return v === null ? '—' : `${v.toLocaleString(locale)} €`;
 }
 
 // Resolve intervention → organization names through the org records

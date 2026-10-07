@@ -8,6 +8,10 @@
 // data-{key} attributes; multi-valued ones are pipe-joined and lowercase.
 // Count = distinct data-item-id among the visible items.
 
+const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+const locale = lang === 'en' ? 'en-GB' : 'es-ES';
+const shown = (n: number) => (lang === 'en' ? `${n} shown` : `${n} mostradas`);
+
 export function initGalleryFilters(): void {
   const bar = document.querySelector<HTMLElement>('[data-filter-bar]');
   if (!bar) return;
@@ -22,7 +26,7 @@ export function initGalleryFilters(): void {
   const hiInput = range?.querySelector<HTMLInputElement>('[data-range-hi]') ?? null;
   const rangeKey = range?.dataset.range ?? '';
   const rangeOut = range?.querySelector<HTMLElement>('[data-range-out]') ?? null;
-  const fmt = (n: number) => `${Math.round(n).toLocaleString('es-ES')} €`;
+  const fmt = (n: number) => `${Math.round(n).toLocaleString(locale)} €`;
 
   const apply = () => {
     const seen = new Set<string>();
@@ -48,7 +52,7 @@ export function initGalleryFilters(): void {
       it.hidden = !show;
       if (show) seen.add(it.dataset.itemId ?? String(items.indexOf(it)));
     }
-    if (counter) counter.textContent = `${seen.size} mostradas`;
+    if (counter) counter.textContent = shown(seen.size);
     if (empty) empty.hidden = seen.size !== 0;
   };
 

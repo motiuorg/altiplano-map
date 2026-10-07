@@ -2,12 +2,15 @@
 // Organization card — used in the gallery grid. Carries data-* attributes the
 // gallery filter script reads (data-grupo, data-zona).
 import type { OrgRecord } from '../lib/records';
+import { t, tv } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
 
 export interface Props {
   org: OrgRecord;
+  lang?: Lang;
 }
 
-const { org } = Astro.props;
+const { org, lang = 'es' } = Astro.props;
 ---
 
 <article
@@ -15,7 +18,7 @@ const { org } = Astro.props;
   data-org-id={org.id}
   data-filterable
   data-grupo={org.grupoTrabajo ? 'grupo' : 'resto'}
-  data-tipo={org.tipos.map((t) => t.toLowerCase()).join('|')}
+  data-tipo={org.tipos.map((x) => x.toLowerCase()).join('|')}
   data-name={org.name.toLowerCase()}
 >
   <div class="org-card__head">
@@ -32,7 +35,7 @@ const { org } = Astro.props;
 
   {org.tipos.length > 0 && (
     <p class="org-card__tipos">
-      {org.tipos.map((t) => <span class="org-card__tipo">{t}</span>)}
+      {org.tipos.map((x) => <span class="org-card__tipo">{tv(lang, x)}</span>)}
     </p>
   )}
 
@@ -41,10 +44,10 @@ const { org } = Astro.props;
   <div class="org-card__foot">
     {org.website && (
       <a class="org-card__link" href={org.website} target="_blank" rel="noopener noreferrer">
-        ↗ Sitio web
+        {t(lang, 'org.website')}
       </a>
     )}
-    {org.grupoTrabajo && <span class="badge badge--flow">Grupo de trabajo</span>}
+    {org.grupoTrabajo && <span class="badge badge--flow">{t(lang, 'org.group')}</span>}
   </div>
 </article>
 

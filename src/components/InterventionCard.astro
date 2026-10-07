@@ -3,6 +3,8 @@
 // attributes for the gallery filters (data-area, data-viable).
 import type { InterventionRecord } from "../lib/records";
 import { formatValor, formatEuro } from "../lib/records";
+import { t, tv, numberLocale } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
 
 export interface Props {
     intervention: InterventionRecord;
@@ -10,11 +12,12 @@ export interface Props {
     // false inside the org side panel: not part of the page filters
     filterable?: boolean;
     showOrg?: boolean;
+    lang?: Lang;
 }
 
-const { intervention: itv, orgNames, filterable = true, showOrg = true } = Astro.props;
+const { intervention: itv, orgNames, filterable = true, showOrg = true, lang = "es" } = Astro.props;
 const viableLabel =
-    itv.viable === null ? "" : itv.viable ? "Sí, viable" : "No viable";
+    itv.viable === null ? "" : itv.viable ? t(lang, "card.viableYes") : t(lang, "card.viableNo");
 const viableClass =
     itv.viable === null
         ? "badge--paper"
@@ -22,8 +25,9 @@ const viableClass =
           ? "badge--success"
           : "badge--danger";
 const recLabel =
-    itv.recurrente === null ? "—" : itv.recurrente ? "Recurrente" : "No recurrente";
-const capitales = [itv.capital1, itv.capital2].filter(Boolean);
+    itv.recurrente === null ? "—" : itv.recurrente ? t(lang, "card.recYes") : t(lang, "card.recNo");
+const capitales = [itv.capital1, itv.capital2].filter(Boolean).map((c) => tv(lang, c));
+const loc = numberLocale(lang);
 ---
 
 <article
@@ -43,17 +47,17 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
 
     <dl class="itv-card__facts">
         <div class="itv-card__fact">
-            <dt>Área de trabajo</dt>
+            <dt>{t(lang, "card.area")}</dt>
             <dd>
                 {itv.areaTrabajo.length > 0 ? (
-                    itv.areaTrabajo.map((a) => <span class="itv-card__org">{a}</span>)
+                    itv.areaTrabajo.map((a) => <span class="itv-card__org">{tv(lang, a)}</span>)
                 ) : (
                     <span class="itv-card__org itv-card__org--empty">—</span>
                 )}
             </dd>
         </div>
         {showOrg && <div class="itv-card__fact">
-            <dt>Organización(es)</dt>
+            <dt>{t(lang, "card.orgs")}</dt>
             <dd>
                 {orgNames.length > 0 ? (
                     orgNames.map((n) => <span class="itv-card__org">{n}</span>)
@@ -63,25 +67,25 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
             </dd>
         </div>}
         <div class="itv-card__fact">
-            <dt>Valor ajustado a 5 años</dt>
+            <dt>{t(lang, "card.value5")}</dt>
             <dd class="itv-card__valor">
-                {formatValor(itv.valor5Anos, itv.valor5AnosRaw)}
+                {formatValor(itv.valor5Anos, itv.valor5AnosRaw, loc)}
             </dd>
         </div>
         <div class="itv-card__fact">
-            <dt>Financiación total</dt>
-            <dd class="itv-card__valor">{formatEuro(itv.financiacion)}</dd>
+            <dt>{t(lang, "card.financing")}</dt>
+            <dd class="itv-card__valor">{formatEuro(itv.financiacion, loc)}</dd>
         </div>
         <div class="itv-card__fact">
-            <dt>Número de años</dt>
+            <dt>{t(lang, "card.years")}</dt>
             <dd>{itv.anos ?? "—"}</dd>
         </div>
         <div class="itv-card__fact">
-            <dt>Recurrencia</dt>
+            <dt>{t(lang, "card.recurrence")}</dt>
             <dd>{recLabel}</dd>
         </div>
         <div class="itv-card__fact">
-            <dt>Tipo de capital</dt>
+            <dt>{t(lang, "card.capital")}</dt>
             <dd>
                 {capitales.length > 0 ? (
                     capitales.map((c) => <span class="itv-card__org">{c}</span>)
@@ -91,7 +95,7 @@ const capitales = [itv.capital1, itv.capital2].filter(Boolean);
             </dd>
         </div>
         <div class="itv-card__fact">
-            <dt>Viabilidad comercial</dt>
+            <dt>{t(lang, "card.viability")}</dt>
             <dd>
                 {viableLabel ? (
                     <span class={`badge ${viableClass}`}>{viableLabel}</span>

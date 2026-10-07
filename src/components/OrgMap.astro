@@ -6,12 +6,15 @@
 // Clicking a pin scrolls to + flashes the matching card in the gallery.
 import fs from "fs";
 import type { OrgRecord } from "../lib/records";
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
 
 export interface Props {
     orgs: OrgRecord[];
+    lang?: Lang;
 }
 
-const { orgs } = Astro.props;
+const { orgs, lang = "es" } = Astro.props;
 
 const REGION_JSON = JSON.parse(
     fs.readFileSync("./src/data/altiplano-region.geojson", "utf8"),
@@ -139,7 +142,12 @@ const labels = [...labelGroups.entries()].map(([name, g]) => {
     return { name, core: g.core, lat, lng };
 });
 
-const mapData = { pins, region: REGION_JSON, labels, bounds };
+const strings = {
+    group: t(lang, "org.group"),
+    website: t(lang, "org.website"),
+    cluster: t(lang, "map.cluster", { n: "{n}" }),
+};
+const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
 ---
 
 <section class="org-map-block" id="mapa">
@@ -166,7 +174,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                 ></circle>
             </svg>
             <span class="org-map-inset__caption">
-                {INSET_JSON.regionName ?? "Altiplano Estepario"}
+                {t(lang, "map.region")}
             </span>
         </div>
     </div>
@@ -177,19 +185,18 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                 class="org-map-legend__dot org-map-legend__dot--grupo"
                 aria-hidden="true"
             ></span>
-            Grupo de trabajo · {grupoCount}
+            {t(lang, "map.groupLegend", { n: grupoCount })}
         </span>
         <span class="org-map-legend__item">
             <span
                 class="org-map-legend__swatch org-map-legend__swatch--region"
                 aria-hidden="true"
             ></span>
-            Altiplano Estepario
+            {t(lang, "map.region")}
         </span>
         {missing.length > 0 && (
             <span class="org-map-legend__missing">
-                ⚠ {missing.length} organizaciones sin coordenadas (no se
-                muestran en el mapa)
+                {t(lang, "map.missing", { n: missing.length })}
             </span>
         )}
     </div>
@@ -460,7 +467,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         if (!container) return;
 
         const data = JSON.parse(container.dataset.mapData || "{}");
-        const { pins = [], region = null, labels = [], bounds = null } = data;
+        const { pins = [], region = null, labels = [], bounds = null, strings = {} } = data;
 
         const hasRegion =
             region && region.features && region.features.length > 0;
@@ -574,13 +581,13 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
         <div style="padding:1rem 1.1rem;font-family:var(--sans);max-width:340px;">
           ${
               p.grupo
-                  ? '<div style="margin-bottom:0.7rem;font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--pillar-flow-4);">● Grupo de trabajo</div>'
+                  ? '<div style="margin-bottom:0.7rem;font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--pillar-flow-4);">● ${escapeHtml(strings.group)}</div>'
                   : ""
           }
           <div style="font-family:var(--serif);font-size:1.15rem;color:var(--fg);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
           ${p.place ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
           ${p.desc ? `<div style="font-size:0.85rem;color:var(--fg);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
-          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">↗ Sitio web</a>` : ""}
+          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">${escapeHtml(strings.website)}</a>` : ""}
         </div>`;
 
         function makePin(p, lngLat, extraClass) {
@@ -726,7 +733,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds };
                 "org-cluster" +
                 (group.some((g) => g.grupo) ? " org-cluster--grupo" : "");
             el.textContent = String(group.length);
-            el.title = `${group.length} organizaciones en este lugar`;
+            el.title = (strings.cluster || "{n}").replace("{n}", group.length);
             el.setAttribute("role", "button");
             const cluster = { group, lng: first.lng, lat: first.lat, el };
             el.addEventListener("click", (e) => {

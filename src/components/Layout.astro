@@ -2,31 +2,34 @@
 // Editorial-organic shell — the motiu.org design language (paper/umber neutrals,
 // pillar accents, straight edges, Averia Serif Libre display + Geist/Geist Mono).
 
+import { t, pagePath } from "../lib/i18n";
+import type { Lang, Page } from "../lib/i18n";
+
 export interface Props {
     title: string;
     description?: string;
-    current?: "organizaciones" | "intervenciones" | "simulador";
+    current?: Page;
+    lang?: Lang;
 }
 
-const { title, description = "", current = "organizaciones" } = Astro.props;
+const {
+    title,
+    description = "",
+    current = "organizaciones",
+    lang = "es",
+} = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const links = [
-    { key: "organizaciones", label: "Organizaciones", href: base },
-    {
-        key: "intervenciones",
-        label: "Intervenciones",
-        href: base + "intervenciones/",
-    },
-    {
-        key: "simulador",
-        label: "Simulador económico",
-        href: base + "simulador/",
-    },
-];
+    { key: "organizaciones", label: t(lang, "nav.orgs") },
+    { key: "intervenciones", label: t(lang, "nav.itvs") },
+    { key: "simulador", label: t(lang, "nav.sim") },
+].map((l) => ({ ...l, href: pagePath(base, lang, l.key as Page) }));
+const otherLang: Lang = lang === "es" ? "en" : "es";
+const switchHref = pagePath(base, otherLang, current);
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -503,6 +506,55 @@ const links = [
                 text-decoration: none;
             }
 
+            .site-nav__inner nav {
+                margin-left: auto;
+            }
+
+            .lang-toggle {
+                display: inline-flex;
+                border: 1px solid var(--border);
+                margin-left: var(--space-5);
+            }
+
+            .lang-toggle__opt {
+                font-family: var(--mono);
+                font-size: var(--text-2xs);
+                letter-spacing: 0.08em;
+                padding: 0.3rem 0.55rem;
+                color: var(--muted);
+                text-decoration: none;
+            }
+
+            a.lang-toggle__opt:hover {
+                color: var(--fg);
+                text-decoration: none;
+            }
+
+            .lang-toggle__opt.is-active {
+                background: var(--fg);
+                color: var(--bg);
+            }
+
+            @media (max-width: 760px) {
+                .site-nav__inner {
+                    flex-wrap: wrap;
+                    height: auto;
+                    padding: var(--space-3) 0;
+                    row-gap: var(--space-2);
+                }
+                .site-nav__inner nav {
+                    order: 3;
+                    width: 100%;
+                    margin-left: 0;
+                }
+                .lang-toggle {
+                    margin-left: auto;
+                }
+                .site-nav__links {
+                    flex-wrap: wrap;
+                }
+            }
+
             .site-nav__link.is-current {
                 color: var(--fg);
                 border-bottom: 2px solid var(--pillar-flow-3);
@@ -587,10 +639,10 @@ const links = [
     <body>
         <header class="site-nav">
             <div class="container site-nav__inner">
-                <a class="site-nav__brand" href={base}>
+                <a class="site-nav__brand" href={pagePath(base, lang, "organizaciones")}>
                     Altiplano&nbsp;Estepario
                 </a>
-                <nav aria-label="Secciones">
+                <nav aria-label={t(lang, "nav.label")}>
                     <ul class="site-nav__links">
                         {links.map((l) => (
                             <li>
@@ -610,6 +662,30 @@ const links = [
                         ))}
                     </ul>
                 </nav>
+                <div
+                    class="lang-toggle"
+                    role="group"
+                    aria-label={t(lang, "lang.label")}
+                >
+                    <a
+                        class:list={["lang-toggle__opt", { "is-active": lang === "es" }]}
+                        href={lang === "es" ? undefined : switchHref}
+                        hreflang="es"
+                        lang="es"
+                        aria-current={lang === "es" ? "true" : undefined}
+                    >
+                        ES
+                    </a>
+                    <a
+                        class:list={["lang-toggle__opt", { "is-active": lang === "en" }]}
+                        href={lang === "en" ? undefined : switchHref}
+                        hreflang="en"
+                        lang="en"
+                        aria-current={lang === "en" ? "true" : undefined}
+                    >
+                        EN
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -628,9 +704,7 @@ const links = [
                             Altiplano Estepario
                         </p>
                         <p class="copy-sm" style="max-width: 44ch;">
-                            Mapa abierto de las organizaciones e intervenciones
-                            del paisaje del Altiplano Estepario, y simulador del
-                            coste de su transición regenerativa.
+                            {t(lang, "footer.blurb")}
                         </p>
                     </div>
                     <div>
@@ -638,7 +712,7 @@ const links = [
                             class="overline"
                             style="margin-bottom: var(--space-3);"
                         >
-                            Secciones
+                            {t(lang, "footer.sections")}
                         </p>
                         <ul>
                             {links.map((l) => (
@@ -653,7 +727,7 @@ const links = [
                             class="overline"
                             style="margin-bottom: var(--space-3);"
                         >
-                            Proyecto
+                            {t(lang, "footer.project")}
                         </p>
                         <ul>
                             <li>
@@ -669,7 +743,7 @@ const links = [
                     </div>
                 </div>
                 <div class="site-footer__bottom">
-                    <span>© OpenStreetMap contributors · límites OSM (ODbL)</span>
+                    <span>{t(lang, "footer.osm")}</span>
                     <span>CC BY-SA 4.0</span>
                 </div>
             </div>
