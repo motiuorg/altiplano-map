@@ -1,0 +1,37 @@
+---
+// Confidence badge: filled bars (3/2/1) + text, so it is not colour-only.
+import { CONFIDENCE_LABEL } from "../../lib/paisaje/data";
+import type { Confidence } from "../../lib/paisaje/schema";
+
+export interface Props {
+    level: Confidence;
+}
+const { level } = Astro.props;
+const n = level === "alta" ? 3 : level === "media" ? 2 : 1;
+---
+
+<span class={`pconf pconf--${level}`}>
+    <svg viewBox="0 0 14 12" width="14" height="12" aria-hidden="true" focusable="false">
+        {[0, 1, 2].map((i) => (
+            <rect x={i * 5} y={8 - i * 3.5} width="3.4" height={4 + i * 3.5} fill={i < n ? "currentColor" : "none"} stroke="currentColor" stroke-width="1" />
+        ))}
+    </svg>
+    {CONFIDENCE_LABEL[level]}
+</span>
+
+<style is:global>
+    .pconf {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.2rem 0.5rem;
+        border: 1px solid var(--border);
+        white-space: nowrap;
+        color: var(--fg);
+    }
+    .pconf--baja { border-style: dashed; }
+</style>

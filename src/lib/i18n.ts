@@ -11,6 +11,8 @@ const D = {
   'nav.orgs': { es: 'Organizaciones', en: 'Organizations' },
   'nav.itvs': { es: 'Intervenciones', en: 'Interventions' },
   'nav.sim': { es: 'Simulador económico', en: 'Economic simulator' },
+  'nav.paisaje': { es: 'Paisaje en datos', en: 'Landscape in data' },
+  'nav.proto': { es: 'Prototipo', en: 'Prototype' },
   'nav.label': { es: 'Secciones', en: 'Sections' },
   'lang.label': { es: 'Idioma', en: 'Language' },
   'footer.blurb': {
@@ -155,8 +157,9 @@ export function tv(lang: Lang, value: string): string {
 export const numberLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'es-ES');
 
 // Path of the same page in the other language.
-export type Page = 'organizaciones' | 'intervenciones' | 'simulador';
+export type Page = 'organizaciones' | 'intervenciones' | 'simulador' | 'paisaje';
 export function pagePath(base: string, lang: Lang, page: Page): string {
   const b = base.replace(/\/?$/, '/');
+  if (page === 'paisaje') return b + 'paisaje/'; // prototype: Spanish only
   return b + (lang === 'en' ? 'en/' : '') + (page === 'organizaciones' ? '' : page + '/');
 }

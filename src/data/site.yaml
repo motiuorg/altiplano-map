@@ -17,3 +17,7 @@ groups:
   resto:
     label: Resto de organizaciones
     color: "var(--pillar-tissue-3)" # #8FE84A — lime, the land/living-systems accent
+
+# Prototype sections shown in the nav with a "Prototipo" tag. Set to false to hide.
+prototype_nav:
+  paisaje: true

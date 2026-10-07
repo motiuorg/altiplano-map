@@ -1,0 +1,35 @@
+---
+import { indicatorById, fmtVal } from "../../lib/paisaje/data";
+import StatusChip from "./StatusChip.astro";
+const examples = ["agua.nivel", "agua.riego"].map((id) => indicatorById(id)!);
+---
+
+<details class="pterr">
+    <summary>¿A qué territorio se refieren estos datos?</summary>
+    <div class="pterr__body">
+        <p>
+            Cada informe delimita el «Altiplano» a su manera: una cuenca hidrográfica, una comarca, una provincia o una malla de censos. Por eso cada
+            indicador lleva una <strong>etiqueta de ámbito</strong> y las cifras de ámbitos distintos <strong>no son directamente comparables</strong>.
+        </p>
+        <div class="ptable-wrap">
+            <table>
+                <caption class="sr-only">Ejemplo de dos indicadores con ámbitos distintos</caption>
+                <thead><tr><th scope="col">Indicador (ficticio)</th><th scope="col">Ámbito</th><th scope="col">Último dato</th></tr></thead>
+                <tbody>
+                    {examples.map((i) => (
+                        <tr><th scope="row">{i.label}</th><td><span class="pterr__scope">{i.scope}</span></td><td class="num">{fmtVal(i.latest, i.unit)} ({i.latest?.year})</td></tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+        <p class="pterr__note">Línea de trabajo abierta: fijar un ámbito de referencia común y documentar cómo se reescala cada fuente.</p>
+    </div>
+</details>
+
+<style is:global>
+    .pterr { border: 1px solid var(--border); background: var(--bg); }
+    .pterr summary { cursor: pointer; padding: var(--space-4) var(--space-5); font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.07em; }
+    .pterr__body { padding: 0 var(--space-5) var(--space-5); display: grid; gap: var(--space-3); font-size: var(--text-sm); }
+    .pterr__scope { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; border: 1px solid var(--border); padding: 0.1rem 0.4rem; }
+    .pterr__note { color: var(--muted); }
+</style>
