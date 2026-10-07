@@ -11,7 +11,7 @@ const D = {
   'nav.orgs': { es: 'Organizaciones', en: 'Organizations' },
   'nav.itvs': { es: 'Intervenciones', en: 'Interventions' },
   'nav.sim': { es: 'Simulador económico', en: 'Economic simulator' },
-  'nav.paisaje': { es: 'Landscape data', en: 'Landscape data' },
+  'nav.paisaje': { es: 'Paisaje en datos', en: 'Landscape in data' },
   'nav.proto': { es: 'Prototipo', en: 'Prototype' },
   'nav.label': { es: 'Secciones', en: 'Sections' },
   'lang.label': { es: 'Idioma', en: 'Language' },
