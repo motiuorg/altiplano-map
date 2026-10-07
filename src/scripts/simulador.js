@@ -3,15 +3,18 @@
 import { STR } from "./simulador-strings.js";
 import EN from "../data/simulador-en.json";
 
+// Off for now: Notion data (names, units, types, confidence) is shown as written.
+const TRANSLATE_NOTION_DATA = false;
+
 export function iniciarSimulador(D, M, langCode) {
   "use strict";
   const lang = langCode === "en" ? "en" : "es";
   const S = STR[lang];
   // Display-only translation of Notion enumerations/names (the model keeps using
   // the original Spanish values for its logic).
-  const tx = (group, v) => (lang === "en" ? (EN[group] && EN[group][v]) || v : v);
-  const nm = (r) => (lang === "en" ? EN.nombres[r.clave] || r.nombre : r.nombre);
-  const an = (clave, nombre) => (lang === "en" ? EN.arquetipos[clave] || nombre : nombre);
+  const tx = (group, v) => (lang === "en" && TRANSLATE_NOTION_DATA ? (EN[group] && EN[group][v]) || v : v);
+  const nm = (r) => (lang === "en" && TRANSLATE_NOTION_DATA ? EN.nombres[r.clave] || r.nombre : r.nombre);
+  const an = (clave, nombre) => (lang === "en" && TRANSLATE_NOTION_DATA ? EN.arquetipos[clave] || nombre : nombre);
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
 
@@ -383,7 +386,7 @@ export function iniciarSimulador(D, M, langCode) {
   function init() {
     $("#meta").textContent = S.meta(String(D.meta.generado).slice(0, 10), D.parametros.length, D.practicas.length);
     $("#f-arq").innerHTML = D.arquetipos.map((a) => `<option value="${esc(a.clave)}">${esc(an(a.clave, a.nombre))}</option>`).join("");
-    $("#f-esc").innerHTML = Object.entries(D.meta.escenarios).map(([k, v]) => `<option value="${esc(k)}">${esc(lang === "en" ? EN.escenarios[k] || v : v)}</option>`).join("");
+    $("#f-esc").innerHTML = Object.entries(D.meta.escenarios).map(([k, v]) => `<option value="${esc(k)}">${esc(lang === "en" && TRANSLATE_NOTION_DATA ? EN.escenarios[k] || v : v)}</option>`).join("");
     $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); render(); });
     $("#f-esc").addEventListener("change", (e) => { st.escenario = e.target.value; render(); });
     seg("#f-conj", "conjunto", String);

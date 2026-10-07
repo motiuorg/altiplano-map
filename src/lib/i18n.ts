@@ -142,9 +142,13 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
   return s;
 }
 
+// Switch for showing Notion select values in English via value-translations.json.
+// Off for now: Notion data is displayed as written.
+export const TRANSLATE_NOTION_DATA = false;
+
 // Translate a Notion select value for display (filter values stay Spanish).
 export function tv(lang: Lang, value: string): string {
-  if (lang === 'es') return value;
+  if (lang === 'es' || !TRANSLATE_NOTION_DATA) return value;
   return (valueTranslations as Record<string, string>)[value] ?? value;
 }
 
