@@ -21,7 +21,16 @@ const T = ({
     "heading": "Simulador económico",
     "intro": "Cuánto cuesta pasar a manejo eco-regenerativo frente a seguir como hoy, cuánta financiación necesita cada finca tipo en su peor momento, si podría devolver un préstamo y cuánto suma en el paisaje.",
     "farm": "Finca tipo",
-    "level": "Nivel de transición",
+    "level": "Tipo de transición",
+    "farmHa": "Tamaño de la finca (ha)",
+    "transHa": "Ha en transición",
+    "divTitle": "Diversificación",
+    "divSub": "Otros ingresos en las hectáreas en transición: pagos por servicios ecosistémicos (€/ha/año) y otras producciones (cada deslizador indica en qué porcentaje de esas hectáreas se aplica). Valores orientativos, de confianza baja.",
+    "units": "Ver en",
+    "perFarmU": "€ por finca",
+    "perHaU": "€ por ha",
+    "divTable": "Módulos de diversificación",
+    "divTableSub": "Valores por hectárea donde se aplica el módulo. El ahorro se calcula sobre el coste de cubierta y de enmiendas de la finca.",
     "assump": "Supuestos",
     "pess": "Pesimista",
     "central": "Central",
@@ -33,15 +42,23 @@ const T = ({
     "tabCredit": "Crédito",
     "tabLandscape": "Paisaje",
     "tabSens": "Sensibilidad",
+    "subPesa": "Qué pesa más",
+    "subTodos": "Todos los supuestos",
+    "subRef": "Datos de referencia",
+    "scope": "Mostrar",
+    "scopeFarm": "Esta finca tipo",
+    "scopeAll": "Todos los cultivos",
+    "allTitle": "Todos los supuestos",
+    "allSub": "Valor en uso (con tus ajustes y el conjunto pesimista, central u optimista elegido), rango bajo–alto, fuente y confianza.",
     "flowTitle": "Flujo neto de la transición",
-    "flowSub": "€/ha frente a seguir como hoy · barras: año · línea: acumulado",
+    "flowSub": "Frente a seguir como hoy · barras: año · línea: acumulado",
     "lgPos": "Neto anual (+)",
     "lgNeg": "Neto anual (−)",
     "lgCum": "Acumulado",
     "wfTitle": "De dónde sale el resultado a 10 años",
-    "wfSub": "Suma 2027–2036 por partida, €/ha",
+    "wfSub": "Suma 2027–2036 por partida",
     "detailTitle": "Detalle por año",
-    "detailSub": "€/ha, diferencia frente a seguir como hoy",
+    "detailSub": "Diferencia frente a seguir como hoy",
     "credNote": "El préstamo cubre la necesidad máxima de financiación acumulada de la finca tipo. El DSCR compara la caja disponible (margen actual + efecto operativo de la transición) con la cuota.",
     "dscrTitle": "Cobertura del servicio de la deuda (DSCR)",
     "dscrSub": "Veces · línea discontinua: umbral exigible",
@@ -56,7 +73,7 @@ const T = ({
     "landFlowSub": "Millones de € por año, todas las cohortes",
     "perFarm": "Por finca tipo",
     "tornTitle": "Qué supuestos mueven más el resultado",
-    "tornSub": "Cambio en el VAN a 10 años (€/ha) al llevar cada supuesto a su valor bajo y alto, manteniendo el resto en el escenario elegido. Junto a cada supuesto se indica la confianza del dato.",
+    "tornSub": "Cambio en el VAN a 10 años (€/ha) al llevar cada supuesto a su valor bajo y alto, manteniendo el resto en el escenario elegido. Junto a cada supuesto se indica la confianza del dato; haz clic en una barra para ver su fuente.",
     "lgWorse": "Peor que el escenario",
     "lgBetter": "Mejor que el escenario",
     "crop": "Cultivo",
@@ -73,8 +90,10 @@ const T = ({
     "traj": "Trayectorias",
     "trajSub": "Evolución año a año · nivel de transición seleccionado",
     "ph": "parámetro, fuente…",
-    "pricesTitle": "Precios y sobreprecio",
-    "pricesSub": "Ajusta los precios del cultivo de la finca tipo seleccionada y el sobreprecio regenerativo. Afectan a todas las pestañas.",
+    "pricesTitle": "Supuestos de ingresos",
+    "pricesSub": "Precios del cultivo de la finca tipo seleccionada, sobreprecio regenerativo, pagos por servicios ecosistémicos y diversificación. Afectan a todas las pestañas; pon un valor a 0 para quitarlo.",
+    "adjust": "Ajustar",
+    "close": "Cerrar",
     "reset": "Restablecer",
     "lonjaTitle": "Precio de la almendra en la Lonja de Murcia",
     "lonjaSub": "Media de cada campaña (septiembre–agosto), €/kg grano, sobre almacén agricultor. El rango bajo–alto del simulador es la peor y la mejor campaña; el central, la media."
@@ -86,7 +105,16 @@ const T = ({
     "heading": "Economic simulator",
     "intro": "How much it costs to move to eco-regenerative management compared with carrying on as today, how much financing each typical farm needs at its worst moment, whether it could repay a loan, and what it adds up to across the landscape.",
     "farm": "Typical farm",
-    "level": "Transition level",
+    "level": "Transition type",
+    "farmHa": "Farm size (ha)",
+    "transHa": "Ha in transition",
+    "divTitle": "Diversification",
+    "divSub": "Other income on the hectares in transition: payments for ecosystem services (€/ha/year) and other productions (each slider sets the share of those hectares where it applies). Indicative values, low confidence.",
+    "units": "Show in",
+    "perFarmU": "€ per farm",
+    "perHaU": "€ per ha",
+    "divTable": "Diversification modules",
+    "divTableSub": "Values per hectare where the module applies. Savings are computed on the farm's cover-crop and amendment costs.",
     "assump": "Assumptions",
     "pess": "Pessimistic",
     "central": "Central",
@@ -98,15 +126,23 @@ const T = ({
     "tabCredit": "Credit",
     "tabLandscape": "Landscape",
     "tabSens": "Sensitivity",
+    "subPesa": "What matters most",
+    "subTodos": "All assumptions",
+    "subRef": "Reference data",
+    "scope": "Show",
+    "scopeFarm": "This typical farm",
+    "scopeAll": "All crops",
+    "allTitle": "All assumptions",
+    "allSub": "Value in use (with your adjustments and the chosen pessimistic, central or optimistic set), low–high range, source and confidence.",
     "flowTitle": "Net cash flow of the transition",
-    "flowSub": "€/ha versus carrying on as today · bars: year · line: cumulative",
+    "flowSub": "Versus carrying on as today · bars: year · line: cumulative",
     "lgPos": "Annual net (+)",
     "lgNeg": "Annual net (−)",
     "lgCum": "Cumulative",
     "wfTitle": "Where the 10-year result comes from",
-    "wfSub": "Sum 2027–2036 by item, €/ha",
+    "wfSub": "Sum 2027–2036 by item",
     "detailTitle": "Detail by year",
-    "detailSub": "€/ha, difference versus carrying on as today",
+    "detailSub": "Difference versus carrying on as today",
     "credNote": "The loan covers the typical farm's peak cumulative financing need. The DSCR compares available cash (current margin + operating effect of the transition) with the repayment.",
     "dscrTitle": "Debt service coverage (DSCR)",
     "dscrSub": "Times · dashed line: required threshold",
@@ -121,7 +157,7 @@ const T = ({
     "landFlowSub": "Millions of € per year, all cohorts",
     "perFarm": "By typical farm",
     "tornTitle": "Which assumptions move the result most",
-    "tornSub": "Change in the 10-year NPV (€/ha) when each assumption is moved to its low and high value, keeping the rest in the chosen scenario. The confidence of the data is shown next to each assumption.",
+    "tornSub": "Change in the 10-year NPV (€/ha) when each assumption is moved to its low and high value, keeping the rest in the chosen scenario. The confidence of the data is shown next to each assumption; click a bar to see its source.",
     "lgWorse": "Worse than the scenario",
     "lgBetter": "Better than the scenario",
     "crop": "Crop",
@@ -138,8 +174,10 @@ const T = ({
     "traj": "Trajectories",
     "trajSub": "Year-by-year evolution · selected transition level",
     "ph": "parameter, source…",
-    "pricesTitle": "Prices and premium",
-    "pricesSub": "Adjust the crop prices of the selected typical farm and the regenerative premium. They apply to every tab.",
+    "pricesTitle": "Income assumptions",
+    "pricesSub": "Crop prices of the selected typical farm, regenerative premium, payments for ecosystem services and diversification. They apply to every tab; set a value to 0 to remove it.",
+    "adjust": "Adjust",
+    "close": "Close",
     "reset": "Reset",
     "lonjaTitle": "Almond price at the Lonja de Murcia",
     "lonjaSub": "Average of each season (September–August), €/kg kernel, farm-gate warehouse. The simulator's low–high range is the worst and best season; the central value is the average."
@@ -165,7 +203,6 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 title={T.heading}
                 intro={T.intro}
             />
-            <p class="sim-meta" id="meta"></p>
 
             <div class="filter-bar">
                 <label class="filter-select">
@@ -175,6 +212,14 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 <label class="filter-select">
                     <span class="filter-bar__label">{T.level}</span>
                     <select id="f-esc"></select>
+                </label>
+                <label class="filter-select filter-num">
+                    <span class="filter-bar__label">{T.farmHa}</span>
+                    <input type="number" id="f-ha" min="0.5" max="1000" step="0.5" inputmode="decimal" />
+                </label>
+                <label class="filter-select filter-num">
+                    <span class="filter-bar__label">{T.transHa}</span>
+                    <input type="number" id="f-hat" min="0" max="1000" step="0.5" inputmode="decimal" />
                 </label>
                 <div class="filter-select">
                     <span class="filter-bar__label">{T.assump}</span>
@@ -192,30 +237,39 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                         <button class="chip" data-v="0">0%</button>
                     </div>
                 </div>
-                <div class="filter-select">
-                    <span class="filter-bar__label">{T.uncertain}</span>
-                    <div class="sim-toggles">
-                        <label class="sim-toggle"><input type="checkbox" id="f-prima" /> {T.prima}</label>
-                        <label class="sim-toggle"><input type="checkbox" id="f-carb" /> {T.carbon}</label>
-                    </div>
-                </div>
             </div>
 
-            <div class="sim-card sim-card--controls sim-precios">
+            <div class="sim-precios">
                 <div class="sim-precios__head">
-                    <h3 class="sim-card__title">{T.pricesTitle}</h3>
-                    <button class="chip" id="precio-reset" disabled>{T.reset}</button>
+                    <button type="button" class="sim-precios__toggle" id="precios-toggle" aria-expanded="false" aria-controls="precios-body">
+                        <span class="grp-arrow" aria-hidden="true">▸</span>
+                        <span class="filter-bar__label">{T.pricesTitle}</span>
+                    </button>
+                    <span class="sim-precios__resumen" id="precios-resumen"></span>
+                    <button type="button" class="chip sim-precios__accion" id="precios-accion" data-open={T.adjust} data-close={T.close}>{T.adjust}</button>
                 </div>
-                <p class="sim-card__sub">{T.pricesSub}</p>
-                <div class="sim-row" id="precio-sliders"></div>
+                <div class="sim-precios__body" id="precios-body" hidden>
+                    <div class="sim-precios__bar">
+                        <p class="sim-card__sub">{T.pricesSub}</p>
+                        <button class="chip" id="precio-reset" disabled>{T.reset}</button>
+                    </div>
+                    <div class="sim-row" id="precio-sliders"></div>
+                    <p class="filter-bar__label sim-precios__grupo">{T.divTitle}</p>
+                    <p class="sim-card__sub sim-precios__nota">{T.divSub}</p>
+                    <div class="sim-row" id="div-sliders"></div>
+                </div>
             </div>
             <div class="view-bar">
                 <div class="view-switch" role="tablist" id="tabs">
                     <button class="chip is-active" role="tab" data-tab="finca" aria-selected="true">{T.farm}</button>
                     <button class="chip" role="tab" data-tab="credito">{T.tabCredit}</button>
                     <button class="chip" role="tab" data-tab="paisaje">{T.tabLandscape}</button>
-                    <button class="chip" role="tab" data-tab="sensibilidad">{T.tabSens}</button>
                     <button class="chip" role="tab" data-tab="supuestos">{T.assump}</button>
+                </div>
+                <div class="sim-unidad" role="group" aria-label={T.units}>
+                    <span class="filter-bar__label">{T.units}</span>
+                    <button type="button" class="chip is-active" data-u="finca" aria-pressed="true">{T.perFarmU}</button>
+                    <button type="button" class="chip" data-u="ha" aria-pressed="false">{T.perHaU}</button>
                 </div>
             </div>
 
@@ -238,7 +292,9 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 <div class="sim-card sim-card--table">
                     <h3 class="sim-card__title">{T.detailTitle}</h3>
                     <p class="sim-card__sub">{T.detailSub}</p>
+                    <div class="desglose-tools" id="tb-finca-tools"></div>
                     <div class="table-wrap" id="tb-finca"></div>
+                    <div id="tb-finca-nota"></div>
                 </div>
             </section>
 
@@ -287,56 +343,68 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 <div class="sim-card sim-card--table">
                     <h3 class="sim-card__title">{T.perFarm}</h3>
                     <div class="table-wrap" id="tb-paisaje"></div>
+                    <div id="tb-paisaje-nota"></div>
                 </div>
             </section>
 
-            <!-- SENSIBILIDAD -->
-            <section data-panel="sensibilidad" hidden>
-                <div class="sim-card chart">
-                    <h3 class="sim-card__title">{T.tornTitle}</h3>
-                    <p class="sim-card__sub">{T.tornSub}</p>
-                    <div class="legend"><span><i style="background:var(--neg)"></i>{T.lgWorse}</span><span><i style="background:var(--pos)"></i>{T.lgBetter}</span></div>
-                    <div id="ch-tornado"></div>
-                </div>
-            </section>
-
-            <!-- SUPUESTOS -->
+            <!-- SUPUESTOS: sensitivity, all assumptions, reference data -->
             <section data-panel="supuestos" hidden>
-                <div class="filter-bar">
-                    <label class="filter-select">
-                        <span class="filter-bar__label">{T.crop}</span>
-                        <select id="s-cultivo"></select>
-                    </label>
-                    <label class="filter-select">
-                        <span class="filter-bar__label">{T.conf}</span>
-                        <select id="s-conf"><option value="">{T.all}</option><option>{T.high}</option><option>{T.medium}</option><option>{T.low}</option></select>
-                    </label>
-                    <label class="filter-select sim-search">
-                        <span class="filter-bar__label">{T.search}</span>
-                        <input id="s-q" type="search" placeholder={T.ph} />
-                    </label>
+                <div class="sub-switch" role="tablist" id="subtabs">
+                    <button class="chip is-active" role="tab" data-sub="pesa" aria-selected="true">{T.subPesa}</button>
+                    <button class="chip" role="tab" data-sub="todos" aria-selected="false">{T.subTodos}</button>
+                    <button class="chip" role="tab" data-sub="ref" aria-selected="false">{T.subRef}</button>
                 </div>
-                <div class="sim-card sim-card--table">
-                    <h3 class="sim-card__title">{T.lonjaTitle}</h3>
-                    <p class="sim-card__sub">{T.lonjaSub}</p>
-                    <div class="table-wrap" id="tb-lonja"></div>
+
+                <div data-sub-panel="pesa">
+                    <div class="sim-card chart">
+                        <h3 class="sim-card__title">{T.tornTitle}</h3>
+                        <p class="sim-card__sub">{T.tornSub}</p>
+                        <div class="legend"><span><i style="background:var(--neg)"></i>{T.lgWorse}</span><span><i style="background:var(--pos)"></i>{T.lgBetter}</span></div>
+                        <div id="ch-tornado"></div>
+                    </div>
                 </div>
-                <div class="sim-card sim-card--table">
-                    <h3 class="sim-card__title">{T.params}</h3>
-                    <p class="sim-card__sub">{T.paramsSub}</p>
-                    <div class="table-wrap" id="tb-param"></div>
+
+                <div data-sub-panel="todos" hidden>
+                    <div class="filter-bar">
+                        <div class="filter-select">
+                            <span class="filter-bar__label">{T.scope}</span>
+                            <div class="sim-seg" id="s-alcance">
+                                <button class="chip is-active" data-v="finca" aria-pressed="true">{T.scopeFarm}</button>
+                                <button class="chip" data-v="todos" aria-pressed="false">{T.scopeAll}</button>
+                            </div>
+                        </div>
+                        <label class="filter-select">
+                            <span class="filter-bar__label">{T.conf}</span>
+                            <select id="s-conf"><option value="">{T.all}</option><option>{T.high}</option><option>{T.medium}</option><option>{T.low}</option></select>
+                        </label>
+                        <label class="filter-select sim-search">
+                            <span class="filter-bar__label">{T.search}</span>
+                            <input id="s-q" type="search" placeholder={T.ph} />
+                        </label>
+                    </div>
+                    <div class="sim-card sim-card--table">
+                        <h3 class="sim-card__title">{T.allTitle}</h3>
+                        <p class="sim-card__sub">{T.allSub}</p>
+                        <div class="desglose-tools" id="tb-sup-tools"></div>
+                        <div class="table-wrap" id="tb-sup"></div>
+                    </div>
                 </div>
-                <div class="sim-card sim-card--table">
-                    <h3 class="sim-card__title">{T.practices}</h3>
-                    <p class="sim-card__sub">{T.practicesSub}</p>
-                    <div class="table-wrap" id="tb-prac"></div>
-                </div>
-                <div class="sim-card sim-card--table">
-                    <h3 class="sim-card__title">{T.traj}</h3>
-                    <p class="sim-card__sub">{T.trajSub}</p>
-                    <div class="table-wrap" id="tb-tray"></div>
+
+                <div data-sub-panel="ref" hidden>
+                    <div class="sim-card sim-card--table">
+                        <h3 class="sim-card__title">{T.lonjaTitle}</h3>
+                        <p class="sim-card__sub">{T.lonjaSub}</p>
+                        <div class="table-wrap" id="tb-lonja"></div>
+                        <div id="tb-lonja-nota"></div>
+                    </div>
+                    <div class="sim-card sim-card--table">
+                        <h3 class="sim-card__title">{T.traj}</h3>
+                        <p class="sim-card__sub">{T.trajSub}</p>
+                        <div class="table-wrap" id="tb-tray"></div>
+                    </div>
                 </div>
             </section>
+            <p class="sim-meta" id="meta"></p>
         </div>
         <div id="tip" hidden></div>
     </section>
@@ -366,13 +434,16 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         padding: var(--space-16) 0 var(--space-20);
     }
 
+    /* data provenance: discreet pre-footer line */
     .sim .sim-meta {
         font-family: var(--mono);
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: var(--text-muted);
-        margin: calc(-1 * var(--space-6)) 0 var(--space-8);
+        margin: var(--space-12) 0 0;
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border-subtle);
     }
 
     /* filter bar — same pattern as Intervenciones */
@@ -389,7 +460,8 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         gap: var(--space-1);
     }
     .sim .filter-select select,
-    .sim .filter-select input[type="search"] {
+    .sim .filter-select input[type="search"],
+    .sim .filter-select input[type="number"] {
         font-family: var(--mono);
         font-size: var(--text-xs);
         padding: 0.45rem 0.6rem;
@@ -429,6 +501,17 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         border-top: 1px solid var(--border-subtle);
     }
     .sim .view-switch { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
+    .sim .view-bar { justify-content: space-between; flex-wrap: wrap; }
+    .sim .sim-unidad { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .sim .sim-unidad .chip { padding: 0.35rem 0.7rem; }
+    .sim .filter-num input { width: 8.5rem; min-width: 0; }
+    /* same height for dropdowns and number fields so they line up */
+    .sim .filter-select select,
+    .sim .filter-select input[type="number"],
+    .sim .filter-select input[type="search"] { height: 2.15rem; box-sizing: border-box; }
+    .sim .sim-precios__grupo { margin: var(--space-6) 0 0; padding-top: var(--space-4); border-top: 1px solid var(--border-subtle); color: var(--text-primary); }
+    .sim .sim-precios__nota { margin: var(--space-1) 0 var(--space-4); max-width: 62ch; }
+    .sim .sim-div-vacio { flex: 2 1 22rem; align-self: center; margin: 0; }
 
     /* cards & KPI tiles — itv-card language */
     .sim .sim-grid { display: grid; gap: var(--space-5); }
@@ -443,11 +526,12 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .sim-card--table,
     .sim .sim-card--controls { margin-bottom: var(--space-5); }
     .sim .sim-cols + .sim-card--table { margin-top: var(--space-5); }
+    /* Only the page title uses the serif; card titles are sans, figures mono. */
     .sim .sim-card__title {
-        font-family: var(--serif);
-        font-size: var(--text-md);
-        font-weight: 400;
-        line-height: 1.22;
+        font-family: var(--sans);
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.3;
     }
     .sim .sim-card__sub {
         font-size: var(--text-sm);
@@ -463,9 +547,11 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         color: var(--text-muted);
     }
     .sim .kpi .val {
-        font-family: var(--serif);
-        font-size: var(--text-xl);
-        line-height: var(--leading-display);
+        font-family: var(--mono);
+        font-size: var(--text-lg);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
         margin-top: var(--space-3);
         display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
     }
@@ -478,8 +564,25 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         margin-top: var(--space-5);
     }
 
-    .sim .sim-precios__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
-    .sim .sim-precios .sim-card__sub { margin: var(--space-2) 0 var(--space-5); }
+    /* income assumptions: same language as the filter bar (mono labels, hairlines) */
+    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-subtle); background: var(--bg); padding: var(--space-3) var(--space-5); }
+    .sim .sim-precios__head {
+        display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+    }
+    .sim .sim-precios__toggle {
+        display: inline-flex; align-items: center; gap: 0.45rem; padding: 0; border: 0; background: none;
+        cursor: pointer; font: inherit; color: var(--text-primary);
+    }
+    .sim .sim-precios__toggle:hover .filter-bar__label { color: var(--text-primary); }
+    .sim .sim-precios__toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 3px; }
+    .sim .sim-precios__toggle[aria-expanded="true"] .grp-arrow { transform: rotate(90deg); }
+    .sim .sim-precios__resumen { flex: 1 1 24rem; font-family: var(--mono); font-size: var(--text-xs); color: var(--text-muted); margin: 0; }
+    .sim .sim-precios__resumen b { font-weight: 500; color: var(--text-primary); }
+    .sim .sim-precios__accion { padding: 0.35rem 0.7rem; }
+    .sim .slider > span:first-child b { white-space: nowrap; }
+    .sim .sim-precios__body { border-top: 1px solid var(--border-subtle); margin-top: var(--space-3); padding: var(--space-5) 0 var(--space-2); }
+    .sim .sim-precios__bar { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-5); }
+    .sim .sim-precios__bar .sim-card__sub { margin: 0; max-width: 62ch; }
     .sim .chip[disabled] { opacity: 0.4; cursor: default; }
     .sim .slider .ref { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.45; text-transform: none; letter-spacing: 0; font-family: var(--sans); display: block; }
     .sim .slider .ref button {
@@ -489,6 +592,39 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
     .sim .slider.is-ajustado > span:first-child b::after { content: var(--ajustado, " · ajustado"); color: var(--pillar-flow-4); font-family: var(--mono); font-size: var(--text-2xs); }
     :root[lang="en"] .sim { --ajustado: " · adjusted"; }
+
+    /* Supuestos sub-tabs */
+    .sim .sub-switch { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
+    .sim .sub-switch .chip { padding: 0.4rem 0.8rem; }
+    .sim [data-sub-panel][hidden] { display: none; }
+    .sim table.desglose tr.sub.is-flash td { background: color-mix(in srgb, var(--pillar-flow-2) 28%, var(--bg)); transition: background 1.2s ease; }
+    .sim td .badge { margin-left: var(--space-2); }
+    .sim .chart .hit { cursor: pointer; }
+    #tb-sup td:first-child { min-width: 16rem; }
+    #tb-sup td:nth-child(5) { min-width: 15rem; }
+    #tb-sup td:nth-child(2) { min-width: 6rem; }
+    .sim .grp-n { font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); font-weight: 400; margin-left: var(--space-1); }
+
+    /* year-by-year breakdown */
+    .sim .desglose-tools { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .sim .desglose-tools .chip { padding: 0.35rem 0.7rem; }
+    .sim .desglose-tools:empty { display: none; }
+    /* the wrapper draws the frame: no double line under the last row */
+    .sim .table-wrap tbody tr:last-child > * { border-bottom: 0; }
+    .sim table.desglose tr.grp th,
+    .sim table.desglose tr.grp td { background: var(--surface-1); border-top: 1px solid var(--border-subtle); }
+    .sim table.desglose tr.grp th { font-family: var(--sans); min-width: 15rem; }
+    .sim table.desglose tr.grp small { display: block; font-family: var(--sans); font-size: var(--text-xs); color: var(--text-muted); margin: 2px 0 0 1.6rem; max-width: 26rem; }
+    .sim .grp-toggle {
+        display: inline-flex; align-items: center; gap: 0.5rem; padding: 0; border: 0; background: none; cursor: pointer;
+        font: inherit; font-weight: 500; color: var(--text-primary); text-align: left;
+    }
+    .sim .grp-toggle:hover { color: var(--primary); }
+    .sim .grp-toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 2px; }
+    .sim .grp-arrow { display: inline-flex; justify-content: center; width: 1.1rem; font-size: 1.05em; line-height: 1; color: var(--pillar-flow-3); transition: transform var(--t-fast); }
+    .sim tr.grp.is-open .grp-arrow { transform: rotate(90deg); }
+    .sim table.desglose tr.sub td { font-size: var(--text-xs); }
+    .sim table.desglose tr.sub td:first-child { padding-left: 2.2rem; color: color-mix(in srgb, var(--text-primary) 85%, var(--text-muted)); }
 
     /* sliders */
     .sim .sim-row { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-8); }
@@ -537,7 +673,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         font-family: var(--mono); font-size: var(--text-2xs); font-weight: 400;
         text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); white-space: nowrap;
     }
-    .sim tbody th { font-family: var(--serif); font-weight: 400; }
+    .sim tbody th { font-family: var(--sans); font-weight: 500; }
     .sim td.num, .sim th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
     .sim td.neg { color: var(--status-danger-mid); }
     .sim td small { display: block; font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); margin-top: 2px; }

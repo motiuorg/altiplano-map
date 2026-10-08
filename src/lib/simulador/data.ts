@@ -12,10 +12,10 @@ export interface SimuladorData {
   origen: 'notion' | 'copia';
 }
 
-const ESCENARIOS = {
-  completa: 'Transición completa (eco-regenerativa certificada)',
-  parcial: 'Transición parcial (50% de intensidad, sin certificar)',
-  mejora: 'Mejora de gestión (20% de intensidad)',
+// Transition types (keys match the trajectory "Escenario" values in Notion).
+const ESCENARIOS: Record<string, string> = {
+  completa: 'Transición certificada (eco-regenerativa)',
+  mejora: 'Mejora de gestión (sin certificar)',
 };
 
 // Internal document names → neutral labels for the public page.
@@ -59,7 +59,7 @@ function practicas(rows: NormalizedRecord[]) {
       linea_base: p['Línea base'] || 'Todas', bajo: p['Bajo €/ha'], central: p['Central €/ha'], alto: p['Alto €/ha'],
       unidad: '€/ha', cobertura: p['Cobertura'] ?? 1, frecuencia: p['Frecuencia (años)'] || 1, anios: p['Años'] || '1-10',
       solo_completa: !!p['Solo transición completa'], fuente: fuente(p['Fuente']), url: url(p['Enlace fuente']),
-      confianza: p['Confianza'],
+      confianza: p['Confianza'], mejora: !!p['Incluida en mejora de gestión'], fijo: p['Parte fija por finca'] ?? 0,
     }))
     .filter((r) => r.clave)
     .sort((a, b) => idx(orden, a.tipo) - idx(orden, b.tipo) || a.clave.localeCompare(b.clave));
@@ -72,7 +72,21 @@ function trayectorias(rows: NormalizedRecord[]) {
       valores: Array.from({ length: 10 }, (_, i) => p[`A${i + 1}`] ?? 0),
       fuente: 'Supuesto del equipo técnico', confianza: p['Confianza'],
     }))
-    .filter((r) => r.clave && r.escenario);
+    .filter((r) => r.clave && r.escenario in ESCENARIOS);
+}
+
+function diversificacion(rows: NormalizedRecord[]) {
+  const tri = (p: any, n: string, suf = ' €/ha') => ['bajo', 'central', 'alto'].map((x) => p[`${n} ${x}${suf}`] ?? 0);
+  return rows
+    .map(({ properties: p }) => ({
+      clave: p['Clave'], nombre: p['Módulo'], cultivos: p['Cultivos'] ?? [],
+      inversion: tri(p, 'Inversión'), coste: tri(p, 'Coste anual'), ingreso: tri(p, 'Ingreso anual'),
+      anio_ingreso: p['Año primer ingreso'] || 1, ahorro_cubierta: p['Ahorro manejo cubierta'] ?? 0,
+      ahorro_enmiendas: tri(p, 'Ahorro enmiendas', ''), efecto_rendimiento: tri(p, 'Efecto rendimiento', ''),
+      fuente: fuente(p['Fuente']), url: url(p['Enlace fuente']), confianza: p['Confianza'],
+    }))
+    .filter((r) => r.clave)
+    .sort((a, b) => a.clave.localeCompare(b.clave));
 }
 
 function arquetipos(rows: NormalizedRecord[]) {
@@ -90,12 +104,14 @@ export async function loadSimuladorData(): Promise<SimuladorData> {
   const cfg = loadDatabaseConfig().simulador;
   if (useFixture || !env('NOTION_API_KEY') || !cfg) return { datos: snapshot, origen: 'copia' };
   try {
-    const [s, p, t, a] = await Promise.all([
+    const [s, p, t, a, d] = await Promise.all([
       fetchSection(cfg.supuestos), fetchSection(cfg.practicas),
       fetchSection(cfg.trayectorias), fetchSection(cfg.arquetipos),
+      cfg.diversificacion ? fetchSection(cfg.diversificacion) : Promise.resolve([] as NormalizedRecord[]),
     ]);
     const datos = {
       parametros: parametros(s), practicas: practicas(p), trayectorias: trayectorias(t), arquetipos: arquetipos(a),
+      diversificacion: diversificacion(d),
       meta: {
         generado: s.map((r) => r.lastEditedTime).sort().pop()?.slice(0, 10) ?? '',
         escenarios: ESCENARIOS,

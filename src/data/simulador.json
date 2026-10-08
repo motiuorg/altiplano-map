@@ -1415,7 +1415,9 @@
    "solo_completa": true,
    "fuente": "Estimación de costes de transición por hectárea (Commonland / AlVelAl, 2026)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0.5
   },
   {
    "clave": "s.seguimiento",
@@ -1438,7 +1440,9 @@
    "solo_completa": false,
    "fuente": "Supuesto del equipo técnico",
    "url": "",
-   "confianza": "Baja"
+   "confianza": "Baja",
+   "mejora": true,
+   "fijo": 0
   },
   {
    "clave": "s.asesoria",
@@ -1461,7 +1465,9 @@
    "solo_completa": false,
    "fuente": "Estimación de costes de transición por hectárea (Commonland / AlVelAl, 2026)",
    "url": "",
-   "confianza": "Baja"
+   "confianza": "Baja",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "s.diseno",
@@ -1484,7 +1490,9 @@
    "solo_completa": false,
    "fuente": "Estimación de costes de transición por hectárea (Commonland / AlVelAl, 2026)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0.5
   },
   {
    "clave": "c.zonas_naturales",
@@ -1507,7 +1515,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Baja"
+   "confianza": "Baja",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "c.charcas",
@@ -1530,7 +1540,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "c.zanjas",
@@ -1553,7 +1565,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "c.cajas_nido",
@@ -1576,7 +1590,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "c.setos",
@@ -1599,7 +1615,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Alta"
+   "confianza": "Alta",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "p.enmiendas_cer",
@@ -1619,7 +1637,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "p.rotacion_leg",
@@ -1639,7 +1659,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": true,
+   "fijo": 0
   },
   {
    "clave": "p.gip",
@@ -1662,7 +1684,9 @@
    "solo_completa": false,
    "fuente": "Estimaciones de costes de transición (Commonland / AlVelAl, 2025)",
    "url": "",
-   "confianza": "Media"
+   "confianza": "Media",
+   "mejora": true,
+   "fijo": 0
   },
   {
    "clave": "p.triturado",
@@ -1684,7 +1708,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Alta"
+   "confianza": "Alta",
+   "mejora": true,
+   "fijo": 0
   },
   {
    "clave": "p.enmiendas",
@@ -1706,7 +1732,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Alta"
+   "confianza": "Alta",
+   "mejora": false,
+   "fijo": 0
   },
   {
    "clave": "p.cubierta_esp",
@@ -1728,7 +1756,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Alta"
+   "confianza": "Alta",
+   "mejora": true,
+   "fijo": 0
   },
   {
    "clave": "p.abono_verde",
@@ -1750,7 +1780,9 @@
    "solo_completa": false,
    "fuente": "AlVelAl — Costes transición prácticas eco-regenerativas (sept 2025)",
    "url": "",
-   "confianza": "Alta"
+   "confianza": "Alta",
+   "mejora": false,
+   "fijo": 0
   }
  ],
  "trayectorias": [
@@ -1758,25 +1790,6 @@
    "clave": "prima_regen.eco",
    "nombre": "Sobreprecio regenerativo cobrado — eco (con certificado, desde el año 2)",
    "escenario": "mejora",
-   "valores": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Media"
-  },
-  {
-   "clave": "prima_regen.eco",
-   "nombre": "Sobreprecio regenerativo cobrado — eco (con certificado, desde el año 2)",
-   "escenario": "parcial",
    "valores": [
     0,
     0,
@@ -1828,7 +1841,7 @@
     0
    ],
    "fuente": "Supuesto del equipo técnico",
-   "confianza": "Baja"
+   "confianza": "Media"
   },
   {
    "clave": "conversion",
@@ -1873,16 +1886,16 @@
    "nombre": "Sustitución de la fertilización actual por enmiendas",
    "escenario": "mejora",
    "valores": [
-    0.04,
-    0.08,
-    0.12,
-    0.16,
-    0.2,
-    0.2,
-    0.2,
-    0.2,
-    0.2,
-    0.2
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "fuente": "Supuesto del equipo técnico",
    "confianza": "Media"
@@ -1930,149 +1943,16 @@
    "nombre": "Adopción de prácticas (% de la superficie)",
    "escenario": "mejora",
    "valores": [
-    0.04,
-    0.08,
-    0.12,
-    0.16,
     0.2,
-    0.2,
-    0.2,
-    0.2,
-    0.2,
-    0.2
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Media"
-  },
-  {
-   "clave": "prima_regen.conv",
-   "nombre": "Sobreprecio regenerativo cobrado — conv. (con certificado, desde el año 4)",
-   "escenario": "parcial",
-   "valores": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Baja"
-  },
-  {
-   "clave": "conversion",
-   "nombre": "Compromiso de conversión ecológica (cobra ayuda eco)",
-   "escenario": "parcial",
-   "valores": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Media"
-  },
-  {
-   "clave": "certificado",
-   "nombre": "Producción certificada ecológica (conv. → eco, tras 3 años)",
-   "escenario": "parcial",
-   "valores": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Media"
-  },
-  {
-   "clave": "insumos",
-   "nombre": "Sustitución de la fertilización actual por enmiendas",
-   "escenario": "parcial",
-   "valores": [
-    0.1,
-    0.2,
-    0.3,
     0.4,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Media"
-  },
-  {
-   "clave": "rend.eco",
-   "nombre": "Cambio de rendimiento — línea base ecológica",
-   "escenario": "parcial",
-   "valores": [
-    -0.025,
-    -0.015,
-    0,
-    0.015,
-    0.025,
-    0.04,
-    0.05,
-    0.05,
-    0.05,
-    0.05
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Baja"
-  },
-  {
-   "clave": "rend.conv",
-   "nombre": "Cambio de rendimiento — línea base convencional",
-   "escenario": "parcial",
-   "valores": [
-    -0.075,
-    -0.05,
-    -0.025,
-    0,
-    0.015,
-    0.025,
-    0.04,
-    0.05,
-    0.05,
-    0.05
-   ],
-   "fuente": "Supuesto del equipo técnico",
-   "confianza": "Baja"
-  },
-  {
-   "clave": "adopcion",
-   "nombre": "Adopción de prácticas (% de la superficie)",
-   "escenario": "parcial",
-   "valores": [
-    0.1,
-    0.2,
-    0.3,
-    0.4,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5
+    0.6,
+    0.8,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
    ],
    "fuente": "Supuesto del equipo técnico",
    "confianza": "Media"
@@ -2094,7 +1974,7 @@
     1
    ],
    "fuente": "Supuesto del equipo técnico",
-   "confianza": "Baja"
+   "confianza": "Media"
   },
   {
    "clave": "conversion",
@@ -2262,12 +2142,129 @@
    "linea_base": "Convencional"
   }
  ],
+ "diversificacion": [
+  {
+   "clave": "d.aromaticas",
+   "nombre": "Aromáticas intercaladas (30% de la calle)",
+   "cultivos": [
+    "Almendro",
+    "Olivo",
+    "Pistacho"
+   ],
+   "inversion": [
+    600,
+    830,
+    1650
+   ],
+   "coste": [
+    690,
+    840,
+    960
+   ],
+   "ingreso": [
+    600,
+    1050,
+    1800
+   ],
+   "anio_ingreso": 2,
+   "ahorro_cubierta": 0.3,
+   "ahorro_enmiendas": [
+    0,
+    0,
+    0
+   ],
+   "efecto_rendimiento": [
+    0,
+    0,
+    0.03
+   ],
+   "fuente": "CTFC — Guía para la producción sostenible de plantas aromáticas y medicinales (costes de plantación 2.020-5.520 €/ha, mantenimiento 2.520-2.920 €/ha, cosecha 290 €/ha); La Cerca (lavandín)",
+   "url": "https://apsb.ctfc.cat/docs/GUIA%20PAM-CASTELLAfinal.pdf",
+   "confianza": "Baja"
+  },
+  {
+   "clave": "d.colmenas",
+   "nombre": "Colmenas de un apicultor (acuerdo de cesión)",
+   "cultivos": [
+    "Almendro",
+    "Pistacho"
+   ],
+   "inversion": [
+    0,
+    0,
+    0
+   ],
+   "coste": [
+    0,
+    0,
+    40
+   ],
+   "ingreso": [
+    0,
+    0,
+    0
+   ],
+   "anio_ingreso": 2,
+   "ahorro_cubierta": 0,
+   "ahorro_enmiendas": [
+    0,
+    0,
+    0
+   ],
+   "efecto_rendimiento": [
+    0,
+    0.05,
+    0.1
+   ],
+   "fuente": "Precios de polinización publicados (Almería): 40-80 €/colmena, ~10 colmenas/ha en almendro; efecto en cuajado según variedad",
+   "url": "https://melapium.com/servicio-de-polinizacion/",
+   "confianza": "Baja"
+  },
+  {
+   "clave": "d.ovino",
+   "nombre": "Pastoreo ovino bajo los árboles (ganadero externo)",
+   "cultivos": [
+    "Almendro",
+    "Olivo",
+    "Pistacho"
+   ],
+   "inversion": [
+    0,
+    50,
+    150
+   ],
+   "coste": [
+    0,
+    10,
+    30
+   ],
+   "ingreso": [
+    0,
+    10,
+    25
+   ],
+   "anio_ingreso": 1,
+   "ahorro_cubierta": 0.8,
+   "ahorro_enmiendas": [
+    0.25,
+    0.5,
+    0.5
+   ],
+   "efecto_rendimiento": [
+    0,
+    0,
+    0
+   ],
+   "fuente": "CITA Aragón — proyecto OvAl-Te (ovino + almendro en secano, 2022-24); El Roble (Make Nature Count 2023): las ovejas reducen ~50% la necesidad de fertilizante",
+   "url": "https://cita-aragon.es/en/proyecto/viabilidad-de-sistemas-mixtos-de-pastoreo-de-ovino-y-cultivo-de-almendros-en-condiciones-de-secano-en-terue-oval-te/",
+   "confianza": "Baja"
+  }
+ ],
  "meta": {
-  "generado": "2026-10-07 10:35 UTC",
+  "generado": "2026-10-08 13:46 UTC",
   "escenarios": {
-   "completa": "Transición completa (eco-regenerativa certificada)",
-   "parcial": "Transición parcial (50% de intensidad, sin certificar)",
-   "mejora": "Mejora de gestión (20% de intensidad)"
+   "completa": "Transición certificada (eco-regenerativa)",
+   "mejora": "Mejora de gestión (sin certificar)"
   }
  }
 }

@@ -71,3 +71,7 @@ simulador:
     name: Arquetipos de finca
     database_id: 9ca506f0-202d-4291-89d6-3183f52b90c9
     data_source_id: ca8475f1-6945-4cfd-9314-b43e8ea90550
+  diversificacion:
+    name: Módulos de diversificación
+    database_id: a7c58f32-b36d-4c3b-bf7a-a985728c471a
+    data_source_id: 83586fc1-1f3e-4492-8d0f-c7986cdc9c4c

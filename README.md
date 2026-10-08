@@ -75,7 +75,7 @@ Repo: **`motiuorg/altiplano-map`** → https://motiuorg.github.io/altiplano-map/
 
 ## Simulador económico: datos
 
-- Lee cuatro bases de Notion (Supuestos, Prácticas, Trayectorias, Arquetipos), definidas
+- Lee cinco bases de Notion (Supuestos, Prácticas, Trayectorias, Arquetipos y Módulos de diversificación), definidas
   en `src/data/databases.yaml` → `simulador`. Tienen que estar **compartidas con la
   integración** del `NOTION_API_KEY` (en Notion: ··· → Conexiones).
 - Solo se publica lo que el modelo necesita: las notas internas, el estado de

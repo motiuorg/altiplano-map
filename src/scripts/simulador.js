@@ -25,6 +25,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
   const eur = (x) => (x < 0 ? "−" : "") + nf0.format(Math.abs(Math.round(x))) + " €";
   const eurM = (x) => (x < 0 ? "−" : "") + nf1.format(Math.abs(x) / 1e6) + " M€";
   const signed = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + nf0.format(Math.abs(Math.round(x))) + " €";
+  const fmtHa = (x) => (Number.isInteger(x) ? nf0 : nf1).format(x);
   const pct = (x) => { const v = Math.round(x * 1000) / 10; return (Number.isInteger(v) ? nf0 : nf1).format(v) + "%"; };
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const css = (v) => getComputedStyle(document.querySelector(".sim")).getPropertyValue(v).trim();
@@ -40,13 +41,17 @@ export function iniciarSimulador(D, M, langCode, precios) {
   // ------------------------------------------------------------------ state
   const st = {
     arquetipo: D.arquetipos[0].clave, escenario: "completa", conjunto: "central", pac: 1,
-    primaRegen: false, carbono: false, tab: "finca",
-    credito: {}, tam: null, adopcion: null, superficies: {}, overrides: {},
+    pse: 0, preciosAbierto: false, tab: "finca",
+    haFinca: null, haT: null, div: {}, divAbierto: false, unidad: "finca",
+    sub: "pesa", alcance: "finca", supCerradas: new Set(),
+    credito: {}, tam: null, adopcion: null, superficies: {}, overrides: {}, abiertos: new Set(),
   };
   const P = Object.fromEntries(D.parametros.map((r) => [r.clave, r]));
   const opts = () => ({
     arquetipo: st.arquetipo, escenario: st.escenario, conjunto: st.conjunto, pac: st.pac,
-    primaRegen: st.primaRegen, carbono: st.carbono, overrides: { ...st.overrides },
+    haFinca: st.haFinca, haTransicion: st.haT, diversificacion: { ...st.div },
+    // The regenerative premium is always in the model: set it to 0 to remove it.
+    primaRegen: true, carbono: false, pse: st.pse, overrides: { ...st.overrides },
   });
 
   // ------------------------------------------------------------------ tooltip
@@ -171,36 +176,78 @@ export function iniciarSimulador(D, M, langCode, precios) {
   // ------------------------------------------------------------------ FINCA
   function renderFinca() {
     const f = M.simularFinca(D, opts());
-    const tam = st.tam || f.tam;
+    const porHa = st.unidad === "ha";
+    const u = porHa ? 1 / f.haFinca : 1;       // scale for charts and tables
+    const sfx = porHa ? "/ha" : "";
+    const fmtE = (x) => eur(x * u) + sfx, fmtS = (x) => signed(x * u) + sfx;
+    const otro = (x) => (porHa ? S.forFarm(eur(x), fmtHa(f.haFinca)) : S.perHaOf(eur(x / f.haFinca)));
     kpis($("#finca-kpis"), [
-      { lbl: S.kGross, val: eur(f.costeBruto) + "/ha", note: S.kGrossNote },
-      { lbl: S.kPeak, val: eur(f.necesidadPico) + "/ha", note: S.kPeakNote(eur(f.necesidadPico * tam), nf0.format(tam)) },
-      { lbl: S.kNet, val: signed(f.netoTotal) + "/ha", note: S.kNetNote(signed(f.van)) },
+      { lbl: S.kGross, val: fmtE(f.costeBruto), note: S.kGrossNoteU(otro(f.costeBruto)) },
+      { lbl: S.kPeak, val: fmtE(f.necesidadPico), note: porHa ? otro(f.necesidadPico) : S.kPeakNoteFarm(eur(f.necesidadPico / f.haFinca), fmtHa(f.haTransicion), fmtHa(f.haFinca)) },
+      { lbl: S.kNet, val: (f.netoTotal * u >= 0 ? signed(f.netoTotal * u) : signed(f.netoTotal * u)) + sfx, note: S.kNetNoteU(fmtS(f.van), otro(f.netoTotal)) },
       { lbl: S.kPayback, val: f.payback ? S.yearN(f.payback, M.ANIO_INICIO + f.payback - 1) : S.noPayback, note: S.kPaybackNote },
     ]);
     const anios = f.anios.map((a) => String(a.anio));
     columnChart($("#ch-flujo"), {
       labels: anios,
-      series: [{ values: f.anios.map((a) => a.neto), color: (v) => (v >= 0 ? css("--pos") : css("--neg")) }],
-      line: { values: f.anios.map((a) => a.acumulado), color: css("--ink-2"), label: S.cumulativeLbl },
+      series: [{ values: f.anios.map((a) => a.neto * u), color: (v) => (v >= 0 ? css("--pos") : css("--neg")) }],
+      line: { values: f.anios.map((a) => a.acumulado * u), color: css("--ink-2"), label: S.cumulativeLbl },
       fmtAxis: (v) => nf0.format(v),
-      tipFn: (i) => [anios[i], [[S.tNet, signed(f.anios[i].neto)], [S.tCum, signed(f.anios[i].acumulado), css("--ink-2")], [S.tAdopt, pct(f.anios[i].adopcion)]]],
+      tipFn: (i) => [anios[i], [[S.tNet, fmtS(f.anios[i].neto)], [S.tCum, fmtS(f.anios[i].acumulado), css("--ink-2")], [S.tAdopt, pct(f.anios[i].adopcion)]]],
     });
-    const rows = M.LINEAS.map(([g, k]) => ({ label: S.lines[k], value: f.totales[k], color: f.totales[k] >= 0 ? css("--pos") : css("--neg"), grupo: g }))
+    const rows = M.LINEAS.map(([g, k]) => ({ label: S.lines[k], value: f.totales[k] * u, color: f.totales[k] >= 0 ? css("--pos") : css("--neg"), grupo: g }))
       .filter((r) => Math.abs(r.value) > 0.5);
-    rows.push({ label: S.netResult, value: f.netoTotal, color: css("--ink-2"), bold: true });
-    barList($("#ch-cascada"), rows, { fmt: signed, tipFn: (i) => [rows[i].label, [[S.t10, signed(rows[i].value)]]] });
+    rows.push({ label: S.netResult, value: f.netoTotal * u, color: css("--ink-2"), bold: true });
+    barList($("#ch-cascada"), rows, { fmt: (x) => signed(x) + sfx, labelW: 240, tipFn: (i) => [rows[i].label, [[S.t10, signed(rows[i].value) + sfx]]] });
 
-    // table
-    let h = `<table><thead><tr><th>${S.thItem}</th>${f.anios.map((a) => `<th class="num">${a.anio}</th>`).join("")}<th class="num">${S.thTotal}</th></tr></thead><tbody>`;
-    for (const [, k] of M.LINEAS) {
-      if (f.anios.every((a) => Math.abs(a.lineas[k]) < 0.5)) continue;
-      h += `<tr><td>${esc(S.lines[k])}</td>${f.anios.map((a) => `<td class="num${a.lineas[k] < 0 ? " neg" : ""}">${nf0.format(a.lineas[k])}</td>`).join("")}<td class="num${f.totales[k] < 0 ? " neg" : ""}">${nf0.format(f.totales[k])}</td></tr>`;
+    // table: one row per category (subtotal) with its detail rows underneath
+    const n0 = (v) => nf0.format(Math.round(v) || 0); // no "-0"
+    const celdas = (vals, total, bold) =>
+      vals.map((v) => `<td class="num${v < -0.5 ? " neg" : ""}">${bold ? "<b>" : ""}${n0(v)}${bold ? "</b>" : ""}</td>`).join("") +
+      `<td class="num${total < -0.5 ? " neg" : ""}">${bold ? "<b>" : ""}${n0(total)}${bold ? "</b>" : ""}</td>`;
+    const vacio = (vals) => vals.every((v) => Math.abs(v) < 0.5);
+    let h = `<table class="desglose"><thead><tr><th>${S.thItemU(st.unidad)}</th>${f.anios.map((a) => `<th class="num">${a.anio}</th>`).join("")}<th class="num">${S.thTotal}</th></tr></thead><tbody>`;
+    for (const g of M.GRUPOS) {
+      const items = g.lineas ? null : g.modulos ? f.modulos : f.practicas.filter((p) => p.tipo === g.tipo);
+      const hijos = g.lineas
+        ? g.lineas.map((k) => ({ nombre: S.lines[k], vals: f.anios.map((a) => a.lineas[k] * u), total: f.totales[k] * u }))
+        : items.map((p) => ({ nombre: p.nombre, vals: f.anios.map((a) => a.detalle[p.clave] * u), total: f.totDetalle[p.clave] * u }));
+      const visibles = hijos.filter((x) => !vacio(x.vals));
+      if (!visibles.length) continue;
+      const vals = f.anios.map((_, i) => hijos.reduce((s2, x) => s2 + x.vals[i], 0));
+      const total = hijos.reduce((s2, x) => s2 + x.total, 0);
+      const abierto = st.abiertos.has(g.clave);
+      h += `<tr class="grp${abierto ? " is-open" : ""}" data-g="${g.clave}"><th scope="row"><button type="button" class="grp-toggle" aria-expanded="${abierto}" aria-controls="det-${g.clave}">` +
+        `<span class="grp-arrow" aria-hidden="true">▸</span>${esc(S.groups[g.clave].name)}</button><small>${esc(S.groups[g.clave].hint)}</small></th>${celdas(vals, total, true)}</tr>`;
+      for (const x of visibles)
+        h += `<tr class="sub" data-parent="${g.clave}"${abierto ? "" : " hidden"}><td>${esc(x.nombre)}</td>${celdas(x.vals, x.total, false)}</tr>`;
     }
-    h += `<tr><th>${S.rowNet}</th>${f.anios.map((a) => `<td class="num${a.neto < 0 ? " neg" : ""}"><b>${nf0.format(a.neto)}</b></td>`).join("")}<td class="num"><b>${nf0.format(f.netoTotal)}</b></td></tr>`;
-    h += `<tr><th>${S.rowCum}</th>${f.anios.map((a) => `<td class="num${a.acumulado < 0 ? " neg" : ""}">${nf0.format(a.acumulado)}</td>`).join("")}<td></td></tr>`;
-    h += `</tbody></table><p class="note-box">${S.baseline(nf0.format(f.base.rendimiento), nf2.format(f.base.precio), eur(f.base.ingreso), eur(f.base.margen))}</p>`;
+    h += `<tr><th>${S.rowNet}</th>${f.anios.map((a) => `<td class="num${a.neto < 0 ? " neg" : ""}"><b>${n0(a.neto * u)}</b></td>`).join("")}<td class="num"><b>${n0(f.netoTotal * u)}</b></td></tr>`;
+    h += `<tr><th>${S.rowCum}</th>${f.anios.map((a) => `<td class="num${a.acumulado < 0 ? " neg" : ""}">${n0(a.acumulado * u)}</td>`).join("")}<td></td></tr>`;
+    h += `</tbody></table>`;
     $("#tb-finca").innerHTML = h;
+    $("#tb-finca-nota").innerHTML = `<p class="note-box">${S.baseline(nf0.format(f.base.rendimiento), nf2.format(f.base.precio), eur(f.base.ingreso), eur(f.base.margen))}</p>`;
+  }
+
+  // Open / close the breakdown rows. State lives in st.abiertos so it survives re-renders.
+  function setupDesglose() {
+    $("#tb-finca-tools").innerHTML = `<button type="button" class="chip" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="chip" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
+    $("#tb-finca").closest(".sim-card").addEventListener("click", (e) => {
+      const todo = e.target.closest("[data-desglose]");
+      if (todo) {
+        st.abiertos = todo.dataset.desglose === "abrir" ? new Set(M.GRUPOS.map((g) => g.clave)) : new Set();
+        renderFinca();
+        return;
+      }
+      const btn = e.target.closest(".grp-toggle");
+      if (!btn) return;
+      const g = btn.closest("tr").dataset.g;
+      const abrir = !st.abiertos.has(g);
+      abrir ? st.abiertos.add(g) : st.abiertos.delete(g);
+      btn.setAttribute("aria-expanded", String(abrir));
+      btn.closest("tr").classList.toggle("is-open", abrir);
+      $$(`#tb-finca tr[data-parent="${g}"]`).forEach((r) => (r.hidden = !abrir));
+    });
   }
 
   // ------------------------------------------------------------------ PRECIOS
@@ -244,14 +291,60 @@ export function iniciarSimulador(D, M, langCode, precios) {
         `<input type="range" min="${lo}" max="${hi}" step="${step}" value="${v}" list="dl-${esc(k)}"><datalist id="dl-${esc(k)}">${ticks}</datalist>` +
         `<span class="ref">${referencia(k)}</span></label>`;
     }).join("");
-    $("#precio-reset").disabled = !clavesPrecio().some((k) => k in st.overrides);
+    actualizarReset();
+    resumenPrecios();
+  }
+  function actualizarReset() {
+    $("#precio-reset").disabled = !clavesPrecio().some((k) => k in st.overrides) && !st.pse && !modulosCultivo().some((m) => st.div[m.clave]);
+  }
+  // Payments for ecosystem services: €/ha/year, not a Notion parameter. Shown in the
+  // diversification row, as another source of income on the hectares in transition.
+  function htmlPse() {
+    const ref = refPse();
+    return `<label class="slider${st.pse ? " is-ajustado" : ""}" data-k="pse"><span>${esc(S.pPse)} <b>${esc(nf0.format(st.pse) + " €")}</b></span>` +
+      `<input type="range" min="0" max="150" step="5" value="${st.pse}" list="dl-pse"><datalist id="dl-pse"><option value="0"></option><option value="${ref}"></option></datalist>` +
+      `<span class="ref">${esc(S.refPse(nf0.format(ref)))}</span></label>`;
+  }
+  function refPse() {
+    const c = prefijo(), g = (k) => (P[k] ? P[k].central : 0);
+    return Math.round(g(c + ".carbono") * g("g.precio_co2") * (1 - g("g.carbono_descuento")));
+  }
+  function resumenPrecios() {
+    const k = clavesPrecio();
+    const corto = (x) => (x.endsWith(".precio") ? S.sConv : x.endsWith(".precio_eco") ? S.sEco : x.endsWith(".prima_eco") ? S.sPremEco : S.sRegen);
+    const partes = k.map((x) => `${esc(corto(x))} <b>${esc(fmtK(x, valorActual(x)))}</b>`);
+    // Diversification as one figure: ecosystem-service payments + modules (net of their
+    // costs and investment), average per year over the 10 years, per ha in transition.
+    const f = M.simularFinca(D, opts());
+    const div = f.haTransicion > 0 ? (f.totales.carbono + f.totales.diversificacion) / M.ANIOS / f.haTransicion : 0;
+    partes.push(`<span title="${esc(S.sDivTip)}">${esc(S.sDiv)} <b>${esc((Math.abs(div) >= 0.5 ? "≈" : "") + signed(div).replace(/^\+/, "") + "/ha/" + S.yr)}</b></span>`);
+    const arq = D.arquetipos.find((a) => a.clave === st.arquetipo);
+    $("#precios-resumen").innerHTML = S.sum(esc(tx("cultivos", arq.cultivo)), partes);
+  }
+  function abrirPrecios(abrir) {
+    st.preciosAbierto = abrir;
+    $("#precios-toggle").setAttribute("aria-expanded", String(abrir));
+    $("#precios-body").hidden = !abrir;
+    const acc = $("#precios-accion");
+    acc.textContent = abrir ? acc.dataset.close : acc.dataset.open;
+    acc.setAttribute("aria-expanded", String(abrir));
   }
   function fijar(k, v) {
+    if (k === "pse") {
+      st.pse = v;
+      const lab = $('#div-sliders [data-k="pse"]');
+      lab.classList.toggle("is-ajustado", v !== 0);
+      lab.querySelector("b").textContent = nf0.format(v) + " €";
+      $("#precio-reset").disabled = false;
+      resumenPrecios();
+      render();
+      return;
+    }
     st.overrides[k] = v;
-    if (k === "g.prima_regen" && !st.primaRegen) { st.primaRegen = true; $("#f-prima").checked = true; }
     const lab = $(`#precio-sliders [data-k="${k}"]`);
     if (lab) { lab.classList.add("is-ajustado"); lab.querySelector("b").textContent = fmtK(k, v); lab.querySelector("input").value = v; }
     $("#precio-reset").disabled = false;
+    resumenPrecios();
     render();
   }
   function setupPrecios() {
@@ -266,9 +359,14 @@ export function iniciarSimulador(D, M, langCode, precios) {
     });
     $("#precio-reset").addEventListener("click", () => {
       for (const k of clavesPrecio()) delete st.overrides[k];
-      construirPrecios(); render();
+      st.pse = 0;
+      st.div = {};
+      construirPrecios(); construirDiv(); render();
     });
+    $("#precios-toggle").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
+    $("#precios-accion").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
     construirPrecios();
+    abrirPrecios(false);
   }
   function renderLonja() {
     if (!precios || !$("#tb-lonja")) return;
@@ -277,8 +375,48 @@ export function iniciarSimulador(D, M, langCode, precios) {
     for (const c of precios.campanas)
       h += `<tr><td>${esc(c.campana)}</td><td class="num">${nf2.format(c.comuna)}</td><td class="num">${nf2.format(c.ecologica)}</td><td class="num">+${pct(c.ecologica / c.comuna - 1)}</td></tr>`;
     h += `<tr><th>${esc(S.currentWeek(a.semana, a.anio))}</th><td class="num"><b>${nf2.format(a.comuna)}</b></td><td class="num"><b>${nf2.format(a.ecologica)}</b></td><td class="num">+${pct(a.ecologica / a.comuna - 1)}</td></tr>`;
-    h += `</tbody></table><p class="sim-card__sub" style="margin:var(--space-3) 0 0">${esc(S.sources)}: ${precios.fuentes.map((f) => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ")}. ${esc(S.currentSrc)}: <a href="${esc(a.url)}" target="_blank" rel="noopener">CARM</a>.</p>`;
+    h += `</tbody></table>`;
+    $("#tb-lonja-nota").innerHTML = `<p class="sim-card__sub" style="margin:var(--space-3) 0 0">${esc(S.sources)}: ${precios.fuentes.map((f) => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ")}. ${esc(S.currentSrc)}: <a href="${esc(a.url)}" target="_blank" rel="noopener">CARM</a>.</p>`;
     $("#tb-lonja").innerHTML = h;
+  }
+
+  // ------------------------------------------------------------------ DIVERSIFICACIÓN
+  const modulosCultivo = () => {
+    const cult = D.arquetipos.find((a) => a.clave === st.arquetipo).cultivo;
+    return (D.diversificacion || []).filter((m) => m.cultivos.includes(cult));
+  };
+  const tripleC = (arr) => arr[1];
+  const nombreModulo = (m) => m.nombre.split(" (")[0];
+  function refModulo(m) {
+    const ah = m.ahorro_cubierta || tripleC(m.ahorro_enmiendas) ? S.divAhorro(pct(m.ahorro_cubierta || 0), tripleC(m.ahorro_enmiendas) ? pct(tripleC(m.ahorro_enmiendas)) : "") : "";
+    const rd = tripleC(m.efecto_rendimiento) ? S.divRend(pct(tripleC(m.efecto_rendimiento))) : "";
+    return esc(S.divRef(nf0.format(tripleC(m.inversion)), nf0.format(tripleC(m.coste)), nf0.format(tripleC(m.ingreso)), m.anio_ingreso, ah, rd, tx("confianza", m.confianza || "").toLowerCase())) +
+      (m.url ? ` <a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.fuente.split(" — ")[0].split(" (")[0])}</a>` : "");
+  }
+  function construirDiv() {
+    const mods = modulosCultivo();
+    $("#div-sliders").innerHTML = htmlPse() + mods.map((m) => {
+      const v = st.div[m.clave] || 0;
+      return `<label class="slider${v ? " is-ajustado" : ""}" data-m="${esc(m.clave)}"><span>${esc(nombreModulo(m))} <b>${esc(pct(v))}</b></span>` +
+        `<input type="range" min="0" max="1" step="0.05" value="${v}"><span class="ref">${refModulo(m)}</span></label>`;
+    }).join("") + (mods.length ? "" : `<p class="sim-card__sub sim-div-vacio">${esc(S.divNone)}</p>`);
+    actualizarReset();
+    resumenPrecios();
+  }
+  function setupDiv() {
+    $("#div-sliders").addEventListener("input", (e) => {
+      if (e.target.type !== "range") return;
+      const pse = e.target.closest('[data-k="pse"]');
+      if (pse) return fijar("pse", +e.target.value);
+      const lab = e.target.closest("[data-m]");
+      if (!lab) return;
+      const v = +e.target.value;
+      st.div[lab.dataset.m] = v;
+      lab.classList.toggle("is-ajustado", v > 0);
+      lab.querySelector("b").textContent = pct(v);
+      actualizarReset(); resumenPrecios(); render();
+    });
+    construirDiv();
   }
 
   // ------------------------------------------------------------------ CREDITO
@@ -296,26 +434,47 @@ export function iniciarSimulador(D, M, langCode, precios) {
     const defaults = { pct: v("g.cred_pct"), tipo: v("g.cred_tipo"), plazo: v("g.cred_plazo"), carencia: v("g.cred_carencia") };
     st.credito = { ...defaults };
     let h = credDefs.map(([k, l, mi, ma, stp, fmt]) => sliderHTML("cr-" + k, l, mi, ma, stp, defaults[k], fmt)).join("");
-    h += sliderHTML("cr-tam", S.farmSize, 1, 100, 1, 10, (x) => S.ha(x));
     $("#cred-sliders").innerHTML = h;
     for (const [k, , , , , fmt] of credDefs) {
       $("#cr-" + k).addEventListener("input", (e) => { st.credito[k] = +e.target.value; $("#cr-" + k + "-v").textContent = fmt(+e.target.value); render(); });
     }
-    $("#cr-tam").addEventListener("input", (e) => { st.tam = +e.target.value; $("#cr-tam-v").textContent = S.ha(e.target.value); render(); });
   }
+  // Farm size and hectares in transition (filter bar); defaults to the crop's typical farm.
   function syncTam() {
-    // default the farm-size slider to the archetype's typical size
     const f = D.arquetipos.find((a) => a.clave === st.arquetipo);
-    const tam = M.valorDe(P[f.prefijo + ".tam"], "central");
-    st.tam = tam; $("#cr-tam").value = tam; $("#cr-tam-v").textContent = S.ha(tam);
+    st.haFinca = M.valorDe(P[f.prefijo + ".tam"], "central");
+    st.haT = st.haFinca;
+    pintarHa();
+  }
+  function pintarHa() {
+    $("#f-ha").value = st.haFinca;
+    $("#f-hat").value = st.haT;
+    $("#f-hat").max = st.haFinca;
+  }
+  function setupHa() {
+    const num = (el) => { const x = parseFloat(String(el.value).replace(",", ".")); return Number.isFinite(x) ? x : null; };
+    $("#f-ha").addEventListener("change", (e) => {
+      const x = num(e.target);
+      if (x === null || x <= 0) return pintarHa();
+      const todo = st.haT === st.haFinca;
+      st.haFinca = x;
+      st.haT = todo ? x : Math.min(st.haT, x);
+      pintarHa(); render();
+    });
+    $("#f-hat").addEventListener("change", (e) => {
+      const x = num(e.target);
+      if (x === null) return pintarHa();
+      st.haT = Math.min(st.haFinca, Math.max(0, x));
+      pintarHa(); render();
+    });
   }
   function renderCredito() {
     const o = opts();
     const f = M.simularFinca(D, o);
-    const c = M.simularCredito(D, f, { ...o, overrides: { ...o.overrides, tam: st.tam } }, st.credito);
+    const c = M.simularCredito(D, f, o, st.credito);
     const ok = c.dscrMin != null && c.dscrMin >= c.umbral;
     kpis($("#cred-kpis"), [
-      { lbl: S.cLoan, val: eur(c.principal), note: S.cLoanNote(nf0.format(c.tam), eur(f.necesidadPico), pct(c.condiciones.pct)) },
+      { lbl: S.cLoan, val: eur(c.principal), note: S.cLoanNote2(eur(f.necesidadPico), pct(c.condiciones.pct)) },
       { lbl: S.cPay, val: eur(c.cuota), note: `${eur(c.cuota / c.tam)}/ha` },
       { lbl: S.cDscr, html: c.dscrMin == null ? "—" : `${esc(nf2.format(c.dscrMin))}× ${chip(ok ? S.meets : S.notMeets, ok ? "ok" : "risk")}`, note: S.cThresh(nf2.format(c.umbral)) },
       { lbl: S.cMargin, val: eur(f.base.margen * c.tam), note: S.cMarginNote(eur(f.base.margen)) },
@@ -383,14 +542,14 @@ export function iniciarSimulador(D, M, langCode, precios) {
     let h = `<table><thead><tr><th>${S.thFarm}</th><th class="num">${S.thHectares}</th><th class="num">${S.thFarms}</th><th class="num">${S.thNeedHa}</th><th class="num">${S.thNeedTotal}</th><th class="num">${S.thNpv}</th><th class="num">${S.thRecovery}</th></tr></thead><tbody>`;
     for (const r of p.arquetipos) h += `<tr><td>${esc(an(r.clave, r.nombre))}</td><td class="num">${nf0.format(r.ha)}</td><td class="num">${nf0.format(r.fincas)}</td><td class="num">${nf0.format(r.porHa)}</td><td class="num">${eurM(r.capital)}</td><td class="num${r.van < 0 ? " neg" : ""}">${nf0.format(r.van)}</td><td class="num">${r.payback ? S.yearShort(r.payback) : S.over10}</td></tr>`;
     h += `<tr><th>${S.total}</th><td class="num"><b>${nf0.format(p.ha)}</b></td><td class="num"><b>${nf0.format(p.fincas)}</b></td><td></td><td class="num"><b>${eurM(p.capital)}</b></td><td></td><td></td></tr></tbody></table>`;
-    h += `<p class="note-box">${S.landNote}</p>`;
     $("#tb-paisaje").innerHTML = h;
+    $("#tb-paisaje-nota").innerHTML = `<p class="note-box">${S.landNote}</p>`;
   }
 
   // ------------------------------------------------------------------ SENSIBILIDAD
   let ultimoTornado = null;
   function renderSensibilidad() {
-    const t = M.tornado(D, opts());
+    const t = M.tornado(D, opts(), (f) => f.van / f.haFinca); // €/ha of farm, as the axis says
     ultimoTornado = t;
     const filas = t.filas.slice(0, 14);
     const el = $("#ch-tornado");
@@ -409,6 +568,9 @@ export function iniciarSimulador(D, M, langCode, precios) {
       s += `<rect class="hit" data-i="${i}" tabindex="0" x="0" y="${yy}" width="${W}" height="${rowH}"/>`;
     });
     $("#ch-tornado").innerHTML = s + "</svg>";
+    const irDesde = (e) => { const h = e.target.closest("[data-i]"); if (h) irA(filas[+h.dataset.i].clave); };
+    $("#ch-tornado").onclick = irDesde;
+    $("#ch-tornado").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); irDesde(e); } };
     bindTips($("#ch-tornado"), (i) => {
       const r = filas[i];
       const src = P[r.clave] || D.practicas.find((p) => p.clave === r.clave) || {};
@@ -422,37 +584,138 @@ export function iniciarSimulador(D, M, langCode, precios) {
     const link = r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">${name}</a>` : name;
     return link;
   }
-  function setupSupuestos() {
-    const cultivos = ["", ...new Set(D.parametros.map((r) => r.cultivo))];
-    $("#s-cultivo").innerHTML = cultivos.map((c) => `<option value="${esc(c)}">${esc(c ? tx("cultivos", c) : S.anyCrop)}</option>`).join("");
-    for (const id of ["#s-cultivo", "#s-conf", "#s-q"]) $(id).addEventListener("input", renderSupuestos);
+  // One grouped table for every assumption: parameters, practices and diversification.
+  const ORDEN_CAT = ["Superficie", "Rendimiento", "Precio", "Coste base", "PAC", "Prácticas regenerativas", "Servicios técnicos",
+    "Inversiones iniciales", "Diversificación", "Adopción", "Carbono", "Crédito"];
+  const CAT_PRACTICA = { Recurrente: "Prácticas regenerativas", Servicio: "Servicios técnicos", CAPEX: "Inversiones iniciales" };
+  const CRED = { "g.cred_pct": "pct", "g.cred_tipo": "tipo", "g.cred_plazo": "plazo", "g.cred_carencia": "carencia" };
+  const catNombre = (c) => (lang === "en" ? S.supCats[c] || c : c);
+  const igual = (a, b) => Math.abs(a - b) < 1e-9;
+
+  function enUsoParametro(r) {
+    const k = r.clave, central = M.valorDe(r, "central");
+    if (CRED[k]) { const v = st.credito[CRED[k]] ?? central; return { v, aj: !igual(v, central) }; }
+    if (k === "g.adopcion_paisaje") return { v: st.adopcion, aj: !igual(st.adopcion, central) };
+    if (/\.sup$/.test(k)) { const v = st.superficies[k.split(".")[0]] ?? central; return { v, aj: !igual(v, central) }; }
+    if (k === prefijo() + ".tam") return { v: st.haFinca, aj: !igual(st.haFinca, central) };
+    if (k in st.overrides) return { v: st.overrides[k], aj: true };
+    return { v: M.valorDe(r, st.conjunto), aj: false };
   }
-  function renderSupuestos() {
-    const cul = $("#s-cultivo").value, conf = $("#s-conf").value, q = $("#s-q").value.toLowerCase();
-    const match = (r) => (!cul || r.cultivo === cul || (r.cultivos || []).includes(cul)) && (!conf || r.confianza === conf) &&
-      (!q || JSON.stringify(r).toLowerCase().includes(q));
-    let h = `<table><thead><tr><th>${S.thParam}</th><th class="num">${S.thLow}</th><th class="num">${S.thCentral}</th><th class="num">${S.thHigh}</th><th>${S.thUnit}</th><th>${S.thSource}</th><th>${S.thType}</th><th>${S.thConf}</th></tr></thead><tbody>`;
-    for (const r of D.parametros.filter(match))
-      h += `<tr><td>${esc(nm(r))}<small>${esc(r.clave)}</small></td><td class="num">${fmtValor(r.bajo, r.unidad)}</td><td class="num"><b>${fmtValor(r.central, r.unidad)}</b></td><td class="num">${fmtValor(r.alto, r.unidad)}</td><td>${esc(tx("unidades", r.unidad))}</td><td>${srcCell(r)}</td><td>${esc(tx("tipos", r.tipo))}</td><td>${chip(r.confianza)}</td></tr>`;
-    $("#tb-param").innerHTML = h + "</tbody></table>";
-    h = `<table><thead><tr><th>${S.thPractice}</th><th>${S.thType}</th><th>${S.thCrops}</th><th class="num">${S.thLow}</th><th class="num">${S.thCentral}</th><th class="num">${S.thHigh}</th><th class="num">${S.thCoverage}</th><th class="num">${S.thEvery}</th><th>${S.thYears}</th><th>${S.thSource}</th><th>${S.thConf}</th></tr></thead><tbody>`;
-    for (const r of D.practicas.filter(match))
-      h += `<tr><td>${esc(nm(r))}<small>${esc(r.clave)}</small></td><td>${esc(tx("tipos", r.tipo))}</td><td>${esc(r.cultivos.map((c) => tx("cultivos", c)).join(", "))}${r.linea_base !== "Todas" ? `<small>${esc(S.onlyBase(tx("cultivos", r.linea_base).toLowerCase()))}</small>` : ""}</td><td class="num">${nf0.format(r.bajo)}</td><td class="num"><b>${nf0.format(r.central)}</b></td><td class="num">${nf0.format(r.alto)}</td><td class="num">${pct(r.cobertura)}</td><td class="num">${S.everyN(r.frecuencia)}</td><td>${esc(r.anios)}</td><td>${srcCell(r)}</td><td>${chip(r.confianza)}</td></tr>`;
-    $("#tb-prac").innerHTML = h + "</tbody></table>";
-    h = `<table><thead><tr><th>${S.thCurve}</th>${Array.from({ length: 10 }, (_, i) => `<th class="num">${M.ANIO_INICIO + i}</th>`).join("")}<th>${S.thConf}</th></tr></thead><tbody>`;
+  function filasSupuestos() {
+    const arq = D.arquetipos.find((x) => x.clave === st.arquetipo);
+    const enFinca = st.alcance === "finca";
+    const lbOk = (lb) => !enFinca || !lb || lb === "Todas" || lb === arq.linea_base;
+    const filas = [];
+    for (const r of D.parametros) {
+      if (enFinca && !(r.cultivo === "Todos" || r.cultivo === arq.cultivo)) continue;
+      if (!lbOk(r.linea_base)) continue;
+      const u = enUsoParametro(r);
+      filas.push({ cat: r.categoria, clave: r.clave, nombre: nm(r), detalle: r.clave, enUso: fmtValor(u.v, r.unidad), aj: u.aj,
+        rango: `${fmtValor(r.bajo, r.unidad)}–${fmtValor(r.alto, r.unidad)}`, unidad: tx("unidades", r.unidad), fuente: r, confianza: r.confianza });
+    }
+    for (const p of D.practicas) {
+      if (enFinca && !p.cultivos.includes(arq.cultivo)) continue;
+      if (!lbOk(p.linea_base)) continue;
+      const aj = p.clave in st.overrides;
+      const v = aj ? st.overrides[p.clave] : st.conjunto === "optimista" ? p.bajo : st.conjunto === "pesimista" ? p.alto : p.central;
+      filas.push({ cat: CAT_PRACTICA[p.tipo] || p.tipo, clave: p.clave, nombre: nm(p), detalle: S.pracDetail(pct(p.cobertura), S.everyN(p.frecuencia), p.anios),
+        enUso: nf0.format(v), aj, rango: `${nf0.format(p.bajo)}–${nf0.format(p.alto)}`, unidad: "€/ha", fuente: p, confianza: p.confianza });
+    }
+    filas.push({ cat: "Diversificación", clave: "pse", nombre: S.pseRow, detalle: "", enUso: nf0.format(st.pse), aj: st.pse > 0,
+      rango: S.pseRange(nf0.format(refPse())), unidad: S.perHaYr, fuente: { fuente: "—" }, confianza: "Baja" });
+    for (const m of D.diversificacion || []) {
+      if (enFinca && !m.cultivos.includes(arq.cultivo)) continue;
+      const sh = st.div[m.clave] || 0;
+      const r3 = (x) => `${nf0.format(x[0])}–${nf0.format(x[2])}`;
+      filas.push({ cat: "Diversificación", clave: m.clave, nombre: m.nombre, detalle: m.clave, enUso: sh ? S.inUseShare(pct(sh)) : S.notActive, aj: sh > 0,
+        rango: S.modRange(r3(m.inversion), r3(m.coste), r3(m.ingreso)), unidad: "", fuente: m, confianza: m.confianza });
+    }
+    const conf = $("#s-conf").value, q = $("#s-q").value.trim().toLowerCase();
+    return filas.filter((f) => (!conf || f.confianza === conf) &&
+      (!q || [f.nombre, f.clave, f.detalle, f.fuente.fuente].join(" ").toLowerCase().includes(q)));
+  }
+  function renderTodos() {
+    const filas = filasSupuestos();
+    const cats = [...new Set(filas.map((f) => f.cat))].sort((a, b) => (ORDEN_CAT.indexOf(a) + 99) % 99 - (ORDEN_CAT.indexOf(b) + 99) % 99);
+    const ncol = 6;
+    let h = `<table class="desglose"><thead><tr><th>${esc(S.thParam)}</th><th class="num">${esc(S.thInUse)}</th><th class="num">${esc(S.thRange)}</th><th>${esc(S.thUnit)}</th><th>${esc(S.thSource)}</th><th>${esc(S.thConf)}</th></tr></thead><tbody>`;
+    for (const c of cats) {
+      const abierto = !st.supCerradas.has(c);
+      const de = filas.filter((f) => f.cat === c);
+      h += `<tr class="grp${abierto ? " is-open" : ""}" data-g="${esc(c)}"><th scope="row" colspan="${ncol}"><button type="button" class="grp-toggle" aria-expanded="${abierto}">` +
+        `<span class="grp-arrow" aria-hidden="true">▸</span>${esc(catNombre(c))} <span class="grp-n">${de.length}</span></button></th></tr>`;
+      for (const f of de)
+        h += `<tr class="sub" data-parent="${esc(c)}" id="sup-${esc(f.clave)}"${abierto ? "" : " hidden"}><td>${esc(f.nombre)}${f.detalle ? `<small>${esc(f.detalle)}</small>` : ""}</td>` +
+          `<td class="num"><b>${esc(f.enUso)}</b>${f.aj ? `<span class="badge badge--flow">${esc(S.adjusted)}</span>` : ""}</td>` +
+          `<td class="num">${esc(f.rango)}</td><td>${esc(f.unidad)}</td><td>${srcCell(f.fuente)}</td><td>${chip(f.confianza)}</td></tr>`;
+    }
+    $("#tb-sup").innerHTML = h + "</tbody></table>";
+  }
+  function renderTrayectorias() {
+    let h = `<table><thead><tr><th>${S.thCurve}</th>${Array.from({ length: 10 }, (_, i) => `<th class="num">${M.ANIO_INICIO + i}</th>`).join("")}<th>${S.thConf}</th></tr></thead><tbody>`;
     for (const r of D.trayectorias.filter((t) => t.escenario === st.escenario))
       h += `<tr><td>${esc(nm(r))}</td>${r.valores.map((v) => `<td class="num${v < 0 ? " neg" : ""}">${pct(v)}</td>`).join("")}<td>${chip(r.confianza)}</td></tr>`;
     $("#tb-tray").innerHTML = h + "</tbody></table>";
+  }
+  function irSub(sub) {
+    st.sub = sub;
+    $$("#subtabs [data-sub]").forEach((b) => { const on = b.dataset.sub === sub; b.classList.toggle("is-active", on); b.setAttribute("aria-selected", String(on)); });
+    $$("[data-sub-panel]").forEach((p) => { p.hidden = p.dataset.subPanel !== sub; });
+    render();
+  }
+  // From a sensitivity bar to its row in "Todos los supuestos", highlighted.
+  function irA(clave) {
+    st.alcance = "finca";
+    $$("#s-alcance [data-v]").forEach((b) => { b.classList.toggle("is-active", b.dataset.v === "finca"); b.setAttribute("aria-pressed", String(b.dataset.v === "finca")); });
+    $("#s-conf").value = ""; $("#s-q").value = "";
+    irSub("todos");
+    const fila = document.querySelector(`[id="sup-${clave}"]`);
+    if (!fila) return;
+    st.supCerradas.delete(fila.dataset.parent);
+    renderTodos();
+    const f2 = document.querySelector(`[id="sup-${clave}"]`);
+    f2.scrollIntoView({ block: "center" });
+    f2.classList.add("is-flash");
+    setTimeout(() => f2.classList.remove("is-flash"), 1800);
+  }
+  function setupSupuestos() {
+    $$("#subtabs [data-sub]").forEach((b) => b.addEventListener("click", () => irSub(b.dataset.sub)));
+    $$("#s-alcance [data-v]").forEach((b) => b.addEventListener("click", () => {
+      st.alcance = b.dataset.v;
+      $$("#s-alcance [data-v]").forEach((x) => { x.classList.toggle("is-active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+      renderTodos();
+    }));
+    for (const id of ["#s-conf", "#s-q"]) $(id).addEventListener("input", renderTodos);
+    $("#tb-sup-tools").innerHTML = `<button type="button" class="chip" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="chip" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
+    $("#tb-sup").closest(".sim-card").addEventListener("click", (e) => {
+      const todo = e.target.closest("[data-desglose]");
+      if (todo) {
+        st.supCerradas = todo.dataset.desglose === "abrir" ? new Set() : new Set(ORDEN_CAT);
+        return renderTodos();
+      }
+      const btn = e.target.closest(".grp-toggle");
+      if (!btn) return;
+      const g = btn.closest("tr").dataset.g;
+      const abrir = st.supCerradas.has(g);
+      abrir ? st.supCerradas.delete(g) : st.supCerradas.add(g);
+      btn.setAttribute("aria-expanded", String(abrir));
+      btn.closest("tr").classList.toggle("is-open", abrir);
+      $$(`#tb-sup tr[data-parent="${CSS.escape(g)}"]`).forEach((r) => (r.hidden = !abrir));
+    });
   }
 
   // ------------------------------------------------------------------ wiring
   function render() {
     try {
+      resumenPrecios(); // the diversification figure depends on every control
       if (st.tab === "finca") renderFinca();
       else if (st.tab === "credito") renderCredito();
       else if (st.tab === "paisaje") renderPaisaje();
-      else if (st.tab === "sensibilidad") renderSensibilidad();
-      else if (st.tab === "supuestos") { renderLonja(); renderSupuestos(); }
+      else if (st.tab === "supuestos") {
+        if (st.sub === "pesa") renderSensibilidad();
+        else if (st.sub === "todos") renderTodos();
+        else { renderLonja(); renderTrayectorias(); }
+      }
     } catch (e) { console.error(e); }
   }
   function seg(id, key, parse) {
@@ -466,22 +729,25 @@ export function iniciarSimulador(D, M, langCode, precios) {
       (precios ? S.metaLonja(precios.actual.semana, precios.actual.anio) : "");
     $("#f-arq").innerHTML = D.arquetipos.map((a) => `<option value="${esc(a.clave)}">${esc(an(a.clave, a.nombre))}</option>`).join("");
     $("#f-esc").innerHTML = Object.entries(D.meta.escenarios).map(([k, v]) => `<option value="${esc(k)}">${esc(lang === "en" && TRANSLATE_NOTION_DATA ? EN.escenarios[k] || v : v)}</option>`).join("");
-    $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); construirPrecios(); render(); });
+    $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); construirPrecios(); construirDiv(); render(); });
     $("#f-esc").addEventListener("change", (e) => { st.escenario = e.target.value; render(); });
     seg("#f-conj", "conjunto", String);
     $$("#f-conj button").forEach((b) => b.addEventListener("click", construirPrecios));
     seg("#f-pac", "pac", Number);
-    $("#f-prima").addEventListener("change", (e) => { st.primaRegen = e.target.checked; render(); });
-    $("#f-carb").addEventListener("change", (e) => { st.carbono = e.target.checked; render(); });
     $$("#tabs button").forEach((b) => b.addEventListener("click", () => {
       st.tab = b.dataset.tab;
       $$("#tabs button").forEach((x) => { x.setAttribute("aria-selected", String(x === b)); x.classList.toggle("is-active", x === b); });
       $$("[data-panel]").forEach((p) => { p.hidden = p.dataset.panel !== st.tab; });
       render();
     }));
-    setupCredito(); syncTam(); setupPaisaje(); setupSupuestos(); setupPrecios();
+    setupCredito(); syncTam(); setupHa(); setupPaisaje(); setupSupuestos(); setupPrecios(); setupDiv(); setupDesglose();
+    $$(".sim-unidad [data-u]").forEach((b) => b.addEventListener("click", () => {
+      st.unidad = b.dataset.u;
+      $$(".sim-unidad [data-u]").forEach((x) => { x.classList.toggle("is-active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+      render();
+    }));
     const hash = location.hash.slice(1);
-    const tb = hash && $(`#tabs button[data-tab="${hash}"]`);
+    const tb = hash && $(`#tabs button[data-tab="${hash === "sensibilidad" ? "supuestos" : hash}"]`);
     if (tb) tb.click(); else render();
     let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
     window.addEventListener("hashchange", () => { const b = $(`#tabs button[data-tab="${location.hash.slice(1)}"]`); if (b) b.click(); });
