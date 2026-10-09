@@ -1,6 +1,11 @@
 ---
 import "../styles/app.css";
 import Badge from "@motiu/design/components/Badge.astro";
+import CardTitle from "@motiu/design/components/card/CardTitle.astro";
+import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
+import CardText from "@motiu/design/components/card/CardText.astro";
+import CardBadges from "@motiu/design/components/card/CardBadges.astro";
+import CardLink from "@motiu/design/components/card/CardLink.astro";
 // Altiplano Estepario — landing = Organizaciones: intro on the left, map on the
 // right (half screen each), then the filterable organizations gallery.
 import Layout from "@motiu/design/components/Layout.astro";
@@ -143,29 +148,20 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             {panelOrgs.map(({ org, itvs }) => (
                 <section class="org-panel__body" data-panel-org={org.id} hidden>
                     <Badge tone="flow" size="sm">{t(lang, "org.group")}</Badge>
-                    <h2 class="org-panel__title">{org.name}</h2>
-                    {org.placeName && (
-                        <p class="org-panel__place">📍 {org.placeName}</p>
-                    )}
+                    <div class="org-panel__head">
+                        <CardTitle level={2} size="lg">{org.name}</CardTitle>
+                        {org.placeName && <CardEyebrow>{org.placeName}</CardEyebrow>}
+                    </div>
                     {org.tipos.length > 0 && (
-                        <p class="org-panel__tipos">
-                            {org.tipos.map((x) => (
-                                <span class="org-panel__tipo">{tv(lang, x)}</span>
-                            ))}
-                        </p>
+                        <CardBadges>
+                            {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
+                        </CardBadges>
                     )}
-                    {org.description && (
-                        <p class="org-panel__desc">{org.description}</p>
-                    )}
+                    {org.description && <CardText>{org.description}</CardText>}
                     {org.website && (
-                        <a
-                            class="org-panel__link"
-                            href={org.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <CardLink href={org.website} external rel="noopener noreferrer">
                             {t(lang, "org.website")}
-                        </a>
+                        </CardLink>
                     )}
 
                     <h3 class="org-panel__subtitle">
@@ -311,7 +307,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         overflow-y: auto;
         background: var(--bg);
         border-left: 1px solid var(--border-default);
-        padding: var(--space-12) var(--space-8) var(--space-12);
+        padding: var(--space-16) var(--space-8) var(--space-12);
         transform: translateX(100%);
         transition: transform 220ms ease;
     }
@@ -328,8 +324,9 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         position: absolute;
         top: var(--space-4);
         right: var(--space-4);
-        width: 2.25rem;
-        height: 2.25rem;
+        width: var(--control-h);
+        height: var(--control-h);
+        border-radius: var(--radius-card);
         border: 1px solid var(--border-default);
         background: var(--bg);
         color: var(--text-primary);
@@ -346,52 +343,16 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--space-3);
+        gap: var(--space-4);
     }
 
     .org-panel__body[hidden] {
         display: none;
     }
 
-    .org-panel__title {
-        font-family: var(--serif);
-        font-weight: 400;
-        font-size: var(--text-xl);
-        line-height: 1.1;
-    }
-
-    .org-panel__place {
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        color: var(--text-muted);
-    }
-
-    .org-panel__tipos {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-1);
-    }
-
-    .org-panel__tipo {
-        font-family: var(--mono);
-        font-size: var(--text-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        padding: 0.15rem 0.45rem;
-    }
-
-    .org-panel__desc {
-        font-size: var(--text-sm);
-        line-height: 1.65;
-    }
-
-    .org-panel__link {
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+    .org-panel__head {
+        display: grid;
+        gap: var(--space-2);
     }
 
     .org-panel__subtitle {
