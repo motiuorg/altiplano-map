@@ -727,9 +727,26 @@ export function iniciarSimulador(D, M, langCode, precios) {
   function init() {
     $("#meta").textContent = S.meta(String(D.meta.generado).slice(0, 10), D.parametros.length, D.practicas.length) +
       (precios ? S.metaLonja(precios.actual.semana, precios.actual.anio) : "");
-    $("#f-arq").innerHTML = D.arquetipos.map((a) => `<option value="${esc(a.clave)}">${esc(an(a.clave, a.nombre))}</option>`).join("");
+    // "Finca tipo" is a crop plus a starting management (convencional / ecológico). The model keeps one
+    // archetype key; the two selects compose it. Names read "<crop> — <state>" in both languages.
+    const partes = D.arquetipos.map((a) => { const [cul, est] = an(a.clave, a.nombre).split(" — "); return { clave: a.clave, pref: a.prefijo, base: a.linea_base, cul, est: est || a.linea_base }; });
+    const cultivos = [...new Map(partes.map((p) => [p.pref, p.cul])).entries()];
+    const estados = [...new Map(partes.map((p) => [p.base, p.est.charAt(0).toUpperCase() + p.est.slice(1)])).entries()];
+    const actual = () => partes.find((p) => p.clave === st.arquetipo);
+    const pintarArq = () => {
+      const c = actual();
+      $("#f-cul").innerHTML = cultivos.map(([k, l]) => `<option value="${esc(k)}"${k === c.pref ? " selected" : ""}>${esc(l)}</option>`).join("");
+      // a combination that does not exist (e.g. organic pistachio) is disabled
+      $("#f-est").innerHTML = estados.map(([k, l]) => `<option value="${esc(k)}"${k === c.base ? " selected" : ""}${partes.some((p) => p.pref === c.pref && p.base === k) ? "" : " disabled"}>${esc(l)}</option>`).join("");
+    };
+    const elegirArq = (pref, base) => {
+      const p = partes.find((x) => x.pref === pref && x.base === base) || partes.find((x) => x.pref === pref);
+      st.arquetipo = p.clave; pintarArq(); syncTam(); construirPrecios(); construirDiv(); render();
+    };
+    pintarArq();
     $("#f-esc").innerHTML = Object.entries(D.meta.escenarios).map(([k, v]) => `<option value="${esc(k)}">${esc(lang === "en" && TRANSLATE_NOTION_DATA ? EN.escenarios[k] || v : v)}</option>`).join("");
-    $("#f-arq").addEventListener("change", (e) => { st.arquetipo = e.target.value; syncTam(); construirPrecios(); construirDiv(); render(); });
+    $("#f-cul").addEventListener("change", (e) => elegirArq(e.target.value, actual().base));
+    $("#f-est").addEventListener("change", (e) => elegirArq(actual().pref, e.target.value));
     $("#f-esc").addEventListener("change", (e) => { st.escenario = e.target.value; render(); });
     seg("#f-conj", "conjunto", String);
     $$("#f-conj button").forEach((b) => b.addEventListener("click", construirPrecios));

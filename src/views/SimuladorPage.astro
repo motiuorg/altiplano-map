@@ -36,6 +36,8 @@ const T = ({
     "divTableSub": "Valores por hectárea donde se aplica el módulo. El ahorro se calcula sobre el coste de cubierta y de enmiendas de la finca.",
     "assump": "Supuestos",
     "scenario": "Escenario",
+    "crop": "Cultivo",
+    "startState": "Manejo actual",
     "pess": "Pesimista",
     "central": "Central",
     "opt": "Optimista",
@@ -121,6 +123,8 @@ const T = ({
     "divTableSub": "Values per hectare where the module applies. Savings are computed on the farm's cover-crop and amendment costs.",
     "assump": "Assumptions",
     "scenario": "Scenario",
+    "crop": "Crop",
+    "startState": "Current management",
     "pess": "Pessimistic",
     "central": "Central",
     "opt": "Optimistic",
@@ -211,8 +215,12 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 
             <div class="filter-bar">
                 <label class="filter-select">
-                    <span class="filter-bar__label">{T.farm}</span>
-                    <select id="f-arq" class="select"></select>
+                    <span class="filter-bar__label">{T.crop}</span>
+                    <select id="f-cul" class="select"></select>
+                </label>
+                <label class="filter-select">
+                    <span class="filter-bar__label">{T.startState}</span>
+                    <select id="f-est" class="select"></select>
                 </label>
                 <label class="filter-select">
                     <span class="filter-bar__label">{T.level}</span>
