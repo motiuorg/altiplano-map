@@ -11,6 +11,7 @@ import Layout from "@motiu/design/components/Layout.astro";
 import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
+import OrgBody from "../components/OrgBody.astro";
 import InterventionCard from "../components/InterventionCard.astro";
 import { loadSiteData } from "../lib/data";
 import { interventionOrgNames } from "../lib/records";
@@ -155,12 +156,14 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
                             {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
                         </CardBadges>
                     )}
-                    {org.description && <CardText>{org.description}</CardText>}
+                    {org.body.length === 0 && org.description && <CardText>{org.description}</CardText>}
                     {org.website && (
                         <CardLink href={org.website} external rel="noopener noreferrer">
                             {t(lang, "org.website")}
                         </CardLink>
                     )}
+
+                    {org.body.length > 0 && <OrgBody blocks={org.body} />}
 
                     <h3 class="org-panel__subtitle">
                         {t(lang, "panel.itvs", { n: itvs.length })}

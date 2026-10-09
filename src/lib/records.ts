@@ -1,3 +1,4 @@
+import type { PageBlock } from './notion';
 // Domain normalization for the Altiplano Estepario site.
 //
 // Two record types, two Notion databases:
@@ -151,6 +152,7 @@ export interface OrgRecord {
   inAltiplano: boolean;
   grupoTrabajo: boolean;
   aliado: boolean;
+  body: PageBlock[]; // the text of the org's Notion page (grupo de trabajo only; filled at build time)
   tipo: string;
   tipos: string[]; // "Tipo" multi-select values, shown on cards + used as a filter
   zona: string[];
@@ -244,6 +246,7 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
     inAltiplano,
     grupoTrabajo,
     aliado,
+    body: [],
     tipo,
     tipos: anyValues(props, ['Tipo']),
     zona,

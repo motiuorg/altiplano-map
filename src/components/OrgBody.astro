@@ -1,0 +1,108 @@
+---
+// OrgBody: the text of an organisation's Notion page (headings, paragraphs, lists),
+// as it is written there. Consecutive list items become one list; nested items sit
+// inside the list item above them.
+import type { PageBlock, TextSeg } from "../lib/notion";
+
+export interface Props {
+  blocks: PageBlock[];
+}
+const { blocks } = Astro.props;
+
+type Node =
+  | { kind: "h2" | "h3" | "p"; text: TextSeg[] }
+  | { kind: "ul" | "ol"; items: { text: TextSeg[]; children: PageBlock[] }[] };
+
+// Group list items into lists. Items deeper than the list's own level are kept as
+// children of the item above and rendered as a nested list.
+const nodes: Node[] = [];
+for (let i = 0; i < blocks.length; i++) {
+  const b = blocks[i];
+  if (b.kind === "li" || b.kind === "oli") {
+    const kind = b.kind === "li" ? "ul" : "ol";
+    const last = nodes[nodes.length - 1];
+    const item = { text: b.text, children: [] as PageBlock[] };
+    if (last && (last.kind === "ul" || last.kind === "ol") && last.kind === kind && b.depth === 0) last.items.push(item);
+    else if (b.depth > 0 && last && (last.kind === "ul" || last.kind === "ol")) last.items[last.items.length - 1]?.children.push(b);
+    else nodes.push({ kind, items: [item] });
+  } else if (b.depth === 0) {
+    nodes.push({ kind: b.kind, text: b.text } as Node);
+  } else {
+    nodes.push({ kind: "p", text: b.text });
+  }
+}
+---
+
+<div class="org-body">
+  {nodes.map((n) => {
+    if (n.kind === "h2") return <h3 class="org-body__h2">{n.text.map((s) => s.t).join("")}</h3>;
+    if (n.kind === "h3") return <h4 class="org-body__h3">{n.text.map((s) => s.t).join("")}</h4>;
+    if (n.kind === "p")
+      return (
+        <p class="org-body__p">
+          {n.text.map((s) => (
+            s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{s.t}</a>
+            : s.b ? <strong>{s.t}</strong> : s.i ? <em>{s.t}</em> : s.t
+          ))}
+        </p>
+      );
+    const List = n.kind;
+    return (
+      <List class="org-body__list">
+        {n.items.map((it) => (
+          <li>
+            {it.text.map((s) => (
+              s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{s.t}</a>
+              : s.b ? <strong>{s.t}</strong> : s.i ? <em>{s.t}</em> : s.t
+            ))}
+            {it.children.length > 0 && (
+              <ul class="org-body__list">
+                {it.children.map((c) => <li>{c.text.map((s) => s.t).join("")}</li>)}
+              </ul>
+            )}
+          </li>
+        ))}
+      </List>
+    );
+  })}
+</div>
+
+<style is:global>
+  .org-body { display: flex; flex-direction: column; gap: var(--space-3); align-self: stretch; }
+  .org-body__h2 {
+    margin: var(--space-6) 0 0;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border-subtle);
+    font-size: var(--text-md);
+  }
+  .org-body > .org-body__h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .org-body__h3 {
+    margin: var(--space-3) 0 0;
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+  }
+  .org-body__p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: var(--copy-md);
+    line-height: var(--leading-body);
+    white-space: pre-line;
+  }
+  .org-body__p strong, .org-body__list strong { color: var(--text-primary); font-weight: 500; }
+  .org-body__list {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--copy-md);
+    line-height: var(--leading-body);
+  }
+  .org-body__list .org-body__list { margin-top: var(--space-2); }
+  .org-body a { color: var(--primary); }
+</style>

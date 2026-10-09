@@ -253,3 +253,63 @@ function extractValue(prop: any): any {
 export function buildRecordMap(records: NormalizedRecord[]): Map<string, NormalizedRecord> {
   return new Map(records.map((r) => [r.id, r]));
 }
+// ---------------------------------------------------------------------------
+// Page body (the text inside an organisation's Notion page)
+// ---------------------------------------------------------------------------
+
+export interface TextSeg {
+  t: string;
+  b?: boolean;
+  i?: boolean;
+  href?: string;
+}
+
+// A flattened block: headings, paragraphs and list items (depth = nesting level).
+export interface PageBlock {
+  kind: 'h2' | 'h3' | 'p' | 'li' | 'oli';
+  depth: number;
+  text: TextSeg[];
+}
+
+// Links into Notion never reach the published page: the text stays, the link goes.
+const isNotionLink = (href: string) => /(^|\.)notion\.(so|site)\b|app\.notion\.com/i.test(href);
+
+function segments(rich: any[] | undefined): TextSeg[] {
+  return (rich ?? [])
+    .filter((r) => r?.plain_text)
+    .map((r) => {
+      const href = r.href && !isNotionLink(r.href) ? r.href : undefined;
+      return { t: r.plain_text as string, b: r.annotations?.bold || undefined, i: r.annotations?.italic || undefined, href };
+    });
+}
+
+// Reads a page's blocks into a flat list. Images (their Notion URLs expire),
+// embedded databases, tables and columns are left out; the interventions are
+// shown by the site from its own data.
+export async function fetchPageBlocks(pageId: string, depth = 0): Promise<PageBlock[]> {
+  const notion = getClient();
+  const out: PageBlock[] = [];
+  try {
+    let cursor: string | undefined;
+    do {
+      const res: any = await notion.blocks.children.list({ block_id: pageId, page_size: 100, start_cursor: cursor });
+      for (const b of res.results ?? []) {
+        const text = segments(b[b.type]?.rich_text);
+        let kind: PageBlock['kind'] | null = null;
+        if (b.type === 'heading_1' || b.type === 'heading_2') kind = 'h2';
+        else if (b.type === 'heading_3') kind = 'h3';
+        else if (b.type === 'paragraph' || b.type === 'quote' || b.type === 'callout') kind = 'p';
+        else if (b.type === 'bulleted_list_item') kind = 'li';
+        else if (b.type === 'numbered_list_item') kind = 'oli';
+        if (kind && text.length > 0) out.push({ kind, depth, text });
+        if (b.has_children && (kind === 'li' || kind === 'oli' || b.type === 'toggle') && depth < 3) {
+          out.push(...(await fetchPageBlocks(b.id, depth + 1)));
+        }
+      }
+      cursor = res.next_cursor ?? undefined;
+    } while (cursor);
+  } catch (err: any) {
+    console.warn(`[notion] page ${pageId} body → ${err?.code}: ${err?.message}`);
+  }
+  return out;
+}

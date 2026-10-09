@@ -1,7 +1,7 @@
 // Shared build-time data loading for both pages (Organizaciones, Intervenciones).
 // Notion fetch at build; USE_FIXTURE=1 uses the local fixture dataset instead
 // (see src/lib/fixture.ts).
-import { loadDatabaseConfig, fetchSection, fetchViewOrder } from './notion';
+import { loadDatabaseConfig, fetchSection, fetchViewOrder, fetchPageBlocks } from './notion';
 import type { NormalizedRecord } from './notion';
 import { normalizeOrg, keepOrg, normalizeIntervention } from './records';
 import type { InterventionRecord, OrgRecord } from './records';
@@ -62,6 +62,11 @@ export async function loadSiteData(): Promise<SiteData> {
     .map((r) => normalizeOrg(r, orgFilters))
     .filter(keepOrg)
     .sort((a, b) => Number(b.grupoTrabajo) - Number(a.grupoTrabajo) || a.name.localeCompare(b.name, 'es'));
+  // The grupo de trabajo's pages carry text about the organisation itself; the side
+  // panel shows it. Fixture data has none.
+  if (dataSource === 'notion' && !dataError) {
+    await Promise.all(orgs.filter((o) => o.grupoTrabajo).map(async (o) => { o.body = await fetchPageBlocks(o.id); }));
+  }
   const orgMap = new Map(orgs.map((o) => [o.id, o]));
 
   // Interventions follow the Notion view order (fallback: data-source order).
