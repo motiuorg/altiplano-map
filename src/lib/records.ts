@@ -278,6 +278,7 @@ export interface InterventionRecord {
   valor5Anos: number | null;
   valor5AnosRaw: string;
   viable: boolean | null; // null = unknown
+  portafolio: boolean | null; // the "Portafolio" checkbox; null = the database has no such column
   viableRaw: string;
   financiacion: number | null; // total financing
   anos: number | null; // number of years
@@ -364,6 +365,7 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
     valor5AnosRaw,
     viable,
     viableRaw,
+    portafolio: parseViable(pickProp(props, ['Portafolio', 'Portfolio'])).viable,
     financiacion,
     anos,
     recurrente,

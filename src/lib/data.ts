@@ -70,7 +70,14 @@ export async function loadSiteData(): Promise<SiteData> {
   const orgMap = new Map(orgs.map((o) => [o.id, o]));
 
   // Interventions follow the Notion view order (fallback: data-source order).
-  const itvById = new Map(interventionRecords.map((r) => [r.id, normalizeIntervention(r)]));
+  // Only interventions ticked "Portafolio" are published, and so counted anywhere (cards, table,
+  // areas view, totals, the organisations' side panels). Data without that column keeps them all.
+  const itvById = new Map(
+    interventionRecords
+      .map((r) => normalizeIntervention(r))
+      .filter((i) => i.portafolio !== false)
+      .map((i) => [i.id, i] as const),
+  );
   const interventions =
     viewOrder && viewOrder.length > 0
       ? viewOrder.map((id) => itvById.get(id)).filter((i): i is InterventionRecord => !!i)
