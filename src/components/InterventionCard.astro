@@ -1,7 +1,8 @@
 ---
-// Intervention card — built from the design system's card parts: title, description and
-// a list of facts. Carries data-* attributes for the gallery filters (data-area,
-// data-viable, data-org, data-fin).
+// Intervention card — built from the design system's card parts. Top to bottom: work-area
+// badges, title, organisations (plain mono line), description, then the facts. Recurrence and
+// commercial viability show a tick when yes and are left out otherwise. Carries data-*
+// attributes for the gallery filters (data-area, data-viable, data-org, data-fin).
 import Card from "@motiu/design/components/card/Card.astro";
 import CardBody from "@motiu/design/components/card/CardBody.astro";
 import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
@@ -10,9 +11,8 @@ import CardText from "@motiu/design/components/card/CardText.astro";
 import CardBadges from "@motiu/design/components/card/CardBadges.astro";
 import CardFacts from "@motiu/design/components/card/CardFacts.astro";
 import CardFact from "@motiu/design/components/card/CardFact.astro";
-import CardFooter from "@motiu/design/components/card/CardFooter.astro";
-import CardLink from "@motiu/design/components/card/CardLink.astro";
 import Badge from "@motiu/design/components/Badge.astro";
+import Check from "@motiu/design/components/Check.astro";
 import type { InterventionRecord } from "../lib/records";
 import { formatValor, formatEuro } from "../lib/records";
 import { t, tv, numberLocale } from "../lib/i18n";
@@ -28,10 +28,6 @@ export interface Props {
 }
 
 const { intervention: itv, orgNames, filterable = true, showOrg = true, lang = "es" } = Astro.props;
-const viableLabel =
-    itv.viable === null ? "" : itv.viable ? t(lang, "card.viableYes") : t(lang, "card.viableNo");
-const recLabel =
-    itv.recurrente === null ? "—" : itv.recurrente ? t(lang, "card.recYes") : t(lang, "card.recNo");
 const areas = itv.areaTrabajo.map((a) => tv(lang, a));
 const capitales = [itv.capital1, itv.capital2].filter(Boolean).map((c) => tv(lang, c));
 const loc = numberLocale(lang);
@@ -47,33 +43,39 @@ const loc = numberLocale(lang);
     data-fin={itv.financiacion ?? ""}
 >
     <CardBody>
+        {areas.length > 0 && (
+            <CardBadges>
+                {areas.map((a) => <Badge shape="square" size="sm">{a}</Badge>)}
+            </CardBadges>
+        )}
+
         <CardTitle size="sm">{itv.name}</CardTitle>
+
+        {showOrg && orgNames.length > 0 && <CardEyebrow>{orgNames.join(" · ")}</CardEyebrow>}
 
         {itv.description && <CardText>{itv.description}</CardText>}
 
         <CardFacts>
-            <CardFact label={t(lang, "card.area")} empty={areas.length === 0}>
-                {areas.map((a) => <Badge shape="square" size="sm">{a}</Badge>)}
+            <CardFact label={t(lang, "card.financing")} mono>
+                {formatEuro(itv.financiacion, loc)}
             </CardFact>
-            {showOrg && (
-                <CardFact label={t(lang, "card.orgs")} empty={orgNames.length === 0}>
-                    {orgNames.map((n) => <Badge shape="square" size="sm">{n}</Badge>)}
+            <CardFact label={t(lang, "card.years")}>{itv.anos ?? "—"}</CardFact>
+            {itv.recurrente === true && (
+                <CardFact label={t(lang, "card.recurrence")}>
+                    <Check label={t(lang, "card.recYes")} />
                 </CardFact>
             )}
             <CardFact label={t(lang, "card.value5")} mono>
                 {formatValor(itv.valor5Anos, itv.valor5AnosRaw, loc)}
             </CardFact>
-            <CardFact label={t(lang, "card.financing")} mono>
-                {formatEuro(itv.financiacion, loc)}
-            </CardFact>
-            <CardFact label={t(lang, "card.years")}>{itv.anos ?? "—"}</CardFact>
-            <CardFact label={t(lang, "card.recurrence")}>{recLabel}</CardFact>
             <CardFact label={t(lang, "card.capital")} empty={capitales.length === 0}>
                 {capitales.map((c) => <Badge shape="square" size="sm">{c}</Badge>)}
             </CardFact>
-            <CardFact label={t(lang, "card.viability")} empty={!viableLabel}>
-                <Badge tone={itv.viable ? "success" : "danger"} size="sm">{viableLabel}</Badge>
-            </CardFact>
+            {itv.viable === true && (
+                <CardFact label={t(lang, "card.viability")}>
+                    <Check label={t(lang, "card.viableYes")} />
+                </CardFact>
+            )}
         </CardFacts>
     </CardBody>
 </Card>
