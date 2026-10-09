@@ -296,10 +296,15 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
             }
             const max = Math.max(...[...sums.values()].map((e) => e.value), 0);
             const W = bubbleBox.clientWidth;
-            const cluster = W >= 720;
+            // Circles in a row. The clustered arrangement (one circle in the middle, the rest
+            // around it) is kept below, switched off for now.
+            const CLUSTER = false;
+            const cluster = CLUSTER && W >= 720;
             bubbleBox.classList.toggle("is-cluster", cluster);
             // The largest circle is always MAX_D wide; the others follow by area.
-            const maxD = cluster ? Math.min(300, W * 0.34) : Math.min(200, (W - 24) / 2);
+            const maxD = cluster
+                ? Math.min(300, W * 0.34)
+                : Math.min(300, Math.max(120, (W - 24 * (bubbles.length - 1)) / bubbles.length));
             const items = bubbles.map((b) => {
                 const e = sums.get(b.dataset.bubbleArea!)!;
                 const d = max > 0 && e.value > 0 ? Math.max(MIN_D, Math.sqrt(e.value / max) * maxD) : MIN_D;
@@ -309,7 +314,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
             });
             if (!cluster) {
                 for (const { b, d } of items) {
-                    b.style.cssText = `--d:${d}px`;
+                    b.style.cssText = `--d:${d}px;width:${maxD}px`;
                     b.dataset.pos = "";
                 }
                 bubbleBox.style.height = "";
@@ -537,7 +542,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        align-items: flex-start;
+        align-items: flex-end;
         gap: var(--space-8) var(--space-6);
     }
 
