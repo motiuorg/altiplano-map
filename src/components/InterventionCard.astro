@@ -42,6 +42,7 @@ const loc = numberLocale(lang);
     data-viable={itv.viable === null ? "unknown" : itv.viable ? "si" : "no"}
     data-org={itv.orgIds.join("|")}
     data-fin={itv.financiacion ?? ""}
+    data-valor5={itv.valor5Anos ?? ""}
 >
     <CardBody>
         {areas.length > 0 && (

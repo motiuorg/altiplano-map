@@ -11,6 +11,8 @@
 const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
 const locale = lang === 'en' ? 'en-GB' : 'es-ES';
 const shown = (n: number) => (lang === 'en' ? `${n} shown` : `${n} mostradas`);
+const compact = (n: number) => `${n.toLocaleString(locale, { notation: 'compact', maximumFractionDigits: 1 })} €`;
+const overFive = (n: number) => (lang === 'en' ? `${compact(n)} over 5 years` : `${compact(n)} a 5 años`);
 
 // Containers marked [data-shuffle] list their cards in a new random order on every load,
 // so no organisation or intervention always comes first. Tables keep their order.
@@ -44,6 +46,8 @@ export function initGalleryFilters(): void {
 
   const apply = () => {
     const seen = new Set<string>();
+    let valor5 = 0;
+    let hasValor5 = false;
     // "Narrowed" means moved in from where the thumbs start (data-default), not from the ends of the track.
     const rangeActive =
       !!(loInput && hiInput) &&
@@ -66,9 +70,18 @@ export function initGalleryFilters(): void {
         show = !Number.isNaN(n) && n >= Number(loInput!.value) && n <= Number(hiInput!.value);
       }
       it.hidden = !show;
-      if (show) seen.add(it.dataset.itemId ?? String(items.indexOf(it)));
+      if (show) {
+        const id = it.dataset.itemId ?? String(items.indexOf(it));
+        // Cards and table rows both carry the item: count each intervention once.
+        if (!seen.has(id) && it.dataset.valor5 !== undefined) {
+          hasValor5 = true;
+          const v = Number(it.dataset.valor5);
+          if (it.dataset.valor5 !== '' && !Number.isNaN(v)) valor5 += v;
+        }
+        seen.add(id);
+      }
     }
-    if (counter) counter.textContent = shown(seen.size);
+    if (counter) counter.textContent = hasValor5 ? `${shown(seen.size)} · ${overFive(valor5)}` : shown(seen.size);
     if (empty) empty.hidden = seen.size !== 0;
     document.dispatchEvent(new CustomEvent('gallery:applied'));
   };
