@@ -93,7 +93,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
                 {tipos.length > 0 && (
                     <label class="filter-select">
                         <span class="filter-bar__label">{t(lang, "filter.type")}</span>
-                        <select data-key="tipo" aria-label={t(lang, "filter.byType")}>
+                        <select class="select" data-key="tipo" aria-label={t(lang, "filter.byType")}>
                             <option value="">{t(lang, "filter.allTypes")}</option>
                             {tipos.map((x) => (
                                 <option value={x.toLowerCase()}>{tv(lang, x)}</option>
@@ -436,15 +436,6 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     }
 
     .filter-select select {
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        padding: 0.4rem 0.6rem;
-        height: var(--control-h);
-        box-sizing: border-box;
-        background: var(--bg);
-        color: var(--text-primary);
-        border: 1px solid var(--border-default);
-        border-radius: var(--radius);
         max-width: 18rem;
     }
 

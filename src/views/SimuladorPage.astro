@@ -210,11 +210,11 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
             <div class="filter-bar">
                 <label class="filter-select">
                     <span class="filter-bar__label">{T.farm}</span>
-                    <select id="f-arq"></select>
+                    <select id="f-arq" class="select"></select>
                 </label>
                 <label class="filter-select">
                     <span class="filter-bar__label">{T.level}</span>
-                    <select id="f-esc"></select>
+                    <select id="f-esc" class="select"></select>
                 </label>
                 <label class="filter-select filter-num">
                     <span class="filter-bar__label">{T.farmHa}</span>
@@ -245,7 +245,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
             <div class="sim-precios">
                 <div class="sim-precios__head">
                     <button type="button" class="sim-precios__toggle" id="precios-toggle" aria-expanded="false" aria-controls="precios-body">
-                        <span class="grp-arrow" aria-hidden="true">▸</span>
+                        <span class="caret caret--right" aria-hidden="true"></span>
                         <span class="filter-bar__label">{T.pricesTitle}</span>
                     </button>
                     <span class="sim-precios__resumen" id="precios-resumen"></span>
@@ -378,7 +378,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                         </div>
                         <label class="filter-select">
                             <span class="filter-bar__label">{T.conf}</span>
-                            <select id="s-conf"><option value="">{T.all}</option><option>{T.high}</option><option>{T.medium}</option><option>{T.low}</option></select>
+                            <select id="s-conf" class="select"><option value="">{T.all}</option><option>{T.high}</option><option>{T.medium}</option><option>{T.low}</option></select>
                         </label>
                         <label class="filter-select sim-search">
                             <span class="filter-bar__label">{T.search}</span>
@@ -462,7 +462,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         flex-direction: column;
         gap: var(--space-1);
     }
-    .sim .filter-select select,
+    .sim .filter-select select { min-width: 11rem; max-width: 22rem; }
     .sim .filter-select input[type="search"],
     .sim .filter-select input[type="number"] {
         font-family: var(--mono);
@@ -585,7 +585,6 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
     .sim .sim-precios__toggle:hover .filter-bar__label { color: var(--text-primary); }
     .sim .sim-precios__toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 3px; }
-    .sim .sim-precios__toggle[aria-expanded="true"] .grp-arrow { transform: rotate(90deg); }
     .sim .sim-precios__resumen { flex: 1 1 24rem; font-family: var(--mono); font-size: var(--text-xs); color: var(--text-muted); margin: 0; }
     .sim .sim-precios__resumen b { font-weight: 500; color: var(--text-primary); }
     .sim .sim-precios__accion { padding-inline: 0.7rem; }
@@ -631,8 +630,6 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
     .sim .grp-toggle:hover { color: var(--primary); }
     .sim .grp-toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 2px; }
-    .sim .grp-arrow { display: inline-flex; justify-content: center; width: 1.1rem; font-size: 1.05em; line-height: 1; color: var(--pillar-flow-3); transition: transform var(--t-fast); }
-    .sim tr.grp.is-open .grp-arrow { transform: rotate(90deg); }
     .sim table.desglose tr.sub td { font-size: var(--text-xs); }
     .sim table.desglose tr.sub td:first-child { padding-left: 2.2rem; color: color-mix(in srgb, var(--text-primary) 85%, var(--text-muted)); }
 

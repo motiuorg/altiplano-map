@@ -218,7 +218,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
       const total = hijos.reduce((s2, x) => s2 + x.total, 0);
       const abierto = st.abiertos.has(g.clave);
       h += `<tr class="grp${abierto ? " is-open" : ""}" data-g="${g.clave}"><th scope="row"><button type="button" class="grp-toggle" aria-expanded="${abierto}" aria-controls="det-${g.clave}">` +
-        `<span class="grp-arrow" aria-hidden="true">▸</span>${esc(S.groups[g.clave].name)}</button><small>${esc(S.groups[g.clave].hint)}</small></th>${celdas(vals, total, true)}</tr>`;
+        `<span class="caret caret--right" aria-hidden="true"></span>${esc(S.groups[g.clave].name)}</button><small>${esc(S.groups[g.clave].hint)}</small></th>${celdas(vals, total, true)}</tr>`;
       for (const x of visibles)
         h += `<tr class="sub" data-parent="${g.clave}"${abierto ? "" : " hidden"}><td>${esc(x.nombre)}</td>${celdas(x.vals, x.total, false)}</tr>`;
     }
@@ -645,7 +645,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
       const abierto = !st.supCerradas.has(c);
       const de = filas.filter((f) => f.cat === c);
       h += `<tr class="grp${abierto ? " is-open" : ""}" data-g="${esc(c)}"><th scope="row" colspan="${ncol}"><button type="button" class="grp-toggle" aria-expanded="${abierto}">` +
-        `<span class="grp-arrow" aria-hidden="true">▸</span>${esc(catNombre(c))} <span class="grp-n">${de.length}</span></button></th></tr>`;
+        `<span class="caret caret--right" aria-hidden="true"></span>${esc(catNombre(c))} <span class="grp-n">${de.length}</span></button></th></tr>`;
       for (const f of de)
         h += `<tr class="sub" data-parent="${esc(c)}" id="sup-${esc(f.clave)}"${abierto ? "" : " hidden"}><td>${esc(f.nombre)}${f.detalle ? `<small>${esc(f.detalle)}</small>` : ""}</td>` +
           `<td class="num"><b>${esc(f.enUso)}</b>${f.aj ? `<span class="badge badge--flow">${esc(S.adjusted)}</span>` : ""}</td>` +

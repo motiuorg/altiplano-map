@@ -71,7 +71,7 @@ const viableText = (v: boolean | null) =>
             <div class="filter-bar" data-filter-bar>
                 <label class="filter-select">
                     <span class="filter-bar__label">{t(lang, "itvs.area")}</span>
-                    <select data-key="area" aria-label={t(lang, "itvs.areaBy")}>
+                    <select class="select" data-key="area" aria-label={t(lang, "itvs.areaBy")}>
                         <option value="">{t(lang, "itvs.allF")}</option>
                         {areas.map((a) => (
                             <option value={a.toLowerCase()}>{tv(lang, a)}</option>
@@ -80,7 +80,7 @@ const viableText = (v: boolean | null) =>
                 </label>
                 <label class="filter-select">
                     <span class="filter-bar__label">{t(lang, "itvs.viability")}</span>
-                    <select data-key="viable" aria-label={t(lang, "itvs.viabilityBy")}>
+                    <select class="select" data-key="viable" aria-label={t(lang, "itvs.viabilityBy")}>
                         <option value="">{t(lang, "itvs.allF")}</option>
                         <option value="si">{t(lang, "itvs.viable")}</option>
                         <option value="no">{t(lang, "itvs.notViable")}</option>
@@ -88,7 +88,7 @@ const viableText = (v: boolean | null) =>
                 </label>
                 <label class="filter-select">
                     <span class="filter-bar__label">{t(lang, "itvs.org")}</span>
-                    <select data-key="org" aria-label={t(lang, "itvs.orgBy")}>
+                    <select class="select" data-key="org" aria-label={t(lang, "itvs.orgBy")}>
                         <option value="">{t(lang, "itvs.allF")}</option>
                         {orgOptions.map((o) => (
                             <option value={o.id}>{o.name}</option>
@@ -253,15 +253,6 @@ const viableText = (v: boolean | null) =>
     }
 
     .filter-select select {
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        padding: 0.45rem 0.6rem;
-        height: var(--control-h);
-        box-sizing: border-box;
-        background: var(--bg);
-        color: var(--text-primary);
-        border: 1px solid var(--border-default);
-        border-radius: var(--radius);
         min-width: 11rem;
         max-width: 18rem;
     }
