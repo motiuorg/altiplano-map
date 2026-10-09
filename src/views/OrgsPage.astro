@@ -2,7 +2,6 @@
 import "../styles/app.css";
 import Badge from "@motiu/design/components/Badge.astro";
 import CardTitle from "@motiu/design/components/card/CardTitle.astro";
-import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
 import CardText from "@motiu/design/components/card/CardText.astro";
 import CardBadges from "@motiu/design/components/card/CardBadges.astro";
 import CardLink from "@motiu/design/components/card/CardLink.astro";
@@ -148,10 +147,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             {panelOrgs.map(({ org, itvs }) => (
                 <section class="org-panel__body" data-panel-org={org.id} hidden>
                     <Badge tone="flow" size="sm">{t(lang, "org.group")}</Badge>
-                    <div class="org-panel__head">
-                        <CardTitle level={2} size="lg">{org.name}</CardTitle>
-                        {org.placeName && <CardEyebrow>{org.placeName}</CardEyebrow>}
-                    </div>
+                    <CardTitle level={2} size="lg">{org.name}</CardTitle>
                     {org.tipos.length > 0 && (
                         <CardBadges>
                             {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
@@ -348,11 +344,6 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
 
     .org-panel__body[hidden] {
         display: none;
-    }
-
-    .org-panel__head {
-        display: grid;
-        gap: var(--space-2);
     }
 
     .org-panel__subtitle {
