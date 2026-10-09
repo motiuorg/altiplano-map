@@ -27,4 +27,4 @@ groups:
     color: "var(--pillar-flow-3)" # #FF7A00 — orange, the active/primary accent
   resto:
     label: Resto de organizaciones
-    color: "var(--pillar-tissue-3)" # #8FE84A — lime, the land/living-systems accent
+    color: "var(--data-support)" # supporting blue, the design system's data colour

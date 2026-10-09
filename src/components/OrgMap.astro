@@ -1,6 +1,6 @@
 ---
 // OrgMap — MapLibre GL map of Altiplano organizations.
-// Two pin colors: grupo de trabajo (flow orange) vs resto (tissue lime).
+// Two pin colors: grupo de trabajo (flow orange) vs resto (the design system's supporting blue).
 // Overlaid on the altiplano comarcas (core "Altiplano de Granada" vs surrounding
 // steppe comarcas) with DOM comarca labels and a Spain-inset locator.
 // Clicking a pin scrolls to + flashes the matching card in the gallery.
@@ -325,7 +325,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
     }
 
     .org-map-legend__dot--resto {
-        background: var(--pillar-tissue-3);
+        background: var(--data-support);
     }
 
     .org-map-legend__swatch {
@@ -595,7 +595,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
             el.className = "org-pin" + (extraClass ? " " + extraClass : "");
             el.style.setProperty(
                 "--pin-color",
-                p.grupo ? "var(--pillar-flow-3)" : "var(--pillar-tissue-3)",
+                p.grupo ? "var(--pillar-flow-3)" : "var(--data-support)",
             );
             el.innerHTML = '<span class="org-pin__inner"></span>';
             const marker = new maplibregl.Marker({
