@@ -320,6 +320,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
     partes.push(`<span title="${esc(S.sDivTip)}">${esc(S.sDiv)} <b>${esc((Math.abs(div) >= 0.5 ? "≈" : "") + signed(div).replace(/^\+/, "") + "/ha/" + S.yr)}</b></span>`);
     const arq = D.arquetipos.find((a) => a.clave === st.arquetipo);
     $("#precios-resumen").innerHTML = S.sum(esc(tx("cultivos", arq.cultivo)), partes);
+    $("#precios-resumen").title = $("#precios-resumen").textContent;
   }
   function abrirPrecios(abrir) {
     st.preciosAbierto = abrir;

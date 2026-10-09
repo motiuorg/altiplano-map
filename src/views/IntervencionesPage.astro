@@ -295,22 +295,27 @@ const viableText = (v: boolean | null) =>
         width: 11rem;
     }
 
+    /* Same look as the simulator's sliders: a rounded track with a light remainder and a thin outline,
+       a dark fill, plain dark round thumbs. */
     .range__track,
     .range__fill {
         position: absolute;
         top: 50%;
-        height: 4px;
+        height: 8px;
+        border-radius: 999px;
         transform: translateY(-50%);
     }
 
     .range__track {
         left: 0;
         right: 0;
-        background: var(--border-subtle);
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-default);
+        box-sizing: border-box;
     }
 
     .range__fill {
-        background: var(--pillar-flow-3);
+        background: var(--text-primary);
     }
 
     .range__control input[type="range"] {
@@ -339,17 +344,17 @@ const viableText = (v: boolean | null) =>
         height: 16px;
         border-radius: 50%;
         background: var(--text-primary);
-        border: 2px solid var(--paper);
+        border: 0;
         cursor: grab;
     }
 
     .range__control input[type="range"]::-moz-range-thumb {
         pointer-events: auto;
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: var(--text-primary);
-        border: 2px solid var(--paper);
+        border: 0;
         cursor: grab;
     }
 

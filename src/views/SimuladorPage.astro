@@ -587,15 +587,24 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .sim-precios:has(.sim-precios__head:hover) { border-color: var(--text-primary); }
     .sim .sim-precios__head {
         display: flex; align-items: center; gap: var(--space-3);
-        width: 100%; box-sizing: border-box; min-height: calc(var(--control-h) - 2px);
+        width: 100%; box-sizing: border-box; height: calc(var(--control-h) - 2px);
         padding: 0 var(--space-3); background: none; border: 0; cursor: pointer;
         font: inherit; color: inherit; text-align: left;
     }
     .sim .sim-precios__head .caret { color: var(--text-muted); }
     .sim .sim-precios__head:hover .caret { color: var(--text-primary); }
     .sim .sim-precios__head:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-    .sim .sim-precios__resumen { flex: 1 1 auto; font-family: var(--mono); font-size: var(--text-xs); color: var(--text-muted); margin: 0; }
-    .sim .sim-precios__resumen b { font-weight: 500; color: var(--text-primary); }
+    /* One line at the control height, like the inputs beside it; the full text is in the tooltip. */
+    .sim .sim-precios__resumen {
+        flex: 1 1 auto; min-width: 0; margin: 0;
+        font-family: var(--mono); font-size: var(--text-xs); line-height: normal; color: var(--text-muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sim .sim-precios__resumen b { font-weight: 400; color: var(--text-primary); }
+    @media (max-width: 720px) {
+        .sim .sim-precios__head { height: auto; min-height: calc(var(--control-h) - 2px); padding-block: var(--space-2); }
+        .sim .sim-precios__resumen { white-space: normal; }
+    }
     .sim .sim-precios__accion { flex: none; margin-left: auto; }
     .sim .sim-precios__head:hover .sim-precios__accion { color: var(--text-primary); text-decoration-color: var(--text-primary); }
     .sim .slider > span:first-child b { white-space: nowrap; }
