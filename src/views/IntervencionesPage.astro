@@ -38,8 +38,13 @@ const finMin = hasFin ? Math.min(...fins) : 0;
 const finMax = hasFin ? Math.max(...fins) : 0;
 const span = Math.max(finMax - finMin, 1);
 const step = Math.max(1, Math.pow(10, Math.floor(Math.log10(span)) - 2));
-const sliderMin = Math.floor(finMin / step) * step;
-const sliderMax = Math.ceil(finMax / step) * step;
+// The thumbs start at the real min and max, with track left beyond them (about 10% of the span each side),
+// so it reads as a slider and not as a filled bar.
+const startLo = Math.floor(finMin / step) * step;
+const startHi = Math.ceil(finMax / step) * step;
+const pad = Math.max(span * 0.1, step);
+const sliderMin = Math.max(0, Math.floor((finMin - pad) / step) * step);
+const sliderMax = Math.ceil((finMax + pad) / step) * step;
 
 ---
 
@@ -110,7 +115,8 @@ const sliderMax = Math.ceil(finMax / step) * step;
                                 min={sliderMin}
                                 max={sliderMax}
                                 step={step}
-                                value={sliderMin}
+                                value={startLo}
+                                data-default={startLo}
                                 aria-label={t(lang, "itvs.finMin")}
                             />
                             <input
@@ -119,7 +125,8 @@ const sliderMax = Math.ceil(finMax / step) * step;
                                 min={sliderMin}
                                 max={sliderMax}
                                 step={step}
-                                value={sliderMax}
+                                value={startHi}
+                                data-default={startHi}
                                 aria-label={t(lang, "itvs.finMax")}
                             />
                         </div>

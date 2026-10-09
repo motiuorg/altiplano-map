@@ -30,9 +30,11 @@ export function initGalleryFilters(): void {
 
   const apply = () => {
     const seen = new Set<string>();
+    // "Narrowed" means moved in from where the thumbs start (data-default), not from the ends of the track.
     const rangeActive =
       !!(loInput && hiInput) &&
-      (Number(loInput!.value) > Number(loInput!.min) || Number(hiInput!.value) < Number(hiInput!.max));
+      (Number(loInput!.value) > Number(loInput!.dataset.default ?? loInput!.min) ||
+        Number(hiInput!.value) < Number(hiInput!.dataset.default ?? hiInput!.max));
     for (const it of items) {
       let show = true;
       for (const [key, value] of state) {
