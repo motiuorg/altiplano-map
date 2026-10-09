@@ -646,9 +646,11 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .grp-n { font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); font-weight: 400; margin-left: var(--space-1); }
 
     /* year-by-year breakdown */
-    .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3) var(--space-4); }
-    /* Bottom-aligned in the card header, so they sit just above the table they act on. */
-    .sim .desglose-tools { display: flex; gap: var(--space-4); align-items: center; padding-bottom: var(--space-2); }
+    /* The tools line up with the last line of the description (last baseline), so they sit right above the table.
+       The gap to the table is the header's margin, not the description's. */
+    .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-end; align-items: last baseline; justify-content: space-between; gap: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
+    .sim .sim-card__head .sim-card__sub { margin-bottom: 0; }
+    .sim .desglose-tools { display: flex; gap: var(--space-4); align-items: baseline; }
     .sim .desglose-tools:empty { display: none; }
     /* the wrapper draws the frame: no double line under the last row */
     .sim .table-wrap tbody tr:last-child > * { border-bottom: 0; }
