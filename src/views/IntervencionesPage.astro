@@ -316,12 +316,16 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                 return;
             }
 
-            // Cluster: the biggest circle in the middle, the rest around it, each one a
+            // Cluster: one circle in the middle, the rest around it, each one a
             // gap's width from the centre circle and captions facing outwards.
+            // Articulación e impulso is the hub the other areas hang from, so it always sits in
+            // the middle; if it is missing, the biggest circle takes its place.
             items.sort((x, y) => y.value - x.value);
             const GAP = 16;
-            const centre = items[0];
-            const ring = items.slice(1);
+            const hub = items.find((it) => it.b.dataset.bubbleArea!.startsWith("articulaci"));
+            // ...unless the filters have shrunk it to a dot: then the biggest circle leads.
+            const centre = hub && hub.d >= maxD * 0.3 ? hub : items[0];
+            const ring = items.filter((it) => it !== centre);
             const pos = new Map<HTMLElement, { x: number; y: number; dx: number; dy: number }>();
             pos.set(centre.b, { x: 0, y: 0, dx: 0, dy: 0 });
             ring.forEach((it, i) => {
@@ -348,7 +352,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
             for (const { b, d } of items) {
                 const p = pos.get(b)!;
                 const dirX = b === centre.b ? 0 : p.x, dirY = b === centre.b ? 0 : p.y;
-                const side = b === centre.b ? "in" : Math.abs(dirX) > Math.abs(dirY) * 1.1 ? (dirX > 0 ? "right" : "left") : dirY > 0 ? "below" : "above";
+                const side = b === centre.b ? (d >= 170 ? "in" : "below") : Math.abs(dirX) > Math.abs(dirY) * 1.1 ? (dirX > 0 ? "right" : "left") : dirY > 0 ? "below" : "above";
                 b.style.cssText = `--d:${d}px;left:${p.x}px;top:${p.y}px`;
                 b.dataset.pos = side;
             }
