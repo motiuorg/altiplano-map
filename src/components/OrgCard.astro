@@ -54,7 +54,7 @@ const { org, lang = 'es' } = Astro.props;
 
     <CardFooter rule>
       {org.website ? (
-        <CardLink href={org.website} external>{t(lang, 'org.website')}</CardLink>
+        <CardLink href={org.website} external rel="noopener noreferrer">{t(lang, 'org.website')}</CardLink>
       ) : (
         <span></span>
       )}
