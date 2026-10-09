@@ -1,0 +1,24 @@
+---
+import { sparkPoints, polyline } from "../../lib/paisaje/charts";
+export interface Props {
+    values: number[];
+    label?: string;
+}
+const { values, label = "Tendencia" } = Astro.props;
+const pts = sparkPoints(values);
+const last = pts[pts.length - 1];
+---
+
+{pts.length > 1 ? (
+    <svg class="pspark" viewBox="0 0 96 28" width="96" height="28" role="img" aria-label={`${label}: de ${values[0]} a ${values[values.length - 1]}`}>
+        <polyline points={polyline(pts)} fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" />
+        <circle cx={last[0]} cy={last[1]} r="2.6" fill="currentColor" />
+    </svg>
+) : (
+    <span class="pspark pspark--none" aria-label="Sin serie disponible">sin serie</span>
+)}
+
+<style is:global>
+    .pspark { color: var(--fg); display: block; }
+    .pspark--none { font-family: var(--mono); font-size: var(--text-2xs); color: var(--muted); text-transform: uppercase; }
+</style>

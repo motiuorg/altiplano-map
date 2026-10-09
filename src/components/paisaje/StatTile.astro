@@ -1,0 +1,49 @@
+---
+// Stat tile for one indicator: value, change since baseline, scope, source cite.
+import type { Indicator } from "../../lib/paisaje/schema";
+import { fmtNum, fmtVal, sourceNumber } from "../../lib/paisaje/data";
+import Sparkline from "./Sparkline.astro";
+
+export interface Props {
+    indicator: Indicator;
+}
+const { indicator: i } = Astro.props;
+const delta = i.baseline && i.latest ? i.latest.value - i.baseline.value : null;
+const unit = i.unit === "%" ? " pp" : " " + i.unit;
+const arrow = delta === null ? "" : delta > 0 ? "▲" : delta < 0 ? "▼" : "■";
+---
+
+<div class="pstat">
+    <p class="pstat__label">{i.label}</p>
+    <p class="pstat__value">
+        {i.latest ? fmtVal(i.latest, i.unit) : "—"}
+        {i.latest && <span class="pstat__year">{i.latest.year}</span>}
+    </p>
+    {delta !== null && i.baseline && (
+        <p class="pstat__delta">
+            <span aria-hidden="true">{arrow}</span>
+            {delta > 0 ? "+" : ""}{fmtNum(Math.round(delta * 100) / 100)}{unit} desde {i.baseline.year}
+        </p>
+    )}
+    <Sparkline values={i.series.map((s) => s.value)} label={i.label} />
+    <p class="pstat__scope">Ámbito: {i.scope}</p>
+    <p class="pstat__src"><a href={`#ev-${i.sourceId}`}>Fuente [{sourceNumber(i.sourceId)}]</a></p>
+</div>
+
+<style is:global>
+    .pstat {
+        border: 1px solid var(--border-subtle);
+        background: var(--bg);
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        min-width: 0;
+    }
+    .pstat__label { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+    .pstat__value { font-family: var(--serif); font-size: var(--text-xl); line-height: 1.05; display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
+    .pstat__year { font-family: var(--mono); font-size: var(--text-xs); color: var(--muted); }
+    .pstat__delta { font-family: var(--mono); font-size: var(--text-xs); }
+    .pstat__scope { font-size: var(--text-xs); color: var(--muted); }
+    .pstat__src { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.05em; }
+</style>

@@ -1,0 +1,1273 @@
+{
+ "fake": true,
+ "disclaimer": "Maqueta — datos y informes ficticios",
+ "generated": "2026-10-08",
+ "themes": [
+  {
+   "id": "agua",
+   "label": "Agua",
+   "verdict": "Según los datos ficticios, la situación del agua subterránea es crítica: el nivel baja desde hace veinte años y se extrae más de lo que se recarga.",
+   "status": "critico",
+   "headlineIndicatorId": "agua.nivel",
+   "statIndicatorIds": [
+    "agua.nivel",
+    "agua.balance"
+   ],
+   "findings": [
+    {
+     "text": "El nivel freático ha descendido de media unos 23 metros entre 2004 y 2024 en el acuífero estudiado.",
+     "sourceId": "s-agua-b"
+    },
+    {
+     "text": "La extracción anual supera en torno a un 60 % la recarga estimada, sin señales de corrección.",
+     "sourceId": "s-agua-a"
+    },
+    {
+     "text": "El riego eficiente crece, pero cubre aún poco más de un tercio del regadío provincial.",
+     "sourceId": "s-agua-c"
+    }
+   ],
+   "limitations": "Los piezómetros no cubren todo el Altiplano y el ámbito de las cifras difiere entre informes. No hay datos de calidad del agua ni de manantiales.",
+   "interventionAreas": [
+    "Retención de agua y correcciones hídricas",
+    "Riego eficiente",
+    "Educación y sensibilización sobre el agua"
+   ],
+   "summary": ""
+  },
+  {
+   "id": "suelo",
+   "label": "Suelo",
+   "verdict": "Los datos ficticios apuntan a un suelo bajo presión: más superficie con erosión alta y poca materia orgánica, aunque crecen las cubiertas vegetales.",
+   "status": "bajo_presion",
+   "headlineIndicatorId": "suelo.erosion",
+   "statIndicatorIds": [
+    "suelo.erosion",
+    "suelo.mo"
+   ],
+   "findings": [
+    {
+     "text": "Algo más de un tercio de la superficie presenta erosión alta o muy alta, y la cifra aumenta.",
+     "sourceId": "s-suelo-a"
+    },
+    {
+     "text": "La materia orgánica de los suelos agrícolas de secano se mantiene por debajo del 1 %.",
+     "sourceId": "s-suelo-b"
+    }
+   ],
+   "limitations": "El mapa de erosión es un modelo, no una medición directa. El estudio de materia orgánica usa pocas parcelas y no mide el carbono del suelo.",
+   "interventionAreas": [
+    "Prácticas agrícolas regenerativas",
+    "Cubiertas vegetales y semillas locales",
+    "Carbono en suelo"
+   ],
+   "summary": ""
+  },
+  {
+   "id": "biodiversidad",
+   "label": "Biodiversidad y protección",
+   "verdict": "Panorama mixto: la protección formal es inferior a la media regional y las aves esteparias bajan, pero el corredor verde ha empezado a restaurarse.",
+   "status": "mixto",
+   "headlineIndicatorId": "bio.protegido",
+   "statIndicatorIds": [
+    "bio.protegido",
+    "bio.aves"
+   ],
+   "findings": [
+    {
+     "text": "Solo el 18 % del territorio está protegido, frente al 27 % de la media regional ficticia.",
+     "sourceId": "s-bio-a"
+    },
+    {
+     "text": "El índice de aves esteparias cae un 22 % desde 2010 en los censos disponibles.",
+     "sourceId": "s-bio-b"
+    },
+    {
+     "text": "Los socios informan de las primeras hectáreas del corredor en restauración (dato autoinformado).",
+     "sourceId": "s-bio-c"
+    }
+   ],
+   "limitations": "Los censos de aves son voluntarios y desiguales entre años. No hay datos de polinizadores ni de otros grupos. El avance del corredor aún no está verificado por terceros.",
+   "interventionAreas": [
+    "Restauración natural",
+    "Corredor verde para la biodiversidad"
+   ],
+   "summary": ""
+  },
+  {
+   "id": "uso_suelo",
+   "label": "Uso del suelo",
+   "verdict": "Cambios de uso mixtos: crecen los leñosos de secano y la producción ecológica, pero también las tierras abandonadas.",
+   "status": "mixto",
+   "headlineIndicatorId": "uso.abandono",
+   "statIndicatorIds": [
+    "uso.abandono",
+    "uso.ecologica"
+   ],
+   "findings": [
+    {
+     "text": "Las tierras agrarias abandonadas pasaron del 6 % al 14 % entre 2005 y 2023.",
+     "sourceId": "s-uso-b"
+    },
+    {
+     "text": "Los leñosos de secano ganan peso mientras el cereal de secano retrocede.",
+     "sourceId": "s-uso-a"
+    }
+   ],
+   "limitations": "La clasificación de usos cambió entre inventarios, lo que puede exagerar o ocultar parte de los cambios. No se dispone de un índice de fragmentación.",
+   "interventionAreas": [
+    "Articulación del territorio",
+    "Educación y cultura del paisaje"
+   ],
+   "summary": ""
+  },
+  {
+   "id": "clima",
+   "label": "Clima",
+   "verdict": "",
+   "status": "proximamente",
+   "headlineIndicatorId": "",
+   "statIndicatorIds": [],
+   "findings": [],
+   "limitations": "",
+   "interventionAreas": [],
+   "summary": "Temperaturas, sequía y escenarios climáticos. Tema en preparación."
+  },
+  {
+   "id": "personas",
+   "label": "Personas y economía",
+   "verdict": "",
+   "status": "proximamente",
+   "headlineIndicatorId": "",
+   "statIndicatorIds": [],
+   "findings": [],
+   "limitations": "",
+   "interventionAreas": [],
+   "summary": "Población, empleo y renta agraria. Tema en preparación."
+  }
+ ],
+ "indicators": [
+  {
+   "id": "agua.nivel",
+   "theme": "agua",
+   "label": "Profundidad media del nivel freático",
+   "unit": "m",
+   "scope": "Altiplano según el informe de cuenca A",
+   "baseline": {
+    "year": 2004,
+    "value": 38
+   },
+   "latest": {
+    "year": 2024,
+    "value": 61
+   },
+   "target": {
+    "year": 2035,
+    "value": 45
+   },
+   "series": [
+    {
+     "year": 2004,
+     "value": 38.0
+    },
+    {
+     "year": 2006,
+     "value": 39.5
+    },
+    {
+     "year": 2008,
+     "value": 41.3
+    },
+    {
+     "year": 2010,
+     "value": 43.4
+    },
+    {
+     "year": 2012,
+     "value": 45.7
+    },
+    {
+     "year": 2014,
+     "value": 48.0
+    },
+    {
+     "year": 2016,
+     "value": 50.5
+    },
+    {
+     "year": 2018,
+     "value": 53.0
+    },
+    {
+     "year": 2020,
+     "value": 55.6
+    },
+    {
+     "year": 2022,
+     "value": 58.3
+    },
+    {
+     "year": 2024,
+     "value": 61.0
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-agua-b",
+   "notes": "Valores ficticios. Mayor profundidad = peor situación."
+  },
+  {
+   "id": "agua.balance",
+   "theme": "agua",
+   "label": "Extracción respecto a la recarga",
+   "unit": "×",
+   "scope": "Cuenca ficticia del informe A",
+   "baseline": {
+    "year": 2010,
+    "value": 1.2
+   },
+   "latest": {
+    "year": 2023,
+    "value": 1.6
+   },
+   "target": {
+    "year": 2035,
+    "value": 1.0
+   },
+   "series": [
+    {
+     "year": 2010,
+     "value": 1.2
+    },
+    {
+     "year": 2011,
+     "value": 1.2
+    },
+    {
+     "year": 2012,
+     "value": 1.3
+    },
+    {
+     "year": 2013,
+     "value": 1.3
+    },
+    {
+     "year": 2014,
+     "value": 1.3
+    },
+    {
+     "year": 2015,
+     "value": 1.4
+    },
+    {
+     "year": 2016,
+     "value": 1.4
+    },
+    {
+     "year": 2017,
+     "value": 1.4
+    },
+    {
+     "year": 2018,
+     "value": 1.4
+    },
+    {
+     "year": 2019,
+     "value": 1.5
+    },
+    {
+     "year": 2020,
+     "value": 1.5
+    },
+    {
+     "year": 2021,
+     "value": 1.5
+    },
+    {
+     "year": 2022,
+     "value": 1.6
+    },
+    {
+     "year": 2023,
+     "value": 1.6
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-agua-a",
+   "notes": "Por encima de 1,0 se extrae más de lo que se recarga."
+  },
+  {
+   "id": "agua.riego",
+   "theme": "agua",
+   "label": "Superficie de regadío con riego eficiente",
+   "unit": "%",
+   "scope": "Provincia de Granada",
+   "baseline": {
+    "year": 2015,
+    "value": 22
+   },
+   "latest": {
+    "year": 2023,
+    "value": 35
+   },
+   "target": {
+    "year": 2030,
+    "value": 60
+   },
+   "series": [
+    {
+     "year": 2015,
+     "value": 22.0
+    },
+    {
+     "year": 2016,
+     "value": 23.6
+    },
+    {
+     "year": 2017,
+     "value": 25.2
+    },
+    {
+     "year": 2018,
+     "value": 26.9
+    },
+    {
+     "year": 2019,
+     "value": 28.5
+    },
+    {
+     "year": 2020,
+     "value": 30.1
+    },
+    {
+     "year": 2021,
+     "value": 31.8
+    },
+    {
+     "year": 2022,
+     "value": 33.4
+    },
+    {
+     "year": 2023,
+     "value": 35.0
+    }
+   ],
+   "status": "mejorando",
+   "availability": "disponible",
+   "sourceId": "s-agua-c",
+   "notes": "Ámbito distinto al de las demás cifras de agua."
+  },
+  {
+   "id": "agua.nitratos",
+   "theme": "agua",
+   "label": "Nitratos en agua subterránea",
+   "unit": "mg/l",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": {
+    "year": 2030,
+    "value": 50
+   },
+   "series": [],
+   "status": "mixto",
+   "availability": "pendiente",
+   "sourceId": "s-agua-a",
+   "notes": "Datos solicitados al organismo (ficticio)."
+  },
+  {
+   "id": "agua.manantiales",
+   "theme": "agua",
+   "label": "Caudal de manantiales monitorizados",
+   "unit": "l/s",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": null,
+   "series": [],
+   "status": "mixto",
+   "availability": "no_disponible",
+   "sourceId": "s-agua-a",
+   "notes": "No existe una red de aforo conocida."
+  },
+  {
+   "id": "suelo.erosion",
+   "theme": "suelo",
+   "label": "Superficie con erosión alta o muy alta",
+   "unit": "%",
+   "scope": "Altiplano según el mapa de erosión B",
+   "baseline": {
+    "year": 2012,
+    "value": 31
+   },
+   "latest": {
+    "year": 2022,
+    "value": 36
+   },
+   "target": {
+    "year": 2035,
+    "value": 25
+   },
+   "series": [
+    {
+     "year": 2012,
+     "value": 31.0
+    },
+    {
+     "year": 2013,
+     "value": 31.5
+    },
+    {
+     "year": 2014,
+     "value": 32.0
+    },
+    {
+     "year": 2015,
+     "value": 32.5
+    },
+    {
+     "year": 2016,
+     "value": 33.0
+    },
+    {
+     "year": 2017,
+     "value": 33.5
+    },
+    {
+     "year": 2018,
+     "value": 34.0
+    },
+    {
+     "year": 2019,
+     "value": 34.5
+    },
+    {
+     "year": 2020,
+     "value": 35.0
+    },
+    {
+     "year": 2021,
+     "value": 35.5
+    },
+    {
+     "year": 2022,
+     "value": 36.0
+    }
+   ],
+   "status": "bajo_presion",
+   "availability": "disponible",
+   "sourceId": "s-suelo-a",
+   "notes": ""
+  },
+  {
+   "id": "suelo.mo",
+   "theme": "suelo",
+   "label": "Materia orgánica media del suelo agrícola",
+   "unit": "%",
+   "scope": "Parcelas muestreadas (estudio B)",
+   "baseline": {
+    "year": 2015,
+    "value": 0.9
+   },
+   "latest": {
+    "year": 2023,
+    "value": 0.8
+   },
+   "target": {
+    "year": 2035,
+    "value": 1.5
+   },
+   "series": [
+    {
+     "year": 2015,
+     "value": 0.9
+    },
+    {
+     "year": 2016,
+     "value": 0.9
+    },
+    {
+     "year": 2017,
+     "value": 0.9
+    },
+    {
+     "year": 2018,
+     "value": 0.9
+    },
+    {
+     "year": 2019,
+     "value": 0.9
+    },
+    {
+     "year": 2020,
+     "value": 0.8
+    },
+    {
+     "year": 2021,
+     "value": 0.8
+    },
+    {
+     "year": 2022,
+     "value": 0.8
+    },
+    {
+     "year": 2023,
+     "value": 0.8
+    }
+   ],
+   "status": "bajo_presion",
+   "availability": "disponible",
+   "sourceId": "s-suelo-b",
+   "notes": "Muestra pequeña; ver limitaciones."
+  },
+  {
+   "id": "suelo.cubierta",
+   "theme": "suelo",
+   "label": "Leñosos de secano con cubierta vegetal",
+   "unit": "%",
+   "scope": "Altiplano según el mapa de erosión B",
+   "baseline": {
+    "year": 2015,
+    "value": 12
+   },
+   "latest": {
+    "year": 2023,
+    "value": 21
+   },
+   "target": {
+    "year": 2030,
+    "value": 50
+   },
+   "series": [
+    {
+     "year": 2015,
+     "value": 12.0
+    },
+    {
+     "year": 2016,
+     "value": 13.1
+    },
+    {
+     "year": 2017,
+     "value": 14.2
+    },
+    {
+     "year": 2018,
+     "value": 15.4
+    },
+    {
+     "year": 2019,
+     "value": 16.5
+    },
+    {
+     "year": 2020,
+     "value": 17.6
+    },
+    {
+     "year": 2021,
+     "value": 18.8
+    },
+    {
+     "year": 2022,
+     "value": 19.9
+    },
+    {
+     "year": 2023,
+     "value": 21.0
+    }
+   ],
+   "status": "mejorando",
+   "availability": "disponible",
+   "sourceId": "s-suelo-b",
+   "notes": ""
+  },
+  {
+   "id": "suelo.carbono",
+   "theme": "suelo",
+   "label": "Carbono orgánico del suelo",
+   "unit": "t/ha",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": {
+    "year": 2035,
+    "value": 30
+   },
+   "series": [],
+   "status": "mixto",
+   "availability": "pendiente",
+   "sourceId": "s-suelo-b",
+   "notes": ""
+  },
+  {
+   "id": "bio.protegido",
+   "theme": "biodiversidad",
+   "label": "Superficie bajo protección",
+   "unit": "%",
+   "scope": "Altiplano según el atlas A",
+   "baseline": {
+    "year": 2010,
+    "value": 14
+   },
+   "latest": {
+    "year": 2024,
+    "value": 18
+   },
+   "target": {
+    "year": 2030,
+    "value": 30
+   },
+   "series": [
+    {
+     "year": 2010,
+     "value": 14.0
+    },
+    {
+     "year": 2012,
+     "value": 14.6
+    },
+    {
+     "year": 2014,
+     "value": 15.1
+    },
+    {
+     "year": 2016,
+     "value": 15.7
+    },
+    {
+     "year": 2018,
+     "value": 16.3
+    },
+    {
+     "year": 2020,
+     "value": 16.9
+    },
+    {
+     "year": 2022,
+     "value": 17.4
+    },
+    {
+     "year": 2024,
+     "value": 18.0
+    }
+   ],
+   "status": "bajo_presion",
+   "availability": "disponible",
+   "sourceId": "s-bio-a",
+   "notes": "La media regional ficticia es del 27 %."
+  },
+  {
+   "id": "bio.aves",
+   "theme": "biodiversidad",
+   "label": "Índice de aves esteparias (2010 = 100)",
+   "unit": "pts",
+   "scope": "Red de censos ficticia",
+   "baseline": {
+    "year": 2010,
+    "value": 100
+   },
+   "latest": {
+    "year": 2023,
+    "value": 78
+   },
+   "target": {
+    "year": 2030,
+    "value": 100
+   },
+   "series": [
+    {
+     "year": 2010,
+     "value": 100.0
+    },
+    {
+     "year": 2011,
+     "value": 98.3
+    },
+    {
+     "year": 2012,
+     "value": 96.6
+    },
+    {
+     "year": 2013,
+     "value": 94.9
+    },
+    {
+     "year": 2014,
+     "value": 93.2
+    },
+    {
+     "year": 2015,
+     "value": 91.5
+    },
+    {
+     "year": 2016,
+     "value": 89.8
+    },
+    {
+     "year": 2017,
+     "value": 88.2
+    },
+    {
+     "year": 2018,
+     "value": 86.5
+    },
+    {
+     "year": 2019,
+     "value": 84.8
+    },
+    {
+     "year": 2020,
+     "value": 83.1
+    },
+    {
+     "year": 2021,
+     "value": 81.4
+    },
+    {
+     "year": 2022,
+     "value": 79.7
+    },
+    {
+     "year": 2023,
+     "value": 78.0
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-bio-b",
+   "notes": ""
+  },
+  {
+   "id": "bio.corredor",
+   "theme": "biodiversidad",
+   "label": "Superficie del corredor propuesto en restauración",
+   "unit": "%",
+   "scope": "Corredor propuesto (ficticio)",
+   "baseline": {
+    "year": 2022,
+    "value": 0
+   },
+   "latest": {
+    "year": 2024,
+    "value": 3
+   },
+   "target": {
+    "year": 2030,
+    "value": 20
+   },
+   "series": [
+    {
+     "year": 2022,
+     "value": 0.0
+    },
+    {
+     "year": 2023,
+     "value": 1.5
+    },
+    {
+     "year": 2024,
+     "value": 3.0
+    }
+   ],
+   "status": "mejorando",
+   "availability": "disponible",
+   "sourceId": "s-bio-c",
+   "notes": "Dato autoinformado por los socios."
+  },
+  {
+   "id": "bio.polinizadores",
+   "theme": "biodiversidad",
+   "label": "Abundancia de polinizadores",
+   "unit": "pts",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": null,
+   "series": [],
+   "status": "mixto",
+   "availability": "no_disponible",
+   "sourceId": "s-bio-b",
+   "notes": ""
+  },
+  {
+   "id": "uso.abandono",
+   "theme": "uso_suelo",
+   "label": "Tierras agrarias abandonadas",
+   "unit": "%",
+   "scope": "Altiplano según el inventario A",
+   "baseline": {
+    "year": 2005,
+    "value": 6
+   },
+   "latest": {
+    "year": 2023,
+    "value": 14
+   },
+   "target": {
+    "year": 2030,
+    "value": 8
+   },
+   "series": [
+    {
+     "year": 2005,
+     "value": 6.0
+    },
+    {
+     "year": 2007,
+     "value": 6.9
+    },
+    {
+     "year": 2009,
+     "value": 7.8
+    },
+    {
+     "year": 2011,
+     "value": 8.7
+    },
+    {
+     "year": 2013,
+     "value": 9.6
+    },
+    {
+     "year": 2015,
+     "value": 10.4
+    },
+    {
+     "year": 2017,
+     "value": 11.3
+    },
+    {
+     "year": 2019,
+     "value": 12.2
+    },
+    {
+     "year": 2021,
+     "value": 13.1
+    },
+    {
+     "year": 2023,
+     "value": 14.0
+    }
+   ],
+   "status": "bajo_presion",
+   "availability": "disponible",
+   "sourceId": "s-uso-b",
+   "notes": ""
+  },
+  {
+   "id": "uso.ecologica",
+   "theme": "uso_suelo",
+   "label": "Superficie agraria en producción ecológica",
+   "unit": "%",
+   "scope": "Provincia de Granada",
+   "baseline": {
+    "year": 2012,
+    "value": 4
+   },
+   "latest": {
+    "year": 2023,
+    "value": 9
+   },
+   "target": {
+    "year": 2030,
+    "value": 20
+   },
+   "series": [
+    {
+     "year": 2012,
+     "value": 4.0
+    },
+    {
+     "year": 2013,
+     "value": 4.5
+    },
+    {
+     "year": 2014,
+     "value": 4.9
+    },
+    {
+     "year": 2015,
+     "value": 5.4
+    },
+    {
+     "year": 2016,
+     "value": 5.8
+    },
+    {
+     "year": 2017,
+     "value": 6.3
+    },
+    {
+     "year": 2018,
+     "value": 6.7
+    },
+    {
+     "year": 2019,
+     "value": 7.2
+    },
+    {
+     "year": 2020,
+     "value": 7.6
+    },
+    {
+     "year": 2021,
+     "value": 8.1
+    },
+    {
+     "year": 2022,
+     "value": 8.5
+    },
+    {
+     "year": 2023,
+     "value": 9.0
+    }
+   ],
+   "status": "mejorando",
+   "availability": "disponible",
+   "sourceId": "s-uso-a",
+   "notes": ""
+  },
+  {
+   "id": "uso.lenosos",
+   "theme": "uso_suelo",
+   "label": "Leñosos de secano sobre superficie agraria",
+   "unit": "%",
+   "scope": "Altiplano según el inventario A",
+   "baseline": {
+    "year": 2005,
+    "value": 27
+   },
+   "latest": {
+    "year": 2023,
+    "value": 33
+   },
+   "target": null,
+   "series": [
+    {
+     "year": 2005,
+     "value": 27.0
+    },
+    {
+     "year": 2007,
+     "value": 27.7
+    },
+    {
+     "year": 2009,
+     "value": 28.3
+    },
+    {
+     "year": 2011,
+     "value": 29.0
+    },
+    {
+     "year": 2013,
+     "value": 29.7
+    },
+    {
+     "year": 2015,
+     "value": 30.3
+    },
+    {
+     "year": 2017,
+     "value": 31.0
+    },
+    {
+     "year": 2019,
+     "value": 31.7
+    },
+    {
+     "year": 2021,
+     "value": 32.3
+    },
+    {
+     "year": 2023,
+     "value": 33.0
+    }
+   ],
+   "status": "mixto",
+   "availability": "disponible",
+   "sourceId": "s-uso-a",
+   "notes": ""
+  },
+  {
+   "id": "uso.fragmentacion",
+   "theme": "uso_suelo",
+   "label": "Índice de fragmentación del paisaje",
+   "unit": "pts",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": null,
+   "series": [],
+   "status": "mixto",
+   "availability": "pendiente",
+   "sourceId": "s-uso-a",
+   "notes": ""
+  }
+ ],
+ "sources": [
+  {
+   "id": "s-agua-a",
+   "title": "Informe ficticio de la cuenca del Altiplano, 2024",
+   "publisher": "Confederación Hidrográfica Ficticia",
+   "type": "institutional_report",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Revisión interna pendiente"
+  },
+  {
+   "id": "s-agua-b",
+   "title": "Base de datos ficticia de piezómetros (serie 2004–2024)",
+   "publisher": "Servicio Geológico Ficticio",
+   "type": "official_dataset",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-agua-c",
+   "title": "Estadística ficticia de regadíos de la provincia, 2023",
+   "publisher": "Consejería Ficticia de Agricultura",
+   "type": "official_dataset",
+   "year": 2023,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-suelo-a",
+   "title": "Mapa ficticio de erosión del suelo, edición 2022",
+   "publisher": "Instituto Ficticio del Suelo",
+   "type": "official_dataset",
+   "year": 2022,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-suelo-b",
+   "title": "Estudio ficticio sobre materia orgánica en suelos de secano",
+   "publisher": "Revista Ficticia de Edafología",
+   "type": "peer_reviewed",
+   "year": 2023,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-bio-a",
+   "title": "Atlas ficticio de espacios protegidos, 2024",
+   "publisher": "Ministerio Ficticio de Medio Ambiente",
+   "type": "official_dataset",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-bio-b",
+   "title": "Informe ficticio de censos de aves esteparias",
+   "publisher": "Asociación Ornitológica Ficticia",
+   "type": "ngo_report",
+   "year": 2023,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-bio-c",
+   "title": "Seguimiento propio del corredor verde (autoinformado)",
+   "publisher": "Socios del proyecto (ficticio)",
+   "type": "self_reported",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "baja",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-uso-a",
+   "title": "Inventario ficticio de usos del suelo, 2005 y 2023",
+   "publisher": "Observatorio Ficticio del Territorio",
+   "type": "official_dataset",
+   "year": 2023,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-uso-b",
+   "title": "Informe ficticio sobre abandono de tierras agrarias",
+   "publisher": "Fundación Ficticia de Estudios Rurales",
+   "type": "ngo_report",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  }
+ ],
+ "charts": [
+  {
+   "id": "c-agua",
+   "theme": "agua",
+   "type": "line",
+   "title": "Profundidad media del nivel freático, 2004–2024",
+   "unit": "m",
+   "scope": "Altiplano según el informe de cuenca A",
+   "sourceId": "s-agua-b",
+   "indicatorId": "agua.nivel",
+   "note": "Más profundo = peor. La línea discontinua marca el objetivo ficticio a 2035."
+  },
+  {
+   "id": "c-suelo",
+   "theme": "suelo",
+   "type": "stacked",
+   "title": "Clases de erosión por zona (% de la superficie), 2022",
+   "unit": "%",
+   "scope": "Altiplano según el mapa de erosión B",
+   "sourceId": "s-suelo-a",
+   "categories": [
+    {
+     "id": "baja",
+     "label": "Baja"
+    },
+    {
+     "id": "moderada",
+     "label": "Moderada"
+    },
+    {
+     "id": "alta",
+     "label": "Alta"
+    },
+    {
+     "id": "muy_alta",
+     "label": "Muy alta"
+    }
+   ],
+   "rows": [
+    {
+     "label": "Altiplano (total)",
+     "values": {
+      "baja": 28,
+      "moderada": 36,
+      "alta": 22,
+      "muy_alta": 14
+     }
+    },
+    {
+     "label": "Zona norte",
+     "values": {
+      "baja": 35,
+      "moderada": 38,
+      "alta": 18,
+      "muy_alta": 9
+     }
+    },
+    {
+     "label": "Zona centro",
+     "values": {
+      "baja": 24,
+      "moderada": 35,
+      "alta": 24,
+      "muy_alta": 17
+     }
+    },
+    {
+     "label": "Zona sur",
+     "values": {
+      "baja": 26,
+      "moderada": 34,
+      "alta": 25,
+      "muy_alta": 15
+     }
+    }
+   ]
+  },
+  {
+   "id": "c-bio",
+   "theme": "biodiversidad",
+   "type": "refbar",
+   "title": "Superficie protegida frente a la media regional y al objetivo",
+   "unit": "%",
+   "scope": "Altiplano según el atlas A; media de la región ficticia",
+   "sourceId": "s-bio-a",
+   "bars": [
+    {
+     "label": "Altiplano, 2024",
+     "value": 18,
+     "kind": "value"
+    },
+    {
+     "label": "Media regional, 2024",
+     "value": 27,
+     "kind": "reference"
+    },
+    {
+     "label": "Objetivo, 2030",
+     "value": 30,
+     "kind": "target"
+    }
+   ]
+  },
+  {
+   "id": "c-uso",
+   "theme": "uso_suelo",
+   "type": "beforeafter",
+   "title": "Usos del suelo agrario, 2005 frente a 2023 (% de la superficie)",
+   "unit": "%",
+   "scope": "Altiplano según el inventario A",
+   "sourceId": "s-uso-a",
+   "beforeYear": 2005,
+   "afterYear": 2023,
+   "categories": [
+    {
+     "label": "Cereal de secano",
+     "before": 38,
+     "after": 29
+    },
+    {
+     "label": "Leñosos de secano",
+     "before": 27,
+     "after": 33
+    },
+    {
+     "label": "Matorral y pastos",
+     "before": 24,
+     "after": 21
+    },
+    {
+     "label": "Tierras abandonadas",
+     "before": 6,
+     "after": 14
+    },
+    {
+     "label": "Otros",
+     "before": 5,
+     "after": 3
+    }
+   ]
+  }
+ ]
+}
