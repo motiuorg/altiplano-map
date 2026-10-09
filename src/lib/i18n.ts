@@ -71,6 +71,7 @@ const D = {
   // --- map
   'map.groupLegend': { es: 'Grupo de trabajo · {n}', en: 'Working group · {n}' },
   'map.region': { es: 'Altiplano Estepario', en: 'Altiplano Estepario' },
+  'map.country': { es: 'España', en: 'Spain' },
   'map.missing': {
     es: '⚠ {n} organizaciones sin coordenadas (no se muestran en el mapa)',
     en: '⚠ {n} organizations without coordinates (not shown on the map)',
