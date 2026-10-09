@@ -35,6 +35,7 @@ const T = ({
     "divTable": "Módulos de diversificación",
     "divTableSub": "Valores por hectárea donde se aplica el módulo. El ahorro se calcula sobre el coste de cubierta y de enmiendas de la finca.",
     "assump": "Supuestos",
+    "scenario": "Escenario",
     "pess": "Pesimista",
     "central": "Central",
     "opt": "Optimista",
@@ -119,6 +120,7 @@ const T = ({
     "divTable": "Diversification modules",
     "divTableSub": "Values per hectare where the module applies. Savings are computed on the farm's cover-crop and amendment costs.",
     "assump": "Assumptions",
+    "scenario": "Scenario",
     "pess": "Pessimistic",
     "central": "Central",
     "opt": "Optimistic",
@@ -225,7 +227,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                     <input type="number" id="f-hat" min="0" max="1000" step="0.5" inputmode="decimal" />
                 </label>
                 <div class="filter-select">
-                    <span class="filter-bar__label">{T.assump}</span>
+                    <span class="filter-bar__label">{T.scenario}</span>
                     <div class="sim-seg" id="f-conj">
                         <button class="chip" data-v="pesimista">{T.pess}</button>
                         <button class="chip is-active" data-v="central" aria-pressed="true">{T.central}</button>
@@ -242,25 +244,25 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 </div>
             </div>
 
+            <div class="sim-precios-field">
+                <span class="filter-bar__label">{T.pricesTitle}</span>
             <div class="sim-precios">
-                <div class="sim-precios__head">
-                    <button type="button" class="sim-precios__toggle" id="precios-toggle" aria-expanded="false" aria-controls="precios-body">
-                        <span class="caret caret--right" aria-hidden="true"></span>
-                        <span class="filter-bar__label">{T.pricesTitle}</span>
-                    </button>
+                <button type="button" class="sim-precios__head" id="precios-toggle" aria-expanded="false" aria-controls="precios-body">
+                    <span class="caret caret--right" aria-hidden="true"></span>
                     <span class="sim-precios__resumen" id="precios-resumen"></span>
-                    <button type="button" class="chip sim-precios__accion" id="precios-accion" data-open={T.adjust} data-close={T.close}>{T.adjust}</button>
-                </div>
+                    <span class="text-button sim-precios__accion" id="precios-accion" data-open={T.adjust} data-close={T.close}>{T.adjust}</span>
+                </button>
                 <div class="sim-precios__body" id="precios-body" hidden>
                     <div class="sim-precios__bar">
                         <p class="sim-card__sub">{T.pricesSub}</p>
-                        <button class="chip" id="precio-reset" disabled>{T.reset}</button>
+                        <button type="button" class="text-button" id="precio-reset" disabled>{T.reset}</button>
                     </div>
                     <div class="sim-row" id="precio-sliders"></div>
                     <p class="filter-bar__label sim-precios__grupo">{T.divTitle}</p>
                     <p class="sim-card__sub sim-precios__nota">{T.divSub}</p>
                     <div class="sim-row" id="div-sliders"></div>
                 </div>
+            </div>
             </div>
             <div class="view-bar">
                 <Tabs id="tabs" label={t(lang, "nav.label")} rule={false}>
@@ -293,9 +295,13 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                     </div>
                 </div>
                 <div class="sim-card sim-card--table">
-                    <h3 class="sim-card__title">{T.detailTitle}</h3>
-                    <p class="sim-card__sub">{T.detailSub}</p>
-                    <div class="desglose-tools" id="tb-finca-tools"></div>
+                    <div class="sim-card__head">
+                        <div>
+                            <h3 class="sim-card__title">{T.detailTitle}</h3>
+                            <p class="sim-card__sub">{T.detailSub}</p>
+                        </div>
+                        <div class="desglose-tools" id="tb-finca-tools"></div>
+                    </div>
                     <div class="table-wrap" id="tb-finca"></div>
                     <div id="tb-finca-nota"></div>
                 </div>
@@ -352,11 +358,11 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 
             <!-- SUPUESTOS: sensitivity, all assumptions, reference data -->
             <section data-panel="supuestos" hidden>
-                <div class="sub-switch" role="tablist" id="subtabs">
-                    <button class="chip is-active" role="tab" data-sub="pesa" aria-selected="true">{T.subPesa}</button>
-                    <button class="chip" role="tab" data-sub="todos" aria-selected="false">{T.subTodos}</button>
-                    <button class="chip" role="tab" data-sub="ref" aria-selected="false">{T.subRef}</button>
-                </div>
+                <Tabs id="subtabs" variant="outline" label={T.assump}>
+                    <Tab data-sub="pesa" selected>{T.subPesa}</Tab>
+                    <Tab data-sub="todos">{T.subTodos}</Tab>
+                    <Tab data-sub="ref">{T.subRef}</Tab>
+                </Tabs>
 
                 <div data-sub-panel="pesa">
                     <div class="sim-card chart">
@@ -574,24 +580,26 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
 
     /* income assumptions: same language as the filter bar (mono labels, hairlines) */
-    /* One big control: the same outline and square corners as the buttons, darker on hover. */
-    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius); transition: border-color var(--t-fast); background: var(--bg); padding: var(--space-3) var(--space-5); }
+    /* Income assumptions: label on top like the other inputs; the bar is one control (caret, the prices
+       in use, a text action) at the shared control height; it opens into the sliders below. */
+    .sim .sim-precios-field { display: flex; flex-direction: column; gap: var(--space-1); margin: var(--space-2) 0 var(--space-4); }
+    .sim .sim-precios { border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--bg); transition: border-color var(--t-fast); }
     .sim .sim-precios:has(.sim-precios__head:hover) { border-color: var(--text-primary); }
     .sim .sim-precios__head {
-        cursor: pointer;
-        display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+        display: flex; align-items: center; gap: var(--space-3);
+        width: 100%; box-sizing: border-box; min-height: calc(var(--control-h) - 2px);
+        padding: 0 var(--space-3); background: none; border: 0; cursor: pointer;
+        font: inherit; color: inherit; text-align: left;
     }
-    .sim .sim-precios__toggle {
-        display: inline-flex; align-items: center; gap: 0.45rem; padding: 0; border: 0; background: none;
-        cursor: pointer; font: inherit; color: var(--text-primary);
-    }
-    .sim .sim-precios__toggle:hover .filter-bar__label { color: var(--text-primary); }
-    .sim .sim-precios__toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 3px; }
-    .sim .sim-precios__resumen { flex: 1 1 24rem; font-family: var(--mono); font-size: var(--text-xs); color: var(--text-muted); margin: 0; }
+    .sim .sim-precios__head .caret { color: var(--text-muted); }
+    .sim .sim-precios__head:hover .caret { color: var(--text-primary); }
+    .sim .sim-precios__head:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .sim .sim-precios__resumen { flex: 1 1 auto; font-family: var(--mono); font-size: var(--text-xs); color: var(--text-muted); margin: 0; }
     .sim .sim-precios__resumen b { font-weight: 500; color: var(--text-primary); }
-    .sim .sim-precios__accion { padding-inline: 0.7rem; }
+    .sim .sim-precios__accion { flex: none; margin-left: auto; }
+    .sim .sim-precios__head:hover .sim-precios__accion { color: var(--text-primary); text-decoration-color: var(--text-primary); }
     .sim .slider > span:first-child b { white-space: nowrap; }
-    .sim .sim-precios__body { border-top: 1px solid var(--border-subtle); margin-top: var(--space-3); padding: var(--space-5) 0 var(--space-2); }
+    .sim .sim-precios__body { border-top: 1px solid var(--border-subtle); padding: var(--space-5) var(--space-5) var(--space-3); }
     .sim .sim-precios__bar { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-5); }
     .sim .sim-precios__bar .sim-card__sub { margin: 0; max-width: 62ch; }
     .sim .chip[disabled] { opacity: 0.4; cursor: default; }
@@ -605,8 +613,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     :root[lang="en"] .sim { --ajustado: " · adjusted"; }
 
     /* Supuestos sub-tabs */
-    .sim .sub-switch { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
-    .sim .sub-switch .chip { padding-inline: 0.8rem; }
+    .sim #subtabs { margin-bottom: var(--space-5); }
     .sim [data-sub-panel][hidden] { display: none; }
     .sim table.desglose tr.sub.is-flash td { background: color-mix(in srgb, var(--pillar-flow-2) 28%, var(--bg)); transition: background 1.2s ease; }
     .sim td .badge { margin-left: var(--space-2); }
@@ -617,13 +624,14 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .grp-n { font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); font-weight: 400; margin-left: var(--space-1); }
 
     /* year-by-year breakdown */
-    .sim .desglose-tools { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-3) var(--space-4); }
+    .sim .desglose-tools { display: flex; gap: var(--space-2); }
     .sim .desglose-tools .chip { padding-inline: 0.7rem; }
     .sim .desglose-tools:empty { display: none; }
     /* the wrapper draws the frame: no double line under the last row */
     .sim .table-wrap tbody tr:last-child > * { border-bottom: 0; }
     .sim table.desglose tr.grp th,
-    .sim table.desglose tr.grp td { background: var(--surface-1); border-top: 1px solid var(--border-subtle); }
+    .sim table.desglose tr.grp td { background: var(--surface-sunken); border-top: 1px solid var(--border-subtle); }
     .sim table.desglose tr.grp th { font-family: var(--sans); min-width: 15rem; }
     .sim table.desglose tr.grp small { display: block; font-family: var(--sans); font-size: var(--text-xs); color: var(--text-muted); margin: 2px 0 0 1.6rem; max-width: 26rem; }
     .sim .grp-toggle {
@@ -678,7 +686,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
     .sim th, .sim td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
     .sim thead th {
-        background: var(--surface-1);
+        background: var(--surface-sunken);
         font-family: var(--mono); font-size: var(--text-2xs); font-weight: 400;
         text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); white-space: nowrap;
     }

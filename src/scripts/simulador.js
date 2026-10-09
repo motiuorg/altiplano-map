@@ -327,7 +327,6 @@ export function iniciarSimulador(D, M, langCode, precios) {
     $("#precios-body").hidden = !abrir;
     const acc = $("#precios-accion");
     acc.textContent = abrir ? acc.dataset.close : acc.dataset.open;
-    acc.setAttribute("aria-expanded", String(abrir));
   }
   function fijar(k, v) {
     if (k === "pse") {
@@ -364,9 +363,6 @@ export function iniciarSimulador(D, M, langCode, precios) {
       construirPrecios(); construirDiv(); render();
     });
     $("#precios-toggle").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
-    $("#precios-accion").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
-    // the whole header row is the control, not just its two buttons
-    $(".sim-precios__head").addEventListener("click", (e) => { if (!e.target.closest("button")) abrirPrecios(!st.preciosAbierto); });
     construirPrecios();
     abrirPrecios(false);
   }
