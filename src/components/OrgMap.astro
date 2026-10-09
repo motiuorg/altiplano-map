@@ -187,6 +187,15 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
             ></span>
             {t(lang, "map.groupLegend", { n: grupoCount })}
         </span>
+        {restoCount > 0 && (
+            <span class="org-map-legend__item">
+                <span
+                    class="org-map-legend__dot org-map-legend__dot--resto"
+                    aria-hidden="true"
+                ></span>
+                {t(lang, "map.allyLegend", { n: restoCount })}
+            </span>
+        )}
         <span class="org-map-legend__item">
             <span
                 class="org-map-legend__swatch org-map-legend__swatch--region"

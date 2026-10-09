@@ -150,6 +150,7 @@ export interface OrgRecord {
   isOrganization: boolean;
   inAltiplano: boolean;
   grupoTrabajo: boolean;
+  aliado: boolean;
   tipo: string;
   tipos: string[]; // "Tipo" multi-select values, shown on cards + used as a filter
   zona: string[];
@@ -219,12 +220,15 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
   const gtRaw = pickProp(props, ORG_PROPERTY_NAMES.grupoTrabajo);
   const gtVals = flatValues(gtRaw).map((v) => v.toLowerCase());
   let grupoTrabajo = false;
+  let aliado = false;
   if (typeof gtRaw === 'boolean') {
     grupoTrabajo = gtRaw;
+    aliado = !gtRaw; // fixture data has no ally value: everyone outside the group counts
   } else if (gtVals.length > 0) {
     grupoTrabajo =
       gtVals.some((v) => GT_MEMBER.includes(v)) &&
       !gtVals.some((v) => GT_FORMER.includes(v));
+    aliado = gtVals.includes('aliado');
   }
 
   return {
@@ -239,15 +243,18 @@ export function normalizeOrg(record: NormalizedRecord, filters: OrgFilters = {})
     isOrganization,
     inAltiplano,
     grupoTrabajo,
+    aliado,
     tipo,
     tipos: anyValues(props, ['Tipo']),
     zona,
   };
 }
 
-// The two rules: only organizations, only inside the Altiplano.
+// The rules: only organizations, only inside the Altiplano, and only the grupo de
+// trabajo (Miembro) or its allies (Aliado). Relevante, Menos relevante, Ex miembro
+// and Coordinación Internacional stay in Notion but off the site.
 export function keepOrg(org: OrgRecord): boolean {
-  return org.isOrganization && org.inAltiplano;
+  return org.isOrganization && org.inAltiplano && (org.grupoTrabajo || org.aliado);
 }
 
 export function orgHasCoords(org: OrgRecord): boolean {

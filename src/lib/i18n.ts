@@ -44,12 +44,12 @@ const D = {
   'orgs.overline': { es: 'Quién está aquí', en: 'Who is here' },
   'orgs.heading': { es: 'Organizaciones', en: 'Organizations' },
   'orgs.intro': {
-    es: '{n} entidades del altiplano, de las cuales {g} forman parte del grupo de trabajo.',
-    en: '{n} entities in the altiplano, {g} of which are part of the working group.',
+    es: '{n} entidades del altiplano: {g} forman parte del grupo de trabajo y el resto son aliadas.',
+    en: '{n} entities in the altiplano: {g} are part of the working group and the rest are allies.',
   },
   'filter.all': { es: 'Todos', en: 'All' },
   'filter.group': { es: 'Grupo de trabajo · {n}', en: 'Working group · {n}' },
-  'filter.rest': { es: 'Resto · {n}', en: 'Others · {n}' },
+  'filter.rest': { es: 'Aliados · {n}', en: 'Allies · {n}' },
   'filter.type': { es: 'Tipo', en: 'Type' },
   'filter.allTypes': { es: 'Todos los tipos', en: 'All types' },
   'filter.byType': { es: 'Filtrar por tipo', en: 'Filter by type' },
@@ -70,6 +70,7 @@ const D = {
 
   // --- map
   'map.groupLegend': { es: 'Grupo de trabajo · {n}', en: 'Working group · {n}' },
+  'map.allyLegend': { es: 'Aliados · {n}', en: 'Allies · {n}' },
   'map.region': { es: 'Altiplano Estepario', en: 'Altiplano Estepario' },
   'map.country': { es: 'España', en: 'Spain' },
   'map.missing': {
