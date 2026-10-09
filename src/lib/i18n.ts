@@ -59,6 +59,7 @@ const D = {
 
   // --- org card / panel
   'org.group': { es: 'Grupo de trabajo', en: 'Working group' },
+  'org.websiteLabel': { es: 'Web', en: 'Web' },
   'org.website': { es: '↗ Sitio web', en: '↗ Website' },
   'panel.label': { es: 'Detalle de la organización', en: 'Organization details' },
   'panel.close': { es: 'Cerrar', en: 'Close' },
