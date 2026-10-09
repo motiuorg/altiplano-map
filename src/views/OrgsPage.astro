@@ -4,8 +4,6 @@ import Badge from "@motiu/design/components/Badge.astro";
 import CardTitle from "@motiu/design/components/card/CardTitle.astro";
 import CardText from "@motiu/design/components/card/CardText.astro";
 import CardBadges from "@motiu/design/components/card/CardBadges.astro";
-import CardFacts from "@motiu/design/components/card/CardFacts.astro";
-import CardFact from "@motiu/design/components/card/CardFact.astro";
 import CardLink from "@motiu/design/components/card/CardLink.astro";
 // Altiplano Estepario — landing = Organizaciones: intro on the left, map on the
 // right (half screen each), then the filterable organizations gallery.
@@ -154,23 +152,15 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
                     <header class="org-panel__meta">
                         <Badge tone="flow" size="sm">{t(lang, "org.group")}</Badge>
                         <CardTitle level={2} size="lg">{org.name}</CardTitle>
-                        {(org.tipos.length > 0 || org.website) && (
-                            <CardFacts>
-                                {org.tipos.length > 0 && (
-                                    <CardFact label={t(lang, "filter.type")}>
-                                        <CardBadges class="org-panel__tipos">
-                                            {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
-                                        </CardBadges>
-                                    </CardFact>
-                                )}
-                                {org.website && (
-                                    <CardFact label={t(lang, "org.websiteLabel")}>
-                                        <CardLink href={org.website} external rel="noopener noreferrer">
-                                            {org.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                                        </CardLink>
-                                    </CardFact>
-                                )}
-                            </CardFacts>
+                        {org.tipos.length > 0 && (
+                            <CardBadges class="org-panel__tipos">
+                                {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
+                            </CardBadges>
+                        )}
+                        {org.website && (
+                            <CardLink href={org.website} external rel="noopener noreferrer">
+                                {t(lang, "org.website")}
+                            </CardLink>
                         )}
                     </header>
 
@@ -365,11 +355,9 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--space-4);
+        gap: var(--space-3);
         align-self: stretch;
     }
-
-    .org-panel__meta .card-facts { align-self: stretch; }
 
     .org-panel__meta .card-badges,
     .org-panel__tipos {
