@@ -56,6 +56,7 @@ export function initGalleryFilters(): void {
     }
     if (counter) counter.textContent = shown(seen.size);
     if (empty) empty.hidden = seen.size !== 0;
+    document.dispatchEvent(new CustomEvent('gallery:applied'));
   };
 
   bar.querySelectorAll<HTMLElement>('.chip[data-key]').forEach((chip) => {

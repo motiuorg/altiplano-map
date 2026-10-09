@@ -145,6 +145,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                         {t(lang, "itvs.cards")}
                     </button>
                     <button class="chip" data-view="table">{t(lang, "itvs.table")}</button>
+                    <button class="chip" data-view="areas">{t(lang, "itvs.areas")}</button>
                 </div>
             </div>
 
@@ -192,6 +193,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                                         }
                                         data-org={itv.orgIds.join("|")}
                                         data-fin={itv.financiacion ?? ""}
+                                        data-valor5={itv.valor5Anos ?? ""}
                                     >
                                         <th scope="row">{itv.name}</th>
                                         <td class="itv-table__orgs">
@@ -223,6 +225,22 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="area-view" data-view-panel="areas" hidden>
+                        <div class="area-view__bubbles" data-bubbles>
+                            {areas.map((a) => (
+                                <div class="area-bubble" data-bubble-area={a.toLowerCase()}>
+                                    <span class="area-bubble__stage">
+                                        <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
+                                    </span>
+                                    <span class="area-bubble__name">{tv(lang, a)}</span>
+                                    <span class="area-bubble__value" data-bubble-value></span>
+                                    <span class="area-bubble__count" data-bubble-count></span>
+                                </div>
+                            ))}
+                        </div>
+                        <p class="area-view__note">{t(lang, "itvs.areasNote")}</p>
+                    </div>
                 </>
             ) : (
                 <p class="empty-note">{t(lang, "itvs.none")}</p>
@@ -249,6 +267,54 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                 .forEach((p) => (p.hidden = p.dataset.viewPanel !== view));
         }),
     );
+
+    // Areas view: one circle per work area, sized (by area) by the summed 5-year value of the
+    // interventions the filters leave visible.
+    const bubbleBox = document.querySelector<HTMLElement>("[data-bubbles]");
+    if (bubbleBox) {
+        const lang = document.documentElement.lang === "en" ? "en" : "es";
+        const locale = lang === "en" ? "en-GB" : "es-ES";
+        const countText = (n: number) => (lang === "en" ? `${n} interventions` : `${n} intervenciones`);
+        const money = (n: number) =>
+            `${n.toLocaleString(locale, { notation: "compact", maximumFractionDigits: 1 })} €`;
+        const bubbles = [...bubbleBox.querySelectorAll<HTMLElement>("[data-bubble-area]")];
+        const rows = [...document.querySelectorAll<HTMLElement>("tr[data-filterable]")];
+        const MIN_D = 14;
+
+        const updateBubbles = () => {
+            const sums = new Map<string, { value: number; count: number }>();
+            for (const b of bubbles) sums.set(b.dataset.bubbleArea!, { value: 0, count: 0 });
+            for (const r of rows) {
+                if (r.hidden) continue;
+                const v = Number(r.dataset.valor5);
+                for (const a of (r.dataset.area ?? "").split("|").filter(Boolean)) {
+                    const e = sums.get(a);
+                    if (!e) continue;
+                    e.count += 1;
+                    if (r.dataset.valor5 !== "" && !Number.isNaN(v)) e.value += v;
+                }
+            }
+            const max = Math.max(...[...sums.values()].map((e) => e.value), 0);
+            const maxD = Math.min(
+                300,
+                Math.max(120, (bubbleBox.clientWidth - 24 * (bubbles.length - 1)) / bubbles.length),
+            );
+            for (const b of bubbles) {
+                const e = sums.get(b.dataset.bubbleArea!)!;
+                // Area (not diameter) follows the value, so a circle twice the value looks twice as big.
+                const d = max > 0 && e.value > 0 ? Math.max(MIN_D, Math.sqrt(e.value / max) * maxD) : MIN_D;
+                const disc = b.querySelector<HTMLElement>(".area-bubble__disc")!;
+                disc.style.width = disc.style.height = `${d}px`;
+                b.style.width = `${maxD}px`;
+                b.querySelector("[data-bubble-value]")!.textContent = e.count > 0 ? money(e.value) : "—";
+                b.querySelector("[data-bubble-count]")!.textContent = countText(e.count);
+            }
+        };
+        document.addEventListener("gallery:applied", updateBubbles);
+        buttons.forEach((b) => b.addEventListener("click", updateBubbles));
+        window.addEventListener("resize", updateBubbles);
+        updateBubbles();
+    }
 </script>
 
 <style>
@@ -393,6 +459,74 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
     }
 
     /* One joined block: the buttons share a border, no gap between them. */
+    .area-view {
+        padding: var(--space-8) 0 var(--space-4);
+    }
+
+    .area-view[hidden] {
+        display: none;
+    }
+
+    .area-view__bubbles {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-end;
+        gap: var(--space-8) var(--space-6);
+    }
+
+    .area-bubble {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-1);
+        text-align: center;
+    }
+
+    .area-bubble__stage {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin-bottom: var(--space-3);
+    }
+
+    .area-bubble__disc.badge {
+        display: block;
+        box-sizing: border-box;
+        padding: 0;
+        border-radius: 50%;
+        border-width: 1.5px;
+        transition: width var(--t-med), height var(--t-med);
+    }
+
+    .area-bubble__name {
+        font-size: var(--text-md);
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .area-bubble__value {
+        font-family: var(--mono);
+        font-size: var(--text-sm);
+        color: var(--text-primary);
+    }
+
+    .area-bubble__count {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+    }
+
+    .area-view__note {
+        margin: var(--space-8) 0 0;
+        text-align: center;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+    }
+
     .itv-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));

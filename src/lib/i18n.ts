@@ -107,6 +107,12 @@ const D = {
   'itvs.view': { es: 'Vista', en: 'View' },
   'itvs.cards': { es: 'Tarjetas', en: 'Cards' },
   'itvs.table': { es: 'Tabla', en: 'Table' },
+  'itvs.areas': { es: 'Áreas', en: 'Areas' },
+  'itvs.areasNote': {
+    es: 'El tamaño de cada círculo es la suma del valor ajustado a 5 años de las intervenciones que se muestran.',
+    en: 'Each circle is sized by the summed 5-year adjusted value of the interventions shown.',
+  },
+  'itvs.areaCount': { es: '{n} intervenciones', en: '{n} interventions' },
   'itvs.none': { es: 'No hay intervenciones publicadas todavía.', en: 'No interventions published yet.' },
   'itvs.noMatch': { es: 'Ninguna intervención coincide con el filtro.', en: 'No intervention matches the filter.' },
   'th.itv': { es: 'Intervención', en: 'Intervention' },
