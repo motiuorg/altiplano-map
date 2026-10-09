@@ -475,10 +475,13 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         margin: 0;
         font-size: var(--text-md);
     }
-    .org-pop__badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-2);
+    .org-pop__eyebrow {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
     }
     .org-pop__text {
         margin: 0;
@@ -641,8 +644,8 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
 
         const popupHtml = (p) => `
         <div class="org-pop">
-          ${p.tipos && p.tipos.length ? `<div class="org-pop__badges">${p.tipos.map((x) => `<span class="badge badge--sm badge--square badge--neutral">${escapeHtml(x)}</span>`).join("")}</div>` : ""}
           <h3 class="org-pop__title">${escapeHtml(p.name)}</h3>
+          ${p.tipos && p.tipos.length ? `<p class="org-pop__eyebrow">${escapeHtml(p.tipos.join(" · "))}</p>` : ""}
           ${p.desc ? `<p class="org-pop__text">${escapeHtml(p.desc)}</p>` : ""}
           ${p.website || p.grupo ? `<div class="org-pop__foot">${p.website ? `<a class="org-pop__link" href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(strings.website)}</a>` : "<span></span>"}${p.grupo ? `<span class="badge badge--sm badge--pill badge--flow">${escapeHtml(strings.group)}</span>` : ""}</div>` : ""}
         </div>`;

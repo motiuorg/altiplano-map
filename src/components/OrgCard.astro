@@ -6,7 +6,7 @@ import Card from "@motiu/design/components/card/Card.astro";
 import CardBody from "@motiu/design/components/card/CardBody.astro";
 import CardTitle from "@motiu/design/components/card/CardTitle.astro";
 import CardText from "@motiu/design/components/card/CardText.astro";
-import CardBadges from "@motiu/design/components/card/CardBadges.astro";
+import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
 import CardFacts from "@motiu/design/components/card/CardFacts.astro";
 import CardFact from "@motiu/design/components/card/CardFact.astro";
 import CardFooter from "@motiu/design/components/card/CardFooter.astro";
@@ -41,11 +41,7 @@ const { org, lang = 'es' } = Astro.props;
       )}
     </CardTitle>
 
-    {org.tipos.length > 0 && (
-      <CardBadges>
-        {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
-      </CardBadges>
-    )}
+    {org.tipos.length > 0 && <CardEyebrow>{org.tipos.map((x) => tv(lang, x)).join(" · ")}</CardEyebrow>}
 
     {org.description && <CardText>{org.description}</CardText>}
 
