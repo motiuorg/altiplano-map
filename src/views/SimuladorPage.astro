@@ -358,7 +358,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 
             <!-- SUPUESTOS: sensitivity, all assumptions, reference data -->
             <section data-panel="supuestos" hidden>
-                <Tabs id="subtabs" size="sm" rule={false} label={T.assump}>
+                <Tabs id="subtabs" size="sm" label={T.assump}>
                     <Tab data-sub="pesa" selected>{T.subPesa}</Tab>
                     <Tab data-sub="todos">{T.subTodos}</Tab>
                     <Tab data-sub="ref">{T.subRef}</Tab>
@@ -622,7 +622,9 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     :root[lang="en"] .sim { --ajustado: " · adjusted"; }
 
     /* Supuestos sub-tabs */
-    .sim #subtabs { margin-bottom: var(--space-5); }
+    /* The sub-tabs belong to the page tab above: pull them up under its line (the view bar leaves
+       --space-8 below it for the panel content). */
+    .sim #subtabs { margin: calc(var(--space-3) - var(--space-8)) 0 var(--space-5); }
     .sim [data-sub-panel][hidden] { display: none; }
     .sim table.desglose tr.sub.is-flash td { background: color-mix(in srgb, var(--pillar-flow-2) 28%, var(--bg)); transition: background 1.2s ease; }
     .sim td .badge { margin-left: var(--space-2); }
