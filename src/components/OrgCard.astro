@@ -4,7 +4,6 @@
 // data-tipo, data-name); the map finds it by .org-card[data-org-id].
 import Card from "@motiu/design/components/card/Card.astro";
 import CardBody from "@motiu/design/components/card/CardBody.astro";
-import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
 import CardTitle from "@motiu/design/components/card/CardTitle.astro";
 import CardText from "@motiu/design/components/card/CardText.astro";
 import CardBadges from "@motiu/design/components/card/CardBadges.astro";
@@ -41,8 +40,6 @@ const { org, lang = 'es' } = Astro.props;
         org.name
       )}
     </CardTitle>
-
-    {org.placeName && <CardEyebrow>📍 {org.placeName}</CardEyebrow>}
 
     {org.tipos.length > 0 && (
       <CardBadges>

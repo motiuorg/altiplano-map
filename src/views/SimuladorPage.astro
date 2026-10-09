@@ -517,8 +517,10 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .sim-grid { display: grid; gap: var(--space-5); }
     .sim .sim-kpis { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-bottom: var(--space-5); }
     .sim .sim-cols { grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+    /* Panels for charts and figures: the design system's card corners and border, no shadow or hover. */
     .sim .sim-card {
         border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card, 0.75rem);
         background: var(--bg);
         padding: var(--space-6);
         min-width: 0;
@@ -565,7 +567,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
 
     /* income assumptions: same language as the filter bar (mono labels, hairlines) */
-    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-subtle); background: var(--bg); padding: var(--space-3) var(--space-5); }
+    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-card, 0.75rem); background: var(--bg); padding: var(--space-3) var(--space-5); }
     .sim .sim-precios__head {
         display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
     }
@@ -665,7 +667,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     #tip .k { width: 12px; height: 2px; display: inline-block; }
 
     /* tables — itv-table language */
-    .sim .table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); }
+    .sim .table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: calc(var(--radius-card, 0.75rem) - 0.25rem); }
     .sim table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
     .sim th, .sim td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
     .sim thead th {
