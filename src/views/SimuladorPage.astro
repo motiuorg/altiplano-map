@@ -495,16 +495,19 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
     .sim .sim-toggle input { accent-color: var(--pillar-flow-3); }
 
+    /* Tab bar: the hairline runs along the bottom, under the tabs; the active tab's underline sits
+       on it, and the units toggle stands just above it. */
     .sim .view-bar {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         gap: var(--space-3);
-        margin: var(--space-4) 0 var(--space-8);
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--border-subtle);
+        margin: var(--space-6) 0 var(--space-8);
+        border-bottom: 1px solid var(--border-subtle);
     }
+    .sim #tabs { margin-bottom: -1px; }
+    .sim #tabs .tab { margin-bottom: 0; }
     .sim .view-bar { justify-content: space-between; flex-wrap: wrap; }
-    .sim .sim-unidad { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .sim .sim-unidad { display: inline-flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); }
     .sim .sim-unidad .chip { padding-inline: 0.7rem; }
     .sim .filter-num input { width: 8.5rem; min-width: 0; }
     /* same height for dropdowns and number fields so they line up */
@@ -569,8 +572,11 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
 
     /* income assumptions: same language as the filter bar (mono labels, hairlines) */
-    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-card, 0.75rem); background: var(--bg); padding: var(--space-3) var(--space-5); }
+    /* One big control: the same outline and square corners as the buttons, darker on hover. */
+    .sim .sim-precios { margin: var(--space-2) 0 var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius); transition: border-color var(--t-fast); background: var(--bg); padding: var(--space-3) var(--space-5); }
+    .sim .sim-precios:has(.sim-precios__head:hover) { border-color: var(--text-primary); }
     .sim .sim-precios__head {
+        cursor: pointer;
         display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
     }
     .sim .sim-precios__toggle {

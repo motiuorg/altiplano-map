@@ -365,6 +365,8 @@ export function iniciarSimulador(D, M, langCode, precios) {
     });
     $("#precios-toggle").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
     $("#precios-accion").addEventListener("click", () => abrirPrecios(!st.preciosAbierto));
+    // the whole header row is the control, not just its two buttons
+    $(".sim-precios__head").addEventListener("click", (e) => { if (!e.target.closest("button")) abrirPrecios(!st.preciosAbierto); });
     construirPrecios();
     abrirPrecios(false);
   }
