@@ -1,6 +1,18 @@
 ---
-// Intervention card — the 5 requested fields plus org chips. Carries data-*
-// attributes for the gallery filters (data-area, data-viable).
+// Intervention card — built from the design system's card parts: title, description and
+// a list of facts. Carries data-* attributes for the gallery filters (data-area,
+// data-viable, data-org, data-fin).
+import Card from "@motiu/design/components/card/Card.astro";
+import CardBody from "@motiu/design/components/card/CardBody.astro";
+import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
+import CardTitle from "@motiu/design/components/card/CardTitle.astro";
+import CardText from "@motiu/design/components/card/CardText.astro";
+import CardBadges from "@motiu/design/components/card/CardBadges.astro";
+import CardFacts from "@motiu/design/components/card/CardFacts.astro";
+import CardFact from "@motiu/design/components/card/CardFact.astro";
+import CardFooter from "@motiu/design/components/card/CardFooter.astro";
+import CardLink from "@motiu/design/components/card/CardLink.astro";
+import Badge from "@motiu/design/components/Badge.astro";
 import type { InterventionRecord } from "../lib/records";
 import { formatValor, formatEuro } from "../lib/records";
 import { t, tv, numberLocale } from "../lib/i18n";
@@ -18,19 +30,14 @@ export interface Props {
 const { intervention: itv, orgNames, filterable = true, showOrg = true, lang = "es" } = Astro.props;
 const viableLabel =
     itv.viable === null ? "" : itv.viable ? t(lang, "card.viableYes") : t(lang, "card.viableNo");
-const viableClass =
-    itv.viable === null
-        ? "badge--paper"
-        : itv.viable
-          ? "badge--success"
-          : "badge--danger";
 const recLabel =
     itv.recurrente === null ? "—" : itv.recurrente ? t(lang, "card.recYes") : t(lang, "card.recNo");
+const areas = itv.areaTrabajo.map((a) => tv(lang, a));
 const capitales = [itv.capital1, itv.capital2].filter(Boolean).map((c) => tv(lang, c));
 const loc = numberLocale(lang);
 ---
 
-<article
+<Card
     class="itv-card"
     data-filterable={filterable}
     data-item-id={itv.id}
@@ -39,165 +46,34 @@ const loc = numberLocale(lang);
     data-org={itv.orgIds.join("|")}
     data-fin={itv.financiacion ?? ""}
 >
-    <div class="itv-card__head">
-        <h3 class="itv-card__name">{itv.name}</h3>
-    </div>
+    <CardBody>
+        <CardTitle size="sm">{itv.name}</CardTitle>
 
-    {itv.description && <p class="itv-card__desc">{itv.description}</p>}
+        {itv.description && <CardText>{itv.description}</CardText>}
 
-    <dl class="itv-card__facts">
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.area")}</dt>
-            <dd>
-                {itv.areaTrabajo.length > 0 ? (
-                    itv.areaTrabajo.map((a) => <span class="itv-card__org">{tv(lang, a)}</span>)
-                ) : (
-                    <span class="itv-card__org itv-card__org--empty">—</span>
-                )}
-            </dd>
-        </div>
-        {showOrg && <div class="itv-card__fact">
-            <dt>{t(lang, "card.orgs")}</dt>
-            <dd>
-                {orgNames.length > 0 ? (
-                    orgNames.map((n) => <span class="itv-card__org">{n}</span>)
-                ) : (
-                    <span class="itv-card__org itv-card__org--empty">—</span>
-                )}
-            </dd>
-        </div>}
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.value5")}</dt>
-            <dd class="itv-card__valor">
+        <CardFacts>
+            <CardFact label={t(lang, "card.area")} empty={areas.length === 0}>
+                {areas.map((a) => <Badge shape="square" size="sm">{a}</Badge>)}
+            </CardFact>
+            {showOrg && (
+                <CardFact label={t(lang, "card.orgs")} empty={orgNames.length === 0}>
+                    {orgNames.map((n) => <Badge shape="square" size="sm">{n}</Badge>)}
+                </CardFact>
+            )}
+            <CardFact label={t(lang, "card.value5")} mono>
                 {formatValor(itv.valor5Anos, itv.valor5AnosRaw, loc)}
-            </dd>
-        </div>
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.financing")}</dt>
-            <dd class="itv-card__valor">{formatEuro(itv.financiacion, loc)}</dd>
-        </div>
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.years")}</dt>
-            <dd>{itv.anos ?? "—"}</dd>
-        </div>
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.recurrence")}</dt>
-            <dd>{recLabel}</dd>
-        </div>
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.capital")}</dt>
-            <dd>
-                {capitales.length > 0 ? (
-                    capitales.map((c) => <span class="itv-card__org">{c}</span>)
-                ) : (
-                    <span class="itv-card__org itv-card__org--empty">—</span>
-                )}
-            </dd>
-        </div>
-        <div class="itv-card__fact">
-            <dt>{t(lang, "card.viability")}</dt>
-            <dd>
-                {viableLabel ? (
-                    <span class={`badge ${viableClass}`}>{viableLabel}</span>
-                ) : (
-                    <span class="itv-card__org itv-card__org--empty">—</span>
-                )}
-            </dd>
-        </div>
-    </dl>
-</article>
-
-<style>
-    .itv-card {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-4);
-        padding: var(--space-6);
-        border: 1px solid var(--border-subtle);
-        background: var(--bg);
-        border-radius: var(--radius);
-        transition:
-            border-color var(--t-med),
-            box-shadow var(--t-med),
-            transform var(--t-med);
-    }
-
-    .itv-card:hover {
-        border-color: var(--border-default);
-        box-shadow: 0 2px 0 0 var(--border-subtle);
-        transform: translateY(-2px);
-    }
-
-    .itv-card__head {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-3);
-    }
-
-    .itv-card__name {
-        font-family: var(--serif);
-        font-size: var(--text-md);
-        font-weight: 400;
-        line-height: 1.22;
-    }
-
-    .itv-card__desc {
-        font-size: var(--text-sm);
-        line-height: 1.6;
-        color: color-mix(in srgb, var(--text-primary) 88%, var(--text-muted));
-    }
-
-    .itv-card__facts {
-        margin: 0;
-        border-top: 1px solid var(--border-subtle);
-        padding-top: var(--space-4);
-        display: grid;
-        gap: var(--space-3);
-    }
-
-    .itv-card__fact {
-        display: grid;
-        grid-template-columns: 11rem 1fr;
-        gap: var(--space-3);
-        align-items: baseline;
-    }
-
-    .itv-card__fact dt {
-        font-family: var(--mono);
-        font-size: 0.62rem;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: var(--text-muted);
-    }
-
-    .itv-card__fact dd {
-        margin: 0;
-        font-size: var(--text-sm);
-    }
-
-    .itv-card__org {
-        display: inline-block;
-        font-size: var(--text-sm);
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        padding: 0.15rem 0.5rem;
-        margin: 0 0.15rem 0.15rem 0;
-    }
-
-    .itv-card__org--empty {
-        color: var(--text-muted);
-    }
-
-    .itv-card__valor {
-        font-family: var(--mono);
-        font-size: var(--text-base);
-        color: var(--text-primary);
-    }
-
-    @media (max-width: 560px) {
-        .itv-card__fact {
-            grid-template-columns: 1fr;
-            gap: var(--space-1);
-        }
-    }
-</style>
+            </CardFact>
+            <CardFact label={t(lang, "card.financing")} mono>
+                {formatEuro(itv.financiacion, loc)}
+            </CardFact>
+            <CardFact label={t(lang, "card.years")}>{itv.anos ?? "—"}</CardFact>
+            <CardFact label={t(lang, "card.recurrence")}>{recLabel}</CardFact>
+            <CardFact label={t(lang, "card.capital")} empty={capitales.length === 0}>
+                {capitales.map((c) => <Badge shape="square" size="sm">{c}</Badge>)}
+            </CardFact>
+            <CardFact label={t(lang, "card.viability")} empty={!viableLabel}>
+                <Badge tone={itv.viable ? "success" : "danger"} size="sm">{viableLabel}</Badge>
+            </CardFact>
+        </CardFacts>
+    </CardBody>
+</Card>

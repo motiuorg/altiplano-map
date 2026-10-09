@@ -243,7 +243,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     .landing {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        height: calc(100vh - 4rem);
+        height: calc(100vh - var(--nav-h, 4rem));
         min-height: 560px;
         border-bottom: 1px solid var(--border-subtle);
         background: var(--bg);

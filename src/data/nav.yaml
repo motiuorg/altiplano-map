@@ -1,5 +1,6 @@
 label: { es: Secciones, en: Sections }
 homeLabel: { es: inicio, en: home }
+variant: solid
 items:
   - { id: organizaciones, href: /, label: { es: Organizaciones, en: Organizations } }
   - { id: intervenciones, href: /intervenciones/, label: { es: Intervenciones, en: Interventions } }

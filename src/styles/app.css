@@ -15,3 +15,9 @@
 .map-pin-popup .maplibregl-popup-content {
                 padding: 0;
 }
+
+/* Org cards: the map scrolls to one and flashes it (OrgMap). */
+.org-card { scroll-margin-top: 6rem; }
+.card.org-card.is-flash {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pillar-flow-3) 25%, transparent);
+}

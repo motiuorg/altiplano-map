@@ -1,7 +1,18 @@
 ---
+// Organization card — used in the gallery grid. Built from the design system's card
+// parts. Carries data-* attributes the gallery filter script reads (data-grupo,
+// data-tipo, data-name); the map finds it by .org-card[data-org-id].
+import Card from "@motiu/design/components/card/Card.astro";
+import CardBody from "@motiu/design/components/card/CardBody.astro";
+import CardEyebrow from "@motiu/design/components/card/CardEyebrow.astro";
+import CardTitle from "@motiu/design/components/card/CardTitle.astro";
+import CardText from "@motiu/design/components/card/CardText.astro";
+import CardBadges from "@motiu/design/components/card/CardBadges.astro";
+import CardFacts from "@motiu/design/components/card/CardFacts.astro";
+import CardFact from "@motiu/design/components/card/CardFact.astro";
+import CardFooter from "@motiu/design/components/card/CardFooter.astro";
+import CardLink from "@motiu/design/components/card/CardLink.astro";
 import Badge from "@motiu/design/components/Badge.astro";
-// Organization card — used in the gallery grid. Carries data-* attributes the
-// gallery filter script reads (data-grupo, data-zona).
 import type { OrgRecord } from '../lib/records';
 import { t, tv } from '../lib/i18n';
 import type { Lang } from '../lib/i18n';
@@ -14,7 +25,7 @@ export interface Props {
 const { org, lang = 'es' } = Astro.props;
 ---
 
-<article
+<Card
   class="org-card"
   data-org-id={org.id}
   data-filterable
@@ -22,74 +33,38 @@ const { org, lang = 'es' } = Astro.props;
   data-tipo={org.tipos.map((x) => x.toLowerCase()).join('|')}
   data-name={org.name.toLowerCase()}
 >
-  <div class="org-card__head">
-    <h3 class="org-card__name">
+  <CardBody>
+    <CardTitle size="sm">
       {org.grupoTrabajo ? (
         <button type="button" class="org-card__name-btn" data-open-org={org.id}>{org.name}</button>
       ) : (
         org.name
       )}
-    </h3>
-  </div>
+    </CardTitle>
 
-  {org.placeName && <p class="org-card__place">📍 {org.placeName}</p>}
+    {org.placeName && <CardEyebrow>📍 {org.placeName}</CardEyebrow>}
 
-  {org.tipos.length > 0 && (
-    <p class="org-card__tipos">
-      {org.tipos.map((x) => <span class="org-card__tipo">{tv(lang, x)}</span>)}
-    </p>
-  )}
-
-  {org.description && <p class="org-card__desc">{org.description}</p>}
-
-  <div class="org-card__foot">
-    {org.website && (
-      <a class="org-card__link" href={org.website} target="_blank" rel="noopener noreferrer">
-        {t(lang, 'org.website')}
-      </a>
+    {org.tipos.length > 0 && (
+      <CardBadges>
+        {org.tipos.map((x) => <Badge shape="square" size="sm">{tv(lang, x)}</Badge>)}
+      </CardBadges>
     )}
-    {org.grupoTrabajo && <Badge tone="flow" size="sm">{t(lang, 'org.group')}</Badge>}
-  </div>
-</article>
+
+    {org.description && <CardText>{org.description}</CardText>}
+
+    <CardFooter rule>
+      {org.website ? (
+        <CardLink href={org.website} external>{t(lang, 'org.website')}</CardLink>
+      ) : (
+        <span></span>
+      )}
+      {org.grupoTrabajo && <Badge tone="flow" size="sm">{t(lang, 'org.group')}</Badge>}
+    </CardFooter>
+  </CardBody>
+</Card>
 
 <style>
-  .org-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    padding: var(--space-6);
-    border: 1px solid var(--border-subtle);
-    background: var(--bg);
-    border-radius: var(--radius);
-    transition: border-color var(--t-med), box-shadow var(--t-med), transform var(--t-med);
-    scroll-margin-top: 6rem;
-  }
-
-  .org-card:hover {
-    border-color: var(--border-default);
-    box-shadow: 0 2px 0 0 var(--border-subtle);
-    transform: translateY(-2px);
-  }
-
-  .org-card.is-flash {
-    border-color: var(--pillar-flow-3);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pillar-flow-3) 25%, transparent);
-  }
-
-  .org-card__head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-3);
-  }
-
-  .org-card__name {
-    font-family: var(--serif);
-    font-size: var(--text-md);
-    font-weight: 400;
-    line-height: 1.2;
-  }
-
+  /* The one thing this card adds: a group name opens the org's side panel. */
   .org-card__name-btn {
     all: unset;
     cursor: pointer;
@@ -102,62 +77,5 @@ const { org, lang = 'es' } = Astro.props;
   .org-card__name-btn:hover,
   .org-card__name-btn:focus-visible {
     color: var(--pillar-flow-4);
-  }
-
-  .org-card__place {
-    font-family: var(--mono);
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    letter-spacing: 0.02em;
-  }
-
-  .org-card__desc {
-    font-size: var(--text-sm);
-    line-height: 1.6;
-    color: color-mix(in srgb, var(--text-primary) 88%, var(--text-muted));
-    flex-grow: 1;
-  }
-
-  .org-card__foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    min-height: 2rem;
-    border-top: 1px solid var(--border-subtle);
-    padding-top: var(--space-3);
-  }
-
-  .org-card__link {
-    font-family: var(--mono);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .org-card__tipos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-  }
-
-  .org-card__tipo {
-    font-family: var(--mono);
-    font-size: var(--text-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-    padding: 0.15rem 0.45rem;
-  }
-
-.org-card__foot .badge {
-    margin-left: auto;
-  }
-
-  @media (max-width: 640px) {
-    .org-card__head {
-      flex-direction: column;
-    }
   }
 </style>
