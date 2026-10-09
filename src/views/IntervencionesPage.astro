@@ -158,8 +158,8 @@ const sliderMax = Math.ceil(finMax / step) * step;
                             <thead>
                                 <tr>
                                     <th>{t(lang, "th.itv")}</th>
-                                    <th>{t(lang, "card.area")}</th>
                                     <th>{t(lang, "card.orgs")}</th>
+                                    <th>{t(lang, "card.area")}</th>
                                     <th class="num">{t(lang, "card.financing")}</th>
                                     <th class="num">{t(lang, "card.years")}</th>
                                     <th>{t(lang, "card.recurrence")}</th>
@@ -187,15 +187,15 @@ const sliderMax = Math.ceil(finMax / step) * step;
                                         data-fin={itv.financiacion ?? ""}
                                     >
                                         <th scope="row">{itv.name}</th>
+                                        <td class="itv-table__orgs">
+                                            {interventionOrgNames(itv, orgMap).join(" · ")}
+                                        </td>
                                         <td>
                                             <span class="itv-table__tags">
                                                 {itv.areaTrabajo.map((a) => (
                                                     <Badge tone={areaTone(a) as any} size="sm">{tv(lang, a)}</Badge>
                                                 ))}
                                             </span>
-                                        </td>
-                                        <td class="itv-table__orgs">
-                                            {interventionOrgNames(itv, orgMap).join(" · ")}
                                         </td>
                                         <td class="num">{formatEuro(itv.financiacion, loc)}</td>
                                         <td class="num">{itv.anos ?? "—"}</td>
