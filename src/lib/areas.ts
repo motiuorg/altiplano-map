@@ -12,7 +12,7 @@ const KNOWN: Array<[prefix: string, tone: string]> = [
 ];
 
 // Hues kept for areas added later (the known ones above are not reused here).
-const SPARE = ['ocean', 'teal', 'pink', 'yellow', 'red', 'orange', 'green', 'gris'];
+const SPARE = ['blue', 'yellow', 'pink', 'green', 'tissue', 'neural', 'flow', 'purple'];
 
 export function areaTone(area: string): string {
   const n = norm(area);
