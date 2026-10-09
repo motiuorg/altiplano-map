@@ -15,6 +15,7 @@ import Badge from "@motiu/design/components/Badge.astro";
 import Check from "@motiu/design/components/Check.astro";
 import type { InterventionRecord } from "../lib/records";
 import { formatValor, formatEuro } from "../lib/records";
+import { areaTone } from "../lib/areas";
 import { t, tv, numberLocale } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
@@ -28,7 +29,7 @@ export interface Props {
 }
 
 const { intervention: itv, orgNames, filterable = true, showOrg = true, lang = "es" } = Astro.props;
-const areas = itv.areaTrabajo.map((a) => tv(lang, a));
+const areas = itv.areaTrabajo.map((a) => ({ label: tv(lang, a), tone: areaTone(a) }));
 const capitales = [itv.capital1, itv.capital2].filter(Boolean).map((c) => tv(lang, c));
 const loc = numberLocale(lang);
 ---
@@ -45,7 +46,7 @@ const loc = numberLocale(lang);
     <CardBody>
         {areas.length > 0 && (
             <CardBadges>
-                {areas.map((a) => <Badge shape="square" size="sm">{a}</Badge>)}
+                {areas.map((a) => <Badge tone={a.tone as any} size="sm">{a.label}</Badge>)}
             </CardBadges>
         )}
 
