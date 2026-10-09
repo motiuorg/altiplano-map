@@ -6,7 +6,7 @@
 // Clicking a pin scrolls to + flashes the matching card in the gallery.
 import fs from "fs";
 import type { OrgRecord } from "../lib/records";
-import { t } from "../lib/i18n";
+import { t, tv } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -37,6 +37,7 @@ const pins = withCoords.map((o) => ({
     desc: o.description,
     website: o.website,
     grupo: o.grupoTrabajo,
+    tipos: o.tipos.map((x) => tv(lang, x)),
     lat: o.lat,
     lng: o.lng,
 }));
@@ -453,9 +454,61 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         }
     }
 
+    /* Hover card: the same surface, spacing and parts as the organisation cards. */
     .org-pin-popup .maplibregl-popup-content {
-        border-radius: var(--radius) !important;
-        border: 1px solid var(--border-subtle);
+        padding: 0;
+        background: var(--paper);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-card, 0.75rem) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    .org-pop {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--space-5);
+        width: 300px;
+        max-width: 100%;
+        font-family: var(--sans);
+    }
+    .org-pop__title {
+        margin: 0;
+        font-size: var(--text-md);
+    }
+    .org-pop__badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+    .org-pop__text {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--copy-md);
+        line-height: var(--leading-body);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .org-pop__foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border-subtle);
+    }
+    .org-pop__link {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--primary);
+        text-decoration: none;
+    }
+    .org-pop__link:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -587,17 +640,26 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         };
 
         const popupHtml = (p) => `
-        <div style="padding:1rem 1.1rem;font-family:var(--sans);max-width:340px;">
-          ${
-              p.grupo
-                  ? '<div style="margin-bottom:0.7rem;font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--pillar-flow-4);">● ${escapeHtml(strings.group)}</div>'
-                  : ""
-          }
-          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--text-primary);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
-          ${p.place ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
-          ${p.desc ? `<div style="font-size:0.85rem;color:var(--text-primary);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
-          ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">${escapeHtml(strings.website)}</a>` : ""}
+        <div class="org-pop">
+          ${p.tipos && p.tipos.length ? `<div class="org-pop__badges">${p.tipos.map((x) => `<span class="badge badge--sm badge--square badge--neutral">${escapeHtml(x)}</span>`).join("")}</div>` : ""}
+          <h3 class="org-pop__title">${escapeHtml(p.name)}</h3>
+          ${p.desc ? `<p class="org-pop__text">${escapeHtml(p.desc)}</p>` : ""}
+          ${p.website || p.grupo ? `<div class="org-pop__foot">${p.website ? `<a class="org-pop__link" href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(strings.website)}</a>` : "<span></span>"}${p.grupo ? `<span class="badge badge--sm badge--pill badge--flow">${escapeHtml(strings.group)}</span>` : ""}</div>` : ""}
         </div>`;
+
+        // One hover card at a time. It stays open while the pointer is on the dot or
+        // on the card itself, and closes shortly after it leaves both, so the link
+        // can be reached.
+        let hoverPopup = null;
+        let hoverTimer = null;
+        const cancelClose = () => clearTimeout(hoverTimer);
+        const scheduleClose = (popup) => {
+            clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => {
+                popup.remove();
+                if (hoverPopup === popup) hoverPopup = null;
+            }, 250);
+        };
 
         function makePin(p, lngLat, extraClass) {
             const el = document.createElement("div");
@@ -614,15 +676,25 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
                 .setLngLat(lngLat)
                 .addTo(map);
             const popup = new maplibregl.Popup({
-                offset: 18,
+                offset: 14,
                 closeButton: false,
                 closeOnClick: false,
+                focusAfterOpen: false,
                 className: "org-pin-popup",
                 maxWidth: "340px",
             }).setHTML(popupHtml(p));
-            marker.setPopup(popup);
-            el.addEventListener("mouseenter", () => marker.togglePopup());
-            el.addEventListener("mouseleave", () => marker.togglePopup());
+            el.addEventListener("mouseenter", () => {
+                cancelClose();
+                if (hoverPopup && hoverPopup !== popup) hoverPopup.remove();
+                hoverPopup = popup;
+                if (!popup.isOpen()) {
+                    popup.setLngLat(marker.getLngLat()).addTo(map);
+                    const pe = popup.getElement();
+                    pe.addEventListener("mouseenter", cancelClose);
+                    pe.addEventListener("mouseleave", () => scheduleClose(popup));
+                }
+            });
+            el.addEventListener("mouseleave", () => scheduleClose(popup));
             el.addEventListener("click", (e) => {
                 e.stopPropagation();
                 flashCard(p.id);
