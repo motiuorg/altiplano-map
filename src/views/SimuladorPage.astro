@@ -281,8 +281,10 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 </Tabs>
                 <div class="sim-unidad" role="group" aria-label={T.units}>
                     <span class="filter-bar__label">{T.units}</span>
-                    <button type="button" class="chip is-active" data-u="finca" aria-pressed="true">{T.perFarmU}</button>
-                    <button type="button" class="chip" data-u="ha" aria-pressed="false">{T.perHaU}</button>
+                    <div class="sim-seg">
+                        <button type="button" class="chip is-active" data-u="finca" aria-pressed="true">{T.perFarmU}</button>
+                        <button type="button" class="chip" data-u="ha" aria-pressed="false">{T.perHaU}</button>
+                    </div>
                 </div>
             </div>
 

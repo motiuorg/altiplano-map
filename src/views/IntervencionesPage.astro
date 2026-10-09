@@ -385,9 +385,13 @@ const sliderMax = Math.ceil(finMax / step) * step;
         border-top: 1px solid var(--border-subtle);
     }
 
+    /* One joined block: the buttons share a border, no gap between them. */
     .view-switch {
         display: inline-flex;
-        gap: var(--space-2);
+    }
+
+    .view-switch .chip + .chip {
+        margin-left: -1px;
     }
 
     .itv-grid {
