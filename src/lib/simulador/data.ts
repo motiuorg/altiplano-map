@@ -33,10 +33,20 @@ const fuente = (f: string) => {
 };
 const url = (u: string | null) => (u && !u.includes('notion.com') && !u.includes('notion.so') ? u : '');
 
-const ORDEN_CULTIVO = ['Todos', 'Almendro', 'Olivo', 'Cereal', 'Pistacho'];
+// Crop order, everywhere: almond, olive, pistachio, cereal.
+const ORDEN_CULTIVO = ['Todos', 'Almendro', 'Olivo', 'Pistacho', 'Cereal'];
 const ORDEN_CATEGORIA = ['Superficie', 'Rendimiento', 'Precio', 'Coste base', 'PAC', 'Adopción', 'Carbono', 'Crédito'];
-const ORDEN_ARQ = ['alm-conv', 'alm-eco', 'oli-conv', 'oli-eco', 'cer-conv', 'cer-eco', 'pis-conv'];
+const ORDEN_ARQ = ['alm-conv', 'alm-eco', 'oli-conv', 'oli-eco', 'pis-conv', 'cer-conv', 'cer-eco'];
 const idx = (arr: string[], v: string) => (arr.indexOf(v) === -1 ? 99 : arr.indexOf(v));
+
+// One place that fixes the order of crops, whatever the source (Notion or the saved snapshot).
+const porParametro = (a: any, b: any) =>
+  idx(ORDEN_CULTIVO, a.cultivo) - idx(ORDEN_CULTIVO, b.cultivo) ||
+  idx(ORDEN_CATEGORIA, a.categoria) - idx(ORDEN_CATEGORIA, b.categoria) || String(a.clave).localeCompare(String(b.clave));
+const porArquetipo = (a: any, b: any) => idx(ORDEN_ARQ, a.clave) - idx(ORDEN_ARQ, b.clave);
+function ordenar<T extends { parametros: any[]; arquetipos: any[] }>(d: T): T {
+  return { ...d, parametros: [...d.parametros].sort(porParametro), arquetipos: [...d.arquetipos].sort(porArquetipo) };
+}
 
 function parametros(rows: NormalizedRecord[]) {
   return rows
@@ -47,8 +57,7 @@ function parametros(rows: NormalizedRecord[]) {
       tipo: p['Tipo de dato'], confianza: p['Confianza'],
     }))
     .filter((r) => r.clave)
-    .sort((a, b) => idx(ORDEN_CULTIVO, a.cultivo) - idx(ORDEN_CULTIVO, b.cultivo) ||
-      idx(ORDEN_CATEGORIA, a.categoria) - idx(ORDEN_CATEGORIA, b.categoria) || a.clave.localeCompare(b.clave));
+    .sort(porParametro);
 }
 
 function practicas(rows: NormalizedRecord[]) {
@@ -95,14 +104,14 @@ function arquetipos(rows: NormalizedRecord[]) {
       clave: p['Clave'], nombre: p['Arquetipo'], cultivo: p['Cultivo'], prefijo: p['Prefijo'], linea_base: p['Línea base'],
     }))
     .filter((r) => r.clave && r.prefijo)
-    .sort((a, b) => idx(ORDEN_ARQ, a.clave) - idx(ORDEN_ARQ, b.clave));
+    .sort(porArquetipo);
 }
 
 export async function loadSimuladorData(): Promise<SimuladorData> {
   const env = (k: string) => import.meta.env[k] ?? process.env[k];
   const useFixture = ['1', 'true', 'yes'].includes(String(env('USE_FIXTURE') ?? '').toLowerCase());
   const cfg = loadDatabaseConfig().simulador;
-  if (useFixture || !env('NOTION_API_KEY') || !cfg) return { datos: snapshot, origen: 'copia' };
+  if (useFixture || !env('NOTION_API_KEY') || !cfg) return { datos: ordenar(snapshot), origen: 'copia' };
   try {
     const [s, p, t, a, d] = await Promise.all([
       fetchSection(cfg.supuestos), fetchSection(cfg.practicas),
@@ -118,9 +127,9 @@ export async function loadSimuladorData(): Promise<SimuladorData> {
       },
     };
     if (!datos.parametros.length || !datos.arquetipos.length || !datos.trayectorias.length) throw new Error('bases vacías');
-    return { datos, origen: 'notion' };
+    return { datos: ordenar(datos), origen: 'notion' };
   } catch (e: any) {
     console.warn(`[simulador] Notion no disponible (${e?.message ?? e}); se usa src/data/simulador.json`);
-    return { datos: snapshot, origen: 'copia' };
+    return { datos: ordenar(snapshot), origen: 'copia' };
   }
 }

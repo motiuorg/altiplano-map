@@ -507,14 +507,14 @@ export function iniciarSimulador(D, M, langCode, precios) {
     const ad = M.valorDe(P["g.adopcion_paisaje"], "central");
     st.adopcion = ad;
     let h = sliderHTML("pa-ad", S.uptake, 0.05, 0.6, 0.05, ad, pct);
-    for (const [c, l] of [["alm", S.almond], ["oli", S.olive], ["cer", S.cereal], ["pis", S.pistachio]]) {
+    for (const [c, l] of [["alm", S.almond], ["oli", S.olive], ["pis", S.pistachio], ["cer", S.cereal]]) {
       const v = M.valorDe(P[c + ".sup"], "central");
       st.superficies[c] = v;
       h += sliderHTML("pa-" + c, l, 0, c === "pis" ? 20000 : 150000, c === "pis" ? 500 : 5000, v, (x) => nf0.format(x));
     }
     $("#pai-sliders").innerHTML = h;
     $("#pa-ad").addEventListener("input", (e) => { st.adopcion = +e.target.value; $("#pa-ad-v").textContent = pct(st.adopcion); render(); });
-    for (const c of ["alm", "oli", "cer", "pis"])
+    for (const c of ["alm", "oli", "pis", "cer"])
       $("#pa-" + c).addEventListener("input", (e) => { st.superficies[c] = +e.target.value; $("#pa-" + c + "-v").textContent = nf0.format(+e.target.value); render(); });
   }
   function renderPaisaje() {

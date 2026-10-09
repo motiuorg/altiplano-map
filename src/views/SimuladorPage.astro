@@ -400,9 +400,13 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                         </label>
                     </div>
                     <div class="sim-card sim-card--table">
-                        <h3 class="sim-card__title">{T.allTitle}</h3>
-                        <p class="sim-card__sub">{T.allSub}</p>
-                        <div class="desglose-tools" id="tb-sup-tools"></div>
+                        <div class="sim-card__head">
+                            <div>
+                                <h3 class="sim-card__title">{T.allTitle}</h3>
+                                <p class="sim-card__sub">{T.allSub}</p>
+                            </div>
+                            <div class="desglose-tools" id="tb-sup-tools"></div>
+                        </div>
                         <div class="table-wrap" id="tb-sup"></div>
                     </div>
                 </div>
@@ -642,8 +646,9 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .grp-n { font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); font-weight: 400; margin-left: var(--space-1); }
 
     /* year-by-year breakdown */
-    .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-3) var(--space-4); }
-    .sim .desglose-tools { display: flex; gap: var(--space-4); align-items: center; }
+    .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3) var(--space-4); }
+    /* Bottom-aligned in the card header, so they sit just above the table they act on. */
+    .sim .desglose-tools { display: flex; gap: var(--space-4); align-items: center; padding-bottom: var(--space-2); }
     .sim .desglose-tools:empty { display: none; }
     /* the wrapper draws the frame: no double line under the last row */
     .sim .table-wrap tbody tr:last-child > * { border-bottom: 0; }
@@ -655,7 +660,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         display: inline-flex; align-items: center; gap: 0.5rem; padding: 0; border: 0; background: none; cursor: pointer;
         font: inherit; font-weight: 500; color: var(--text-primary); text-align: left;
     }
-    .sim .grp-toggle:hover { color: var(--primary); }
+    .sim .grp-toggle:hover { color: var(--text-primary); }
     .sim .grp-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
     .sim table.desglose tr.sub td { font-size: var(--text-xs); }
     .sim table.desglose tr.sub td:first-child { padding-left: 2.2rem; color: color-mix(in srgb, var(--text-primary) 85%, var(--text-muted)); }
@@ -711,7 +716,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim td.num, .sim th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
     .sim td.neg { color: var(--data-negative); }
     .sim td small { display: block; font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); margin-top: 2px; }
-    .sim tbody tr:hover { background: var(--surface-1); }
+    .sim tbody tr:hover { background: var(--eggshell); }
 
     @media (max-width: 640px) {
         .sim .sim-card { padding: var(--space-4); }
