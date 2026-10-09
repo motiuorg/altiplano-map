@@ -1,0 +1,15 @@
+blurb:
+  es: Mapa abierto de las organizaciones e intervenciones del paisaje del Altiplano Estepario, y simulador del coste de su transición regenerativa.
+  en: Open map of the organizations and interventions of the Altiplano Estepario landscape, and a simulator of the cost of its regenerative transition.
+columns:
+  - label: { es: Secciones, en: Sections }
+    links:
+      - { label: { es: Organizaciones, en: Organizations }, url: / }
+      - { label: { es: Intervenciones, en: Interventions }, url: /intervenciones/ }
+      - { label: { es: Simulador económico, en: Economic simulator }, url: /simulador/ }
+  - label: { es: Proyecto, en: Project }
+    links:
+      - { label: motiu.org, url: "https://motiu.org" }
+meta:
+  - { es: "© OpenStreetMap contributors · límites OSM (ODbL)", en: "© OpenStreetMap contributors · OSM boundaries (ODbL)" }
+  - CC BY-SA 4.0

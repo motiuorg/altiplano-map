@@ -1,9 +1,20 @@
-# Altiplano Estepario — site copy & configuration
-site:
-  title: Altiplano Estepario
-  description: Mapa de organizaciones e intervenciones del Altiplano Estepario
-  lang: es
+# Site identity for the shared design-system shell (Layout, Nav, Footer).
+# Strings may be plain or { es, en } maps.
+name: Altiplano Estepario
+url: https://motiuorg.github.io
+description:
+  es: Mapa de organizaciones e intervenciones del Altiplano Estepario
+  en: Map of the organizations and interventions of the Altiplano Estepario
+favicon: /favicon.svg
+titleTemplate: "{title}"
+locales:
+  default: es
+  label: { es: Idioma, en: Language }
+  list:
+    - { code: es, label: ES }
+    - { code: en, label: EN }
 
+# --- app-specific (read by the map, not by the shell)
 map:
   # Default view when there are no geolocated markers
   center: [41.15, -1.35]

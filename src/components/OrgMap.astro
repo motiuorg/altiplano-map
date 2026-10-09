@@ -234,7 +234,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         gap: var(--space-2);
         padding: var(--space-3) var(--space-3) var(--space-2);
         background: var(--paper);
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-default);
         box-shadow: 0 2px 0 0 var(--border-subtle);
         pointer-events: none;
     }
@@ -288,7 +288,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--muted);
+        color: var(--text-muted);
         text-align: center;
     }
 
@@ -303,7 +303,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         font-size: var(--text-xs);
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--muted);
+        color: var(--text-muted);
     }
 
     .org-map-legend__item {
@@ -340,7 +340,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
     }
 
     .org-map-legend__missing {
-        color: var(--danger-mid);
+        color: var(--status-danger-mid);
         text-transform: none;
     }
 
@@ -352,7 +352,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         letter-spacing: 0.14em;
         text-transform: uppercase;
         white-space: nowrap;
-        color: var(--muted);
+        color: var(--text-muted);
         text-shadow:
             0 0 3px var(--paper),
             0 0 8px var(--paper),
@@ -584,9 +584,9 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
                   ? '<div style="margin-bottom:0.7rem;font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--pillar-flow-4);">● ${escapeHtml(strings.group)}</div>'
                   : ""
           }
-          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--fg);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
-          ${p.place ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
-          ${p.desc ? `<div style="font-size:0.85rem;color:var(--fg);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
+          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--text-primary);margin-bottom:0.4rem;line-height:1.25;">${escapeHtml(p.name)}</div>
+          ${p.place ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.6rem;font-family:var(--mono);">📍 ${escapeHtml(p.place)}</div>` : ""}
+          ${p.desc ? `<div style="font-size:0.85rem;color:var(--text-primary);line-height:1.55;margin-bottom:0.6rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(p.desc)}</div>` : ""}
           ${p.website ? `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer" style="font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);">${escapeHtml(strings.website)}</a>` : ""}
         </div>`;
 

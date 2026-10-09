@@ -1,8 +1,10 @@
 ---
+import "../styles/app.css";
+import Badge from "@motiu/design/components/Badge.astro";
 // Altiplano Estepario — landing = Organizaciones: intro on the left, map on the
 // right (half screen each), then the filterable organizations gallery.
-import Layout from "../components/Layout.astro";
-import SectionHeading from "../components/SectionHeading.astro";
+import Layout from "@motiu/design/components/Layout.astro";
+import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import OrgMap from "../components/OrgMap.astro";
 import OrgCard from "../components/OrgCard.astro";
 import InterventionCard from "../components/InterventionCard.astro";
@@ -73,7 +75,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     <section class="section" id="organizaciones">
         <div class="container">
             <SectionHeading
-                overline={t(lang, "orgs.overline")}
+                eyebrow={t(lang, "orgs.overline")}
                 title={t(lang, "orgs.heading")}
                 intro={t(lang, "orgs.intro", { n: orgs.length, g: grupoCount })}
             />
@@ -140,7 +142,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             </button>
             {panelOrgs.map(({ org, itvs }) => (
                 <section class="org-panel__body" data-panel-org={org.id} hidden>
-                    <span class="badge badge--flow">{t(lang, "org.group")}</span>
+                    <Badge tone="flow" size="sm">{t(lang, "org.group")}</Badge>
                     <h2 class="org-panel__title">{org.name}</h2>
                     {org.placeName && (
                         <p class="org-panel__place">📍 {org.placeName}</p>
@@ -258,12 +260,12 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
 
     .landing__title {
         font-size: clamp(3rem, 6.5vw, 5.25rem);
-        color: var(--fg);
+        color: var(--text-primary);
     }
 
     .landing__map {
         min-height: 0;
-        border-left: 1px solid var(--border);
+        border-left: 1px solid var(--border-default);
     }
 
     @media (max-width: 900px) {
@@ -277,7 +279,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         }
         .landing__map {
             border-left: 0;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--border-default);
         }
     }
 
@@ -308,7 +310,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         width: min(560px, 100vw);
         overflow-y: auto;
         background: var(--bg);
-        border-left: 1px solid var(--border);
+        border-left: 1px solid var(--border-default);
         padding: var(--space-12) var(--space-8) var(--space-12);
         transform: translateX(100%);
         transition: transform 220ms ease;
@@ -328,15 +330,15 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         right: var(--space-4);
         width: 2.25rem;
         height: 2.25rem;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-default);
         background: var(--bg);
-        color: var(--fg);
+        color: var(--text-primary);
         font-size: 1rem;
         cursor: pointer;
     }
 
     .org-panel__close:hover {
-        background: var(--fg);
+        background: var(--text-primary);
         color: var(--bg);
     }
 
@@ -361,7 +363,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     .org-panel__place {
         font-family: var(--mono);
         font-size: var(--text-xs);
-        color: var(--muted);
+        color: var(--text-muted);
     }
 
     .org-panel__tipos {
@@ -396,13 +398,13 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         align-self: stretch;
         margin-top: var(--space-6);
         padding-top: var(--space-5);
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--border-default);
         font-family: var(--mono);
         font-weight: 400;
         font-size: var(--text-xs);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--muted);
+        color: var(--text-muted);
     }
 
     .org-panel__itvs {
@@ -438,8 +440,8 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         font-size: var(--text-xs);
         padding: 0.4rem 0.6rem;
         background: var(--bg);
-        color: var(--fg);
-        border: 1px solid var(--border);
+        color: var(--text-primary);
+        border: 1px solid var(--border-default);
         border-radius: var(--radius);
         max-width: 18rem;
     }
@@ -449,7 +451,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--muted);
+        color: var(--text-muted);
     }
 
     .filter-bar__count {
@@ -458,7 +460,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: var(--muted);
+        color: var(--text-muted);
         white-space: nowrap;
     }
 
@@ -471,7 +473,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     .empty-note {
         font-family: var(--mono);
         font-size: var(--text-sm);
-        color: var(--muted);
+        color: var(--text-muted);
         border: 1px dashed var(--border-subtle);
         padding: var(--space-6);
         text-align: center;
@@ -480,8 +482,8 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     .data-banner {
         margin-top: var(--space-6);
         padding: var(--space-4) var(--space-5);
-        border: 1px solid color-mix(in srgb, var(--danger-mid) 45%, transparent);
-        background: color-mix(in srgb, var(--danger-mid) 7%, var(--bg));
+        border: 1px solid color-mix(in srgb, var(--status-danger-mid) 45%, transparent);
+        background: color-mix(in srgb, var(--status-danger-mid) 7%, var(--bg));
         font-size: var(--text-sm);
         line-height: 1.55;
     }
@@ -493,7 +495,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
     }
 
     .data-banner--fixture {
-        border-color: var(--border);
+        border-color: var(--border-default);
         background: color-mix(in srgb, var(--pillar-flow-2) 14%, var(--bg));
     }
 </style>

@@ -1,7 +1,8 @@
 ---
+import "../styles/app.css";
 // Intervenciones — filterable portfolio with a cards/table switcher.
-import Layout from "../components/Layout.astro";
-import SectionHeading from "../components/SectionHeading.astro";
+import Layout from "@motiu/design/components/Layout.astro";
+import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import InterventionCard from "../components/InterventionCard.astro";
 import { loadSiteData } from "../lib/data";
 import { formatValor, formatEuro, interventionOrgNames } from "../lib/records";
@@ -50,7 +51,7 @@ const viableText = (v: boolean | null) =>
     <section class="section">
         <div class="container">
             <SectionHeading
-                overline={t(lang, "itvs.overline")}
+                eyebrow={t(lang, "itvs.overline")}
                 title={t(lang, "itvs.heading")}
                 intro={t(lang, "itvs.intro")}
             />
@@ -256,8 +257,8 @@ const viableText = (v: boolean | null) =>
         font-size: var(--text-xs);
         padding: 0.45rem 0.6rem;
         background: var(--bg);
-        color: var(--fg);
-        border: 1px solid var(--border);
+        color: var(--text-primary);
+        border: 1px solid var(--border-default);
         border-radius: var(--radius);
         min-width: 11rem;
         max-width: 18rem;
@@ -268,7 +269,7 @@ const viableText = (v: boolean | null) =>
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--muted);
+        color: var(--text-muted);
     }
 
     .filter-bar__count {
@@ -276,7 +277,7 @@ const viableText = (v: boolean | null) =>
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: var(--muted);
+        color: var(--text-muted);
         white-space: nowrap;
     }
 
@@ -344,7 +345,7 @@ const viableText = (v: boolean | null) =>
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: var(--fg);
+        background: var(--text-primary);
         border: 2px solid var(--paper);
         cursor: grab;
     }
@@ -354,7 +355,7 @@ const viableText = (v: boolean | null) =>
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: var(--fg);
+        background: var(--text-primary);
         border: 2px solid var(--paper);
         cursor: grab;
     }
@@ -362,7 +363,7 @@ const viableText = (v: boolean | null) =>
     .range__out {
         font-family: var(--mono);
         font-size: var(--text-xs);
-        color: var(--fg);
+        color: var(--text-primary);
     }
 
     .view-bar {
@@ -418,7 +419,7 @@ const viableText = (v: boolean | null) =>
         font-size: var(--text-2xs);
         text-transform: uppercase;
         letter-spacing: 0.07em;
-        color: var(--muted);
+        color: var(--text-muted);
         white-space: nowrap;
     }
 
@@ -441,7 +442,7 @@ const viableText = (v: boolean | null) =>
     .empty-note {
         font-family: var(--mono);
         font-size: var(--text-sm);
-        color: var(--muted);
+        color: var(--text-muted);
         border: 1px dashed var(--border-subtle);
         padding: var(--space-6);
         text-align: center;
@@ -450,13 +451,13 @@ const viableText = (v: boolean | null) =>
     .data-banner {
         margin-bottom: var(--space-6);
         padding: var(--space-4) var(--space-5);
-        border: 1px solid color-mix(in srgb, var(--danger-mid) 45%, transparent);
-        background: color-mix(in srgb, var(--danger-mid) 7%, var(--bg));
+        border: 1px solid color-mix(in srgb, var(--status-danger-mid) 45%, transparent);
+        background: color-mix(in srgb, var(--status-danger-mid) 7%, var(--bg));
         font-size: var(--text-sm);
     }
 
     .data-banner--fixture {
-        border-color: var(--border);
+        border-color: var(--border-default);
         background: color-mix(in srgb, var(--pillar-flow-2) 14%, var(--bg));
     }
 </style>

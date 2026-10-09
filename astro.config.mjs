@@ -9,4 +9,9 @@ export default defineConfig({
   base: BASE,
   outDir: './dist',
   srcDir: './src',
+  // @motiu/design ships raw .astro/.css source: compile it with this project.
+  vite: {
+    ssr: { noExternal: ['@motiu/design'] },
+    server: { fs: { allow: ['..'] } },
+  },
 });

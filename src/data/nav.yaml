@@ -1,0 +1,6 @@
+label: { es: Secciones, en: Sections }
+homeLabel: { es: inicio, en: home }
+items:
+  - { id: organizaciones, href: /, label: { es: Organizaciones, en: Organizations } }
+  - { id: intervenciones, href: /intervenciones/, label: { es: Intervenciones, en: Interventions } }
+  - { id: simulador, href: /simulador/, label: { es: Simulador económico, en: Economic simulator } }

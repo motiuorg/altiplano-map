@@ -1,0 +1,17 @@
+/* Altiplano-only global styles (MapLibre popups). Everything else comes from @motiu/design. */
+.maplibregl-map {
+                font-family: var(--sans) !important;
+}
+
+.maplibregl-popup-content {
+                border-radius: var(--radius) !important;
+                box-shadow: 0 8px 28px rgba(34, 26, 18, 0.14) !important;
+}
+
+.maplibregl-popup-tip {
+                display: none;
+}
+
+.map-pin-popup .maplibregl-popup-content {
+                padding: 0;
+}
