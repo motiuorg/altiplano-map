@@ -36,7 +36,7 @@ const loc = numberLocale(lang);
 
 <Card
     class="itv-card"
-    data-filterable={filterable}
+    data-filterable={filterable ? "" : undefined}
     data-item-id={itv.id}
     data-area={itv.areaTrabajo.map((a) => a.toLowerCase()).join("|")}
     data-viable={itv.viable === null ? "unknown" : itv.viable ? "si" : "no"}

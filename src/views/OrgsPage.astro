@@ -85,15 +85,17 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             />
 
             <div class="filter-bar" data-filter-bar>
-                <button class="chip is-active" data-key="grupo" data-value="">
-                    {t(lang, "filter.all")}
-                </button>
-                <button class="chip" data-key="grupo" data-value="grupo">
-                    {t(lang, "filter.group", { n: grupoCount })}
-                </button>
-                <button class="chip" data-key="grupo" data-value="resto">
-                    {t(lang, "filter.rest", { n: restoCount })}
-                </button>
+                <div class="chip-group">
+                    <button class="chip is-active" data-key="grupo" data-value="">
+                        {t(lang, "filter.all")}
+                    </button>
+                    <button class="chip" data-key="grupo" data-value="grupo">
+                        {t(lang, "filter.group", { n: grupoCount })}
+                    </button>
+                    <button class="chip" data-key="grupo" data-value="resto">
+                        {t(lang, "filter.rest", { n: restoCount })}
+                    </button>
+                </div>
                 {tipos.length > 0 && (
                     <label class="filter-select">
                         <span class="filter-bar__label">{t(lang, "filter.type")}</span>

@@ -140,7 +140,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                 <span class="filter-bar__count" data-visible-count>
                     {t(lang, "filter.shown", { n: interventions.length })}
                 </span>
-                <div class="view-switch" role="group" aria-label={t(lang, "itvs.view")}>
+                <div class="chip-group" role="group" aria-label={t(lang, "itvs.view")}>
                     <button class="chip is-active" data-view="cards">
                         {t(lang, "itvs.cards")}
                     </button>
@@ -393,14 +393,6 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
     }
 
     /* One joined block: the buttons share a border, no gap between them. */
-    .view-switch {
-        display: inline-flex;
-    }
-
-    .view-switch .chip + .chip {
-        margin-left: -1px;
-    }
-
     .itv-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
