@@ -358,7 +358,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 
             <!-- SUPUESTOS: sensitivity, all assumptions, reference data -->
             <section data-panel="supuestos" hidden>
-                <Tabs id="subtabs" variant="outline" label={T.assump}>
+                <Tabs id="subtabs" size="sm" rule={false} label={T.assump}>
                     <Tab data-sub="pesa" selected>{T.subPesa}</Tab>
                     <Tab data-sub="todos">{T.subTodos}</Tab>
                     <Tab data-sub="ref">{T.subRef}</Tab>
@@ -634,13 +634,12 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 
     /* year-by-year breakdown */
     .sim .sim-card__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-3) var(--space-4); }
-    .sim .desglose-tools { display: flex; gap: var(--space-2); }
-    .sim .desglose-tools .chip { padding-inline: 0.7rem; }
+    .sim .desglose-tools { display: flex; gap: var(--space-4); align-items: center; }
     .sim .desglose-tools:empty { display: none; }
     /* the wrapper draws the frame: no double line under the last row */
     .sim .table-wrap tbody tr:last-child > * { border-bottom: 0; }
     .sim table.desglose tr.grp th,
-    .sim table.desglose tr.grp td { background: var(--surface-sunken); border-top: 1px solid var(--border-subtle); }
+    .sim table.desglose tr.grp td { background: var(--eggshell); border-top: 1px solid var(--border-subtle); }
     .sim table.desglose tr.grp th { font-family: var(--sans); min-width: 15rem; }
     .sim table.desglose tr.grp small { display: block; font-family: var(--sans); font-size: var(--text-xs); color: var(--text-muted); margin: 2px 0 0 1.6rem; max-width: 26rem; }
     .sim .grp-toggle {
@@ -695,7 +694,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
     .sim th, .sim td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-subtle); }
     .sim thead th {
-        background: var(--surface-sunken);
+        background: var(--eggshell);
         font-family: var(--mono); font-size: var(--text-2xs); font-weight: 400;
         text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); white-space: nowrap;
     }

@@ -231,7 +231,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
 
   // Open / close the breakdown rows. State lives in st.abiertos so it survives re-renders.
   function setupDesglose() {
-    $("#tb-finca-tools").innerHTML = `<button type="button" class="chip" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="chip" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
+    $("#tb-finca-tools").innerHTML = `<button type="button" class="text-button" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="text-button" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
     $("#tb-finca").closest(".sim-card").addEventListener("click", (e) => {
       const todo = e.target.closest("[data-desglose]");
       if (todo) {
@@ -685,7 +685,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
       renderTodos();
     }));
     for (const id of ["#s-conf", "#s-q"]) $(id).addEventListener("input", renderTodos);
-    $("#tb-sup-tools").innerHTML = `<button type="button" class="chip" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="chip" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
+    $("#tb-sup-tools").innerHTML = `<button type="button" class="text-button" data-desglose="abrir">${esc(S.expandAll)}</button><button type="button" class="text-button" data-desglose="cerrar">${esc(S.collapseAll)}</button>`;
     $("#tb-sup").closest(".sim-card").addEventListener("click", (e) => {
       const todo = e.target.closest("[data-desglose]");
       if (todo) {
