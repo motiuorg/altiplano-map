@@ -114,7 +114,7 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
             </div>
 
             {orgs.length > 0 ? (
-                <div class="org-grid">
+                <div class="org-grid" data-shuffle>
                     {orgs.map((org) => (
                         <OrgCard org={org} lang={lang} />
                     ))}

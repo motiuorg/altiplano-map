@@ -12,7 +12,21 @@ const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
 const locale = lang === 'en' ? 'en-GB' : 'es-ES';
 const shown = (n: number) => (lang === 'en' ? `${n} shown` : `${n} mostradas`);
 
+// Containers marked [data-shuffle] list their cards in a new random order on every load,
+// so no organisation or intervention always comes first. Tables keep their order.
+function shuffleCards(): void {
+  document.querySelectorAll<HTMLElement>('[data-shuffle]').forEach((box) => {
+    const kids = [...box.children];
+    for (let i = kids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [kids[i], kids[j]] = [kids[j], kids[i]];
+    }
+    kids.forEach((k) => box.appendChild(k));
+  });
+}
+
 export function initGalleryFilters(): void {
+  shuffleCards();
   const bar = document.querySelector<HTMLElement>('[data-filter-bar]');
   if (!bar) return;
   const items = [...document.querySelectorAll<HTMLElement>('[data-filterable]')];

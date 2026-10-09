@@ -151,7 +151,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
 
             {interventions.length > 0 ? (
                 <>
-                    <div class="itv-grid" data-view-panel="cards">
+                    <div class="itv-grid" data-view-panel="cards" data-shuffle>
                         {interventions.map((itv) => (
                             <InterventionCard
                                 intervention={itv}
