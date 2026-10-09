@@ -3,6 +3,10 @@
 // status, the data-gap tracker and links into the Notion workspace never reach the
 // page. Falls back to the published snapshot (src/data/simulador.json) when Notion
 // is not reachable or the databases are not shared with the integration.
+//
+// Methodology (how the model is built, every parameter and its source, limitations), for
+// developers and agents only — never link it from the page:
+//   https://app.notion.com/p/Modelo-de-Coste-de-Transici-n-Metodolog-a-y-fuentes-3f31441510e181449d57e037846615a0
 import { loadDatabaseConfig, fetchSection } from '../notion';
 import type { NormalizedRecord } from '../notion';
 import snapshot from '../../data/simulador.json';

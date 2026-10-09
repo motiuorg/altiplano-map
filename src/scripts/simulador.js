@@ -755,6 +755,8 @@ export function iniciarSimulador(D, M, langCode, precios) {
       st.tab = b.dataset.tab;
       $$("#tabs button").forEach((x) => { x.setAttribute("aria-selected", String(x === b)); x.classList.toggle("is-active", x === b); });
       $$("[data-panel]").forEach((p) => { p.hidden = p.dataset.panel !== st.tab; });
+      // the guide has nothing to show in euros per farm or per hectare
+      const unidad = $(".sim-unidad"); if (unidad) unidad.style.display = st.tab === "guia" ? "none" : "";
       render();
     }));
     setupCredito(); syncTam(); setupHa(); setupPaisaje(); setupSupuestos(); setupPrecios(); setupDiv(); setupDesglose();

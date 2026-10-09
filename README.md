@@ -10,7 +10,7 @@ Tres páginas:
 
 - **Organizaciones** (portada) — mitad izquierda texto, mitad derecha el mapa
   (MapLibre sobre OpenStreetMap). Naranja = **grupo de trabajo** (solo "Miembro");
-  lima = el resto. Las organizaciones en el mismo lugar se agrupan en un punto con
+  azul = el resto. Las organizaciones en el mismo lugar se agrupan en un punto con
   número que se abre en abanico al hacer clic. Debajo, la galería (grupo de trabajo
   primero), filtrable por grupo y por **tipo**.
 - **Intervenciones** — tarjetas o tabla (selector), con valor ajustado a 5 años,
@@ -92,6 +92,18 @@ Repo: **`motiuorg/altiplano-map`** → https://motiuorg.github.io/altiplano-map/
 - El motor es una copia de `Altiplano Estepario/8 Análisis Económico/simulador/model.js`
   del vault, donde están los tests y la metodología. Si cambia la lógica, actualizar
   ambos.
+
+## Documentación del modelo
+
+La metodología completa —para qué sirve, cómo se calcula paso a paso, cada parámetro con su fuente y
+las limitaciones— está en Notion:
+[Modelo de Coste de Transición — Metodología y fuentes](https://app.notion.com/p/Modelo-de-Coste-de-Transici-n-Metodolog-a-y-fuentes-3f31441510e181449d57e037846615a0).
+La misma versión en Markdown está en la bóveda: `Altiplano Estepario/8 Análisis Económico/Metodología del modelo.md`.
+
+Es documentación para el equipo y para quien desarrolle. No se enlaza desde el sitio publicado (el
+simulador público deja fuera a propósito los enlaces a Notion). El texto de la pestaña «Cómo usarlo»
+(`src/lib/simulador/guide.ts`) está redactado a partir de ese documento: si cambia el modelo, hay que
+revisar también esa guía.
 
 ## Licencias
 

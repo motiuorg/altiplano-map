@@ -8,6 +8,13 @@ import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import Tabs from "@motiu/design/components/tabs/Tabs.astro";
 import Tab from "@motiu/design/components/tabs/Tab.astro";
 import { loadSimuladorData } from "../lib/simulador/data";
+import { GUIDE } from "../lib/simulador/guide";
+// For developers and agents (source only; this frontmatter never reaches the browser):
+// how the model works, every parameter with its source, and its limitations are documented in
+// "Modelo de Coste de Transición — Metodología y fuentes"
+//   https://app.notion.com/p/Modelo-de-Coste-de-Transici-n-Metodolog-a-y-fuentes-3f31441510e181449d57e037846615a0
+// Same text in the vault: Altiplano Estepario/8 Análisis Económico/Metodología del modelo.md
+// Do not link it from anything rendered: the published simulator keeps Notion links out on purpose.
 import { precioActualAlmendra, historicoAlmendra } from "../lib/simulador/precio-actual";
 import { t } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
@@ -16,6 +23,7 @@ export interface Props {
     lang?: Lang;
 }
 const { lang = "es" } = Astro.props;
+const guide = GUIDE[lang];
 const T = ({
   "es": {
     "title_": "Altiplano Estepario — Simulador económico",
@@ -278,6 +286,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                     <Tab value="credito">{T.tabCredit}</Tab>
                     <Tab value="paisaje">{T.tabLandscape}</Tab>
                     <Tab value="supuestos">{T.assump}</Tab>
+                    <Tab value="guia">{guide.tab}</Tab>
                 </Tabs>
                 <div class="sim-unidad" role="group" aria-label={T.units}>
                     <span class="filter-bar__label">{T.units}</span>
@@ -428,6 +437,43 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 </div>
                 <p class="sim-meta" id="meta"></p>
             </section>
+
+            <!-- CÓMO USARLO: a plain-language guide for visitors -->
+            <section data-panel="guia" hidden>
+                <div class="sim-guide">
+                    {guide.sections.map((sec) => (
+                        <div class="sim-card sim-guide__section">
+                            <h3 class="sim-card__title">{sec.title}</h3>
+                            {sec.paragraphs?.map((text) => <p class="sim-guide__p">{text}</p>)}
+                            {sec.steps && (
+                                <ol class="sim-guide__steps">
+                                    {sec.steps.map((step) => (
+                                        <li>
+                                            <strong>{step.title}.</strong> {step.text}
+                                        </li>
+                                    ))}
+                                </ol>
+                            )}
+                            {sec.terms && (
+                                <dl class="sim-guide__terms">
+                                    {sec.terms.map((item) => (
+                                        <div>
+                                            <dt>{item.term}</dt>
+                                            <dd>{item.text}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            )}
+                            {sec.bullets && (
+                                <ul class="sim-guide__bullets">
+                                    {sec.bullets.map((text) => <li>{text}</li>)}
+                                </ul>
+                            )}
+                            {sec.after && <p class="sim-guide__p sim-guide__after">{sec.after}</p>}
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
         <div id="tip" hidden></div>
     </section>
@@ -455,6 +501,26 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         --axis: color-mix(in srgb, var(--rule) 55%, transparent);
         padding: var(--space-16) 0 var(--space-20);
     }
+
+    /* "Cómo usarlo": readable measure, numbered steps, a term / explanation list */
+    .sim .sim-guide { display: grid; gap: var(--space-5); }
+    .sim .sim-guide__section { margin-bottom: 0; }
+    .sim .sim-guide__p { font-size: var(--copy-md); line-height: var(--leading-body); color: var(--text-muted); max-width: 72ch; margin: var(--space-3) 0 0; }
+    .sim .sim-guide__after { color: var(--text-primary); }
+    .sim .sim-guide__steps { list-style: none; counter-reset: step; margin: var(--space-4) 0 0; padding: 0; display: grid; gap: var(--space-4); max-width: 72ch; }
+    .sim .sim-guide__steps li { counter-increment: step; position: relative; padding-left: 2.25rem; font-size: var(--copy-md); line-height: var(--leading-body); color: var(--text-muted); }
+    .sim .sim-guide__steps li::before {
+        content: counter(step); position: absolute; left: 0; top: 0.1em;
+        width: 1.5rem; height: 1.5rem; display: grid; place-items: center;
+        border: 1px solid var(--border-default); font-family: var(--mono); font-size: var(--text-xs); color: var(--text-primary);
+    }
+    .sim .sim-guide__steps strong { color: var(--text-primary); font-weight: 500; }
+    .sim .sim-guide__terms { margin: var(--space-4) 0 0; display: grid; gap: var(--space-4); }
+    .sim .sim-guide__terms > div { display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr; gap: var(--space-2) var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border-subtle); }
+    .sim .sim-guide__terms dt { font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); }
+    .sim .sim-guide__terms dd { margin: 0; font-size: var(--copy-md); line-height: var(--leading-body); color: var(--text-muted); max-width: 66ch; }
+    .sim .sim-guide__bullets { margin: var(--space-4) 0 0; padding-left: 1.25rem; display: grid; gap: var(--space-3); max-width: 72ch; font-size: var(--copy-md); line-height: var(--leading-body); color: var(--text-muted); }
+    @media (max-width: 640px) { .sim .sim-guide__terms > div { grid-template-columns: 1fr; } }
 
     /* data provenance: discreet pre-footer line */
     .sim .sim-meta {
