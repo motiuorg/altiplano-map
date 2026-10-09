@@ -5,8 +5,11 @@ import "../styles/app.css";
 // src/lib/simulador/data.ts); el cálculo corre en el navegador.
 import Layout from "@motiu/design/components/Layout.astro";
 import SectionHeading from "@motiu/design/components/SectionHeading.astro";
+import Tabs from "@motiu/design/components/tabs/Tabs.astro";
+import Tab from "@motiu/design/components/tabs/Tab.astro";
 import { loadSimuladorData } from "../lib/simulador/data";
 import { precioActualAlmendra, historicoAlmendra } from "../lib/simulador/precio-actual";
+import { t } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -260,12 +263,12 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
                 </div>
             </div>
             <div class="view-bar">
-                <div class="view-switch" role="tablist" id="tabs">
-                    <button class="chip is-active" role="tab" data-tab="finca" aria-selected="true">{T.farm}</button>
-                    <button class="chip" role="tab" data-tab="credito">{T.tabCredit}</button>
-                    <button class="chip" role="tab" data-tab="paisaje">{T.tabLandscape}</button>
-                    <button class="chip" role="tab" data-tab="supuestos">{T.assump}</button>
-                </div>
+                <Tabs id="tabs" label={t(lang, "nav.label")} rule={false}>
+                    <Tab value="finca" selected>{T.farm}</Tab>
+                    <Tab value="credito">{T.tabCredit}</Tab>
+                    <Tab value="paisaje">{T.tabLandscape}</Tab>
+                    <Tab value="supuestos">{T.assump}</Tab>
+                </Tabs>
                 <div class="sim-unidad" role="group" aria-label={T.units}>
                     <span class="filter-bar__label">{T.units}</span>
                     <button type="button" class="chip is-active" data-u="finca" aria-pressed="true">{T.perFarmU}</button>
@@ -500,7 +503,6 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         padding-top: var(--space-4);
         border-top: 1px solid var(--border-subtle);
     }
-    .sim .view-switch { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
     .sim .view-bar { justify-content: space-between; flex-wrap: wrap; }
     .sim .sim-unidad { display: inline-flex; align-items: center; gap: var(--space-2); }
     .sim .sim-unidad .chip { padding: 0.35rem 0.7rem; }
