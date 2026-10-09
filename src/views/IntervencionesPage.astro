@@ -230,12 +230,12 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                         <div class="area-view__bubbles" data-bubbles>
                             {areas.map((a) => (
                                 <div class="area-bubble" data-bubble-area={a.toLowerCase()}>
-                                    <span class="area-bubble__stage">
-                                        <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
+                                    <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
+                                    <span class="area-bubble__caption">
+                                        <span class="area-bubble__name">{tv(lang, a)}</span>
+                                        <span class="area-bubble__value" data-bubble-value></span>
+                                        <span class="area-bubble__count" data-bubble-count></span>
                                     </span>
-                                    <span class="area-bubble__name">{tv(lang, a)}</span>
-                                    <span class="area-bubble__value" data-bubble-value></span>
-                                    <span class="area-bubble__count" data-bubble-count></span>
                                 </div>
                             ))}
                         </div>
@@ -295,19 +295,80 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                 }
             }
             const max = Math.max(...[...sums.values()].map((e) => e.value), 0);
-            const maxD = Math.min(
-                300,
-                Math.max(120, (bubbleBox.clientWidth - 24 * (bubbles.length - 1)) / bubbles.length),
-            );
-            for (const b of bubbles) {
+            const W = bubbleBox.clientWidth;
+            const cluster = W >= 720;
+            bubbleBox.classList.toggle("is-cluster", cluster);
+            // The largest circle is always MAX_D wide; the others follow by area.
+            const maxD = cluster ? Math.min(300, W * 0.34) : Math.min(200, (W - 24) / 2);
+            const items = bubbles.map((b) => {
                 const e = sums.get(b.dataset.bubbleArea!)!;
-                // Area (not diameter) follows the value, so a circle twice the value looks twice as big.
                 const d = max > 0 && e.value > 0 ? Math.max(MIN_D, Math.sqrt(e.value / max) * maxD) : MIN_D;
-                const disc = b.querySelector<HTMLElement>(".area-bubble__disc")!;
-                disc.style.width = disc.style.height = `${d}px`;
-                b.style.width = `${maxD}px`;
                 b.querySelector("[data-bubble-value]")!.textContent = e.count > 0 ? money(e.value) : "—";
                 b.querySelector("[data-bubble-count]")!.textContent = countText(e.count);
+                return { b, d, value: e.value };
+            });
+            if (!cluster) {
+                for (const { b, d } of items) {
+                    b.style.cssText = `--d:${d}px`;
+                    b.dataset.pos = "";
+                }
+                bubbleBox.style.height = "";
+                return;
+            }
+
+            // Cluster: the biggest circle in the middle, the rest around it, each one a
+            // gap's width from the centre circle and captions facing outwards.
+            items.sort((x, y) => y.value - x.value);
+            const GAP = 16;
+            const centre = items[0];
+            const ring = items.slice(1);
+            const pos = new Map<HTMLElement, { x: number; y: number; dx: number; dy: number }>();
+            pos.set(centre.b, { x: 0, y: 0, dx: 0, dy: 0 });
+            ring.forEach((it, i) => {
+                // start at the top, then clockwise; widen the angle to the horizontal axis a little
+                const ang = -Math.PI / 2 + (2 * Math.PI * i) / Math.max(ring.length, 1) + Math.PI / ring.length;
+                const dist = centre.d / 2 + it.d / 2 + GAP;
+                pos.set(it.b, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist, dx: Math.cos(ang), dy: Math.sin(ang) });
+            });
+            // Push ring circles apart if they ended up overlapping.
+            for (let pass = 0; pass < 40; pass++) {
+                for (let i = 0; i < ring.length; i++) {
+                    for (let j = i + 1; j < ring.length; j++) {
+                        const a = pos.get(ring[i].b)!, c = pos.get(ring[j].b)!;
+                        const dx = c.x - a.x, dy = c.y - a.y;
+                        const dist = Math.hypot(dx, dy) || 1;
+                        const need = ring[i].d / 2 + ring[j].d / 2 + GAP / 2;
+                        if (dist < need) {
+                            const k = (need - dist) / 2 / dist;
+                            a.x -= dx * k; a.y -= dy * k; c.x += dx * k; c.y += dy * k;
+                        }
+                    }
+                }
+            }
+            for (const { b, d } of items) {
+                const p = pos.get(b)!;
+                const dirX = b === centre.b ? 0 : p.x, dirY = b === centre.b ? 0 : p.y;
+                const side = b === centre.b ? "in" : Math.abs(dirX) > Math.abs(dirY) * 1.1 ? (dirX > 0 ? "right" : "left") : dirY > 0 ? "below" : "above";
+                b.style.cssText = `--d:${d}px;left:${p.x}px;top:${p.y}px`;
+                b.dataset.pos = side;
+            }
+            // Centre the whole cluster, captions included, in the box.
+            const boxRect = bubbleBox.getBoundingClientRect();
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (const { b } of items) {
+                for (const el of [b.querySelector(".area-bubble__disc")!, b.querySelector(".area-bubble__caption")!]) {
+                    const r = el.getBoundingClientRect();
+                    minX = Math.min(minX, r.left - boxRect.left); maxX = Math.max(maxX, r.right - boxRect.left);
+                    minY = Math.min(minY, r.top - boxRect.top); maxY = Math.max(maxY, r.bottom - boxRect.top);
+                }
+            }
+            const PAD = 16;
+            const shiftX = W / 2 - (minX + maxX) / 2;
+            const shiftY = PAD - minY;
+            bubbleBox.style.height = `${maxY - minY + PAD * 2}px`;
+            for (const { b } of items) {
+                b.style.left = `${parseFloat(b.style.left) + shiftX}px`;
+                b.style.top = `${parseFloat(b.style.top) + shiftY}px`;
             }
         };
         document.addEventListener("gallery:applied", updateBubbles);
@@ -468,35 +529,89 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
     }
 
     .area-view__bubbles {
+        position: relative;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        align-items: flex-end;
+        align-items: flex-start;
         gap: var(--space-8) var(--space-6);
     }
 
     .area-bubble {
+        --d: 120px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: var(--space-1);
+        gap: var(--space-3);
         text-align: center;
-    }
-
-    .area-bubble__stage {
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        margin-bottom: var(--space-3);
     }
 
     .area-bubble__disc.badge {
         display: block;
         box-sizing: border-box;
+        width: var(--d);
+        height: var(--d);
         padding: 0;
         border-radius: 50%;
         border-width: 1.5px;
         transition: width var(--t-med), height var(--t-med);
+    }
+
+    .area-bubble__caption {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-1);
+    }
+
+    /* Cluster: circles placed around a centre point; the box is sized and centred by the script. */
+    .is-cluster .area-bubble {
+        position: absolute;
+        display: block;
+        width: var(--d);
+        height: var(--d);
+        translate: -50% -50%;
+    }
+    .is-cluster .area-bubble__disc.badge {
+        position: absolute;
+        inset: 0;
+    }
+    .is-cluster .area-bubble__caption {
+        position: absolute;
+        width: max-content;
+        max-width: 14rem;
+    }
+    .is-cluster [data-pos="in"] .area-bubble__caption {
+        inset: 0;
+        width: auto;
+        max-width: none;
+        justify-content: center;
+    }
+    .is-cluster [data-pos="above"] .area-bubble__caption {
+        bottom: calc(100% + var(--space-3));
+        left: 50%;
+        translate: -50% 0;
+        text-align: center;
+    }
+    .is-cluster [data-pos="below"] .area-bubble__caption {
+        top: calc(100% + var(--space-3));
+        left: 50%;
+        translate: -50% 0;
+        text-align: center;
+    }
+    .is-cluster [data-pos="right"] .area-bubble__caption {
+        left: calc(100% + var(--space-4));
+        top: 50%;
+        translate: 0 -50%;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .is-cluster [data-pos="left"] .area-bubble__caption {
+        right: calc(100% + var(--space-4));
+        top: 50%;
+        translate: 0 -50%;
+        align-items: flex-end;
+        text-align: right;
     }
 
     .area-bubble__name {
