@@ -6,13 +6,13 @@ const norm = (s: string) =>
 
 const KNOWN: Array<[prefix: string, tone: string]> = [
   ['agricultura regenerativa', 'tissue'],
-  ['espacios naturales', 'green'],
+  ['espacios naturales', 'neural'],
   ['articulacion', 'flow'], // "Articulación e impulso del territorio" / "…y desarrollo territorial"
   ['educacion, cultura y turismo', 'purple'],
 ];
 
 // Hues kept for areas added later (the known ones above are not reused here).
-const SPARE = ['ocean', 'teal', 'pink', 'yellow', 'red', 'orange', 'neural', 'gris'];
+const SPARE = ['ocean', 'teal', 'pink', 'yellow', 'red', 'orange', 'green', 'gris'];
 
 export function areaTone(area: string): string {
   const n = norm(area);
