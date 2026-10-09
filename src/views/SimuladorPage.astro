@@ -469,12 +469,14 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         font-size: var(--text-xs);
         padding: 0.45rem 0.6rem;
         background: var(--bg);
-        color: var(--text-primary);
+        color: var(--text-muted);
         border: 1px solid var(--border-default);
         border-radius: var(--radius);
         min-width: 11rem;
         max-width: 22rem;
     }
+    .sim .filter-select input[type="search"]:focus,
+    .sim .filter-select input[type="number"]:focus { color: var(--text-primary); }
     .sim .sim-search input { width: 100%; max-width: none; }
     .sim .sim-search { flex: 1 1 14rem; }
     .sim .filter-bar__label {
