@@ -170,8 +170,9 @@ export function iniciarSimulador(D, M, langCode, precios) {
   function kpis(el, items) {
     el.innerHTML = items.map((k) => `<div class="sim-card kpi"><div class="lbl">${esc(k.lbl)}</div><div class="val">${k.html || esc(k.val)}</div>${k.note ? `<div class="note">${esc(k.note)}</div>` : ""}</div>`).join("");
   }
-  const BADGE = { Alta: "badge--success", Media: "badge--flow", Baja: "badge--danger", ok: "badge--success", risk: "badge--danger" };
-  const chip = (txt, cls) => `<span class="badge ${BADGE[cls || txt] || "badge--paper"}">${esc(cls ? txt : tx("confianza", txt))}</span>`;
+  // Confidence and status chips use the design system's Badge classes (tint, dark text, mid border).
+  const BADGE = { Alta: "success", Media: "warning", Baja: "danger", ok: "success", risk: "danger" };
+  const chip = (txt, cls) => `<span class="badge badge--sm badge--pill badge--${BADGE[cls || txt] || "neutral"}">${esc(cls ? txt : tx("confianza", txt))}</span>`;
 
   // ------------------------------------------------------------------ FINCA
   function renderFinca() {
@@ -645,7 +646,7 @@ export function iniciarSimulador(D, M, langCode, precios) {
         `<span class="caret caret--right" aria-hidden="true"></span>${esc(catNombre(c))} <span class="grp-n">${de.length}</span></button></th></tr>`;
       for (const f of de)
         h += `<tr class="sub" data-parent="${esc(c)}" id="sup-${esc(f.clave)}"${abierto ? "" : " hidden"}><td>${esc(f.nombre)}${f.detalle ? `<small>${esc(f.detalle)}</small>` : ""}</td>` +
-          `<td class="num"><b>${esc(f.enUso)}</b>${f.aj ? `<span class="badge badge--flow">${esc(S.adjusted)}</span>` : ""}</td>` +
+          `<td class="num"><b>${esc(f.enUso)}</b>${f.aj ? `<span class="badge badge--sm badge--pill badge--info">${esc(S.adjusted)}</span>` : ""}</td>` +
           `<td class="num">${esc(f.rango)}</td><td>${esc(f.unidad)}</td><td>${srcCell(f.fuente)}</td><td>${chip(f.confianza)}</td></tr>`;
     }
     $("#tb-sup").innerHTML = h + "</tbody></table>";

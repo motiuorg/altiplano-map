@@ -429,13 +429,12 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
 </script>
 
 <style is:global>
-    /* Chart roles — positive/negative pair derived from the neural (blue) and flow
-       (orange) pillars; validated for colour-vision deficiency and >= 3:1 on paper. */
+    /* Chart roles come from the design system's data colours: red = loss, green = gain, blue = supporting. */
     .sim {
-        --pos: #0077c8;
-        --neg: #e8590c;
-        --s1: #0077c8;
-        --s2: #e8590c;
+        --pos: var(--data-positive);
+        --neg: var(--data-negative);
+        --s1: var(--data-support);
+        --s2: var(--data-support-soft);
         --ink-2: color-mix(in srgb, var(--umber) 80%, var(--paper));
         --surface: var(--bg);
         --grid: color-mix(in srgb, var(--rule) 18%, transparent);
@@ -501,7 +500,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em;
         color: var(--text-primary); cursor: pointer;
     }
-    .sim .sim-toggle input { accent-color: var(--pillar-flow-3); }
+    .sim .sim-toggle input { accent-color: var(--text-primary); }
 
     /* Tab bar: the hairline runs along the bottom, under the tabs; the active tab's underline sits
        on it, and the units toggle stands just above it. */
@@ -573,8 +572,8 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .kpi .note { font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-2); }
     .sim .note-box {
         font-size: var(--text-sm);
-        border-left: 2px solid var(--pillar-flow-3);
-        background: var(--surface-1);
+        border-left: 2px solid var(--data-support);
+        background: color-mix(in srgb, var(--data-support) 6%, var(--bg));
         padding: var(--space-4) var(--space-5);
         margin-top: var(--space-5);
     }
@@ -615,10 +614,10 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     .sim .slider .ref { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.45; text-transform: none; letter-spacing: 0; font-family: var(--sans); display: block; }
     .sim .slider .ref button {
         font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.06em;
-        background: none; border: 0; border-bottom: 1px solid var(--pillar-flow-3); padding: 0; margin-left: var(--space-1);
+        background: none; border: 0; border-bottom: 1px solid var(--border-default); padding: 0; margin-left: var(--space-1);
         color: var(--text-primary); cursor: pointer;
     }
-    .sim .slider.is-ajustado > span:first-child b::after { content: var(--ajustado, " · ajustado"); color: var(--pillar-flow-4); font-family: var(--mono); font-size: var(--text-2xs); }
+    .sim .slider.is-ajustado > span:first-child b::after { content: var(--ajustado, " · ajustado"); color: var(--data-support); font-family: var(--mono); font-size: var(--text-2xs); }
     :root[lang="en"] .sim { --ajustado: " · adjusted"; }
 
     /* Supuestos sub-tabs */
@@ -626,7 +625,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
        --space-8 below it for the panel content). */
     .sim #subtabs { margin: calc(var(--space-3) - var(--space-8)) 0 var(--space-5); }
     .sim [data-sub-panel][hidden] { display: none; }
-    .sim table.desglose tr.sub.is-flash td { background: color-mix(in srgb, var(--pillar-flow-2) 28%, var(--bg)); transition: background 1.2s ease; }
+    .sim table.desglose tr.sub.is-flash td { background: color-mix(in srgb, var(--data-support) 12%, var(--bg)); transition: background 1.2s ease; }
     .sim td .badge { margin-left: var(--space-2); }
     .sim .chart .hit { cursor: pointer; }
     #tb-sup td:first-child { min-width: 16rem; }
@@ -649,7 +648,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
         font: inherit; font-weight: 500; color: var(--text-primary); text-align: left;
     }
     .sim .grp-toggle:hover { color: var(--primary); }
-    .sim .grp-toggle:focus-visible { outline: 2px solid var(--pillar-flow-3); outline-offset: 2px; }
+    .sim .grp-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
     .sim table.desglose tr.sub td { font-size: var(--text-xs); }
     .sim table.desglose tr.sub td:first-child { padding-left: 2.2rem; color: color-mix(in srgb, var(--text-primary) 85%, var(--text-muted)); }
 
@@ -702,7 +701,7 @@ const json = JSON.stringify({ datos, precios }).replace(/</g, "\\u003c");
     }
     .sim tbody th { font-family: var(--sans); font-weight: 500; }
     .sim td.num, .sim th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
-    .sim td.neg { color: var(--status-danger-mid); }
+    .sim td.neg { color: var(--data-negative); }
     .sim td small { display: block; font-family: var(--mono); font-size: var(--text-2xs); color: var(--text-muted); margin-top: 2px; }
     .sim tbody tr:hover { background: var(--surface-1); }
 
