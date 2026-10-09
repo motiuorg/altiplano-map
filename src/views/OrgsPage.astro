@@ -439,6 +439,8 @@ const tipos = [...new Set(orgs.flatMap((o) => o.tipos))].sort((a, b) =>
         font-family: var(--mono);
         font-size: var(--text-xs);
         padding: 0.4rem 0.6rem;
+        height: var(--control-h);
+        box-sizing: border-box;
         background: var(--bg);
         color: var(--text-primary);
         border: 1px solid var(--border-default);
