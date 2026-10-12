@@ -2,7 +2,7 @@
 // A malformed data file fails the build with a path-prefixed message, so real
 // data can replace src/data/paisaje.mock.json with the same shape.
 
-export const STATUSES = ['critico', 'bajo_presion', 'mixto', 'mejorando', 'proximamente'] as const;
+export const STATUSES = ['critico', 'bajo_presion', 'moderado', 'mejorando', 'proximamente'] as const;
 export type Status = (typeof STATUSES)[number];
 
 export const AVAILABILITY = ['disponible', 'pendiente', 'no_disponible'] as const;

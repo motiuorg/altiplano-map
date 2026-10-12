@@ -66,8 +66,8 @@
   {
    "id": "biodiversidad",
    "label": "Biodiversidad",
-   "verdict": "Panorama mixto: la protección formal es inferior a la media regional y las aves esteparias bajan, pero el corredor verde ha empezado a restaurarse.",
-   "status": "mixto",
+   "verdict": "Situación preocupante, aunque menos grave que la del agua: la protección formal es inferior a la media regional y las aves esteparias bajan, aunque el corredor verde ha empezado a restaurarse.",
+   "status": "moderado",
    "statIndicatorIds": [
     "bio.protegido",
     "bio.aves"
@@ -97,8 +97,8 @@
   {
    "id": "uso_suelo",
    "label": "Uso del suelo",
-   "verdict": "Cambios de uso mixtos: crecen los leñosos de secano y la producción ecológica, pero también las tierras abandonadas.",
-   "status": "mixto",
+   "verdict": "Cambios de uso significativos: crecen los leñosos de secano y la producción ecológica, pero también las tierras abandonadas.",
+   "status": "moderado",
    "statIndicatorIds": [
     "uso.abandono",
     "uso.ecologica"
@@ -383,7 +383,7 @@
     "value": 50
    },
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "pendiente",
    "sourceId": "s-agua-a",
    "notes": "Datos solicitados al organismo (ficticio)."
@@ -398,7 +398,7 @@
    "latest": null,
    "target": null,
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "no_disponible",
    "sourceId": "s-agua-a",
    "notes": "No existe una red de aforo conocida."
@@ -607,7 +607,7 @@
     "value": 30
    },
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "pendiente",
    "sourceId": "s-suelo-b",
    "notes": ""
@@ -797,7 +797,7 @@
    "latest": null,
    "target": null,
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "no_disponible",
    "sourceId": "s-bio-b",
    "notes": ""
@@ -997,7 +997,7 @@
      "value": 33.0
     }
    ],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "disponible",
    "sourceId": "s-uso-a",
    "notes": ""
@@ -1012,7 +1012,7 @@
    "latest": null,
    "target": null,
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "pendiente",
    "sourceId": "s-uso-a",
    "notes": ""
@@ -1195,7 +1195,7 @@
     "value": 40
    },
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "pendiente",
    "sourceId": "s-rel-c",
    "notes": "Datos solicitados al organismo (ficticio)."
@@ -1210,7 +1210,7 @@
    "latest": null,
    "target": null,
    "series": [],
-   "status": "mixto",
+   "status": "moderado",
    "availability": "no_disponible",
    "sourceId": "s-rel-d",
    "notes": "No hay una fuente sistemática conocida."

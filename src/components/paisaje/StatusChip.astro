@@ -20,10 +20,10 @@ const meta = STATUS_META[status];
             </>
         )}
         {meta.icon === "diamond" && <path d="M8 1.5 14.5 8 8 14.5 1.5 8z" fill="currentColor" />}
-        {meta.icon === "half" && (
+        {meta.icon === "circle-alert" && (
             <>
-                <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6" />
-                <path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor" />
+                <circle cx="8" cy="8" r="6.5" fill="currentColor" />
+                <path d="M8 4.6v4M8 10.6v.8" stroke="var(--pa-chip-bg)" stroke-width="1.6" stroke-linecap="round" />
             </>
         )}
         {meta.icon === "arrow-up" && <path d="M8 1.5 14 8h-3.8v6.5H5.8V8H2z" fill="currentColor" />}
@@ -51,7 +51,7 @@ const meta = STATUS_META[status];
     .pstatus--md { font-size: var(--text-xs); padding: 0.3rem 0.7rem; }
     .pstatus--critico { color: #a30000; }
     .pstatus--bajo_presion { color: #a8470a; }
-    .pstatus--mixto { color: #4a4440; }
+    .pstatus--moderado { color: #7a5200; }
     .pstatus--mejorando { color: #00589a; }
     .pstatus--proximamente { color: var(--muted); border-style: dashed; }
 </style>

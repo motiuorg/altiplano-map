@@ -30,7 +30,7 @@ export function sourcesOfTheme(t: Theme): Source[] {
 export const STATUS_META: Record<Status, { label: string; icon: string }> = {
   critico: { label: 'Crítico', icon: 'triangle' },
   bajo_presion: { label: 'Bajo presión', icon: 'diamond' },
-  mixto: { label: 'Mixto', icon: 'half' },
+  moderado: { label: 'Moderado', icon: 'circle-alert' },
   mejorando: { label: 'Mejorando', icon: 'arrow-up' },
   proximamente: { label: 'Próximamente', icon: 'dashed' },
 };
