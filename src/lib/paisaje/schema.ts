@@ -58,7 +58,7 @@ export interface Theme {
   label: string;
   verdict: string;
   status: Status;
-  headlineIndicatorId: string;
+  tileSummary: string; // one sentence for the hero tile: what the issue is
   statIndicatorIds: string[];
   findings: Finding[];
   limitations: string;
@@ -155,7 +155,7 @@ export function validatePaisaje(raw: any): PaisajeData {
     if (!isObj(t)) fail(p, 'expected an object');
     return {
       id: str(t.id, `${p}.id`), label: str(t.label, `${p}.label`), verdict: str(t.verdict, `${p}.verdict`),
-      status: oneOf(t.status, STATUSES, `${p}.status`), headlineIndicatorId: str(t.headlineIndicatorId, `${p}.headlineIndicatorId`),
+      status: oneOf(t.status, STATUSES, `${p}.status`), tileSummary: str(t.tileSummary ?? '', `${p}.tileSummary`),
       statIndicatorIds: arr(t.statIndicatorIds, `${p}.statIndicatorIds`).map((x, j) => str(x, `${p}.statIndicatorIds[${j}]`)),
       findings: arr(t.findings, `${p}.findings`).map((f, j) => {
         const fp = `${p}.findings[${j}]`;
@@ -191,7 +191,8 @@ export function validatePaisaje(raw: any): PaisajeData {
   if (indIds.size !== indicators.length) fail('indicators', 'duplicate indicator ids');
   themes.forEach((t, i) => {
     if (t.status === 'proximamente') return;
-    for (const id of [t.headlineIndicatorId, ...t.statIndicatorIds]) {
+    if (!t.tileSummary) fail(`themes[${i}]`, 'tileSummary is required for themes that are not "proximamente"');
+    for (const id of t.statIndicatorIds) {
       if (!indIds.has(id)) fail(`themes[${i}]`, `unknown indicator "${id}"`);
     }
   });

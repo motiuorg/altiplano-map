@@ -8,7 +8,6 @@
    "label": "Agua",
    "verdict": "Según los datos ficticios, la situación del agua subterránea es crítica: el nivel baja desde hace veinte años y se extrae más de lo que se recarga.",
    "status": "critico",
-   "headlineIndicatorId": "agua.nivel",
    "statIndicatorIds": [
     "agua.nivel",
     "agua.balance"
@@ -33,14 +32,14 @@
     "Riego eficiente",
     "Educación y sensibilización sobre el agua"
    ],
-   "summary": ""
+   "summary": "",
+   "tileSummary": "El acuífero baja desde hace veinte años y se extrae más agua de la que se recarga."
   },
   {
    "id": "suelo",
    "label": "Suelo",
    "verdict": "Los datos ficticios apuntan a un suelo bajo presión: más superficie con erosión alta y poca materia orgánica, aunque crecen las cubiertas vegetales.",
    "status": "bajo_presion",
-   "headlineIndicatorId": "suelo.erosion",
    "statIndicatorIds": [
     "suelo.erosion",
     "suelo.mo"
@@ -61,14 +60,14 @@
     "Cubiertas vegetales y semillas locales",
     "Carbono en suelo"
    ],
-   "summary": ""
+   "summary": "",
+   "tileSummary": "Más superficie con erosión alta y muy poca materia orgánica en los suelos agrícolas de secano."
   },
   {
    "id": "biodiversidad",
-   "label": "Biodiversidad y protección",
+   "label": "Biodiversidad",
    "verdict": "Panorama mixto: la protección formal es inferior a la media regional y las aves esteparias bajan, pero el corredor verde ha empezado a restaurarse.",
    "status": "mixto",
-   "headlineIndicatorId": "bio.protegido",
    "statIndicatorIds": [
     "bio.protegido",
     "bio.aves"
@@ -92,14 +91,14 @@
     "Restauración natural",
     "Corredor verde para la biodiversidad"
    ],
-   "summary": ""
+   "summary": "",
+   "tileSummary": "Poca superficie protegida y descenso de las aves esteparias; el corredor verde apenas empieza."
   },
   {
    "id": "uso_suelo",
    "label": "Uso del suelo",
    "verdict": "Cambios de uso mixtos: crecen los leñosos de secano y la producción ecológica, pero también las tierras abandonadas.",
    "status": "mixto",
-   "headlineIndicatorId": "uso.abandono",
    "statIndicatorIds": [
     "uso.abandono",
     "uso.ecologica"
@@ -119,31 +118,44 @@
     "Articulación del territorio",
     "Educación y cultura del paisaje"
    ],
+   "summary": "",
+   "tileSummary": "Aumentan las tierras agrarias abandonadas, aunque crece también la producción ecológica."
+  },
+  {
+   "id": "relevo",
+   "label": "Relevo generacional",
+   "verdict": "Según los datos ficticios, el territorio envejece sin relevo: sube la edad media de quienes trabajan la tierra, casi no quedan titulares jóvenes y cada año se van más jóvenes de los que llegan.",
+   "status": "critico",
+   "tileSummary": "Quienes trabajan la tierra envejecen, pocas personas jóvenes toman el relevo y el territorio se despuebla.",
+   "statIndicatorIds": [
+    "relevo.edad",
+    "relevo.jovenes"
+   ],
+   "findings": [
+    {
+     "text": "La edad media de las personas titulares de explotación ha subido unos 7 años entre 2009 y 2020.",
+     "sourceId": "s-rel-a"
+    },
+    {
+     "text": "Los titulares menores de 40 años se han reducido casi a la mitad y hoy son uno de cada dieciséis.",
+     "sourceId": "s-rel-a"
+    },
+    {
+     "text": "Más de una cuarta parte de la población tiene 65 años o más, y el saldo de jóvenes de 20 a 34 años es cada vez más negativo.",
+     "sourceId": "s-rel-b"
+    },
+    {
+     "text": "Las dificultades de acceso a la tierra y a la vivienda son las razones más citadas por los jóvenes que se van (encuesta autoinformada).",
+     "sourceId": "s-rel-d"
+    }
+   ],
+   "limitations": "El censo agrario se publica cada diez años, así que la serie es escasa. No hay datos sistemáticos de incorporaciones ni de vivienda, y las razones para irse proceden de una encuesta pequeña y autoinformada.",
+   "interventionAreas": [
+    "Acceso a la tierra y a la vivienda",
+    "Formación y empleo rural",
+    "Emprendimiento agrario joven"
+   ],
    "summary": ""
-  },
-  {
-   "id": "clima",
-   "label": "Clima",
-   "verdict": "",
-   "status": "proximamente",
-   "headlineIndicatorId": "",
-   "statIndicatorIds": [],
-   "findings": [],
-   "limitations": "",
-   "interventionAreas": [],
-   "summary": "Temperaturas, sequía y escenarios climáticos. Tema en preparación."
-  },
-  {
-   "id": "personas",
-   "label": "Personas y economía",
-   "verdict": "",
-   "status": "proximamente",
-   "headlineIndicatorId": "",
-   "statIndicatorIds": [],
-   "findings": [],
-   "limitations": "",
-   "interventionAreas": [],
-   "summary": "Población, empleo y renta agraria. Tema en preparación."
   }
  ],
  "indicators": [
@@ -1004,6 +1016,204 @@
    "availability": "pendiente",
    "sourceId": "s-uso-a",
    "notes": ""
+  },
+  {
+   "id": "relevo.edad",
+   "theme": "relevo",
+   "label": "Edad media de las personas titulares de explotación",
+   "unit": "años",
+   "scope": "Altiplano según el censo agrario A",
+   "baseline": {
+    "year": 2009,
+    "value": 54
+   },
+   "latest": {
+    "year": 2020,
+    "value": 61
+   },
+   "target": {
+    "year": 2035,
+    "value": 55
+   },
+   "series": [
+    {
+     "year": 2009,
+     "value": 54
+    },
+    {
+     "year": 2012,
+     "value": 55.5
+    },
+    {
+     "year": 2016,
+     "value": 58
+    },
+    {
+     "year": 2020,
+     "value": 61
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-rel-a",
+   "notes": ""
+  },
+  {
+   "id": "relevo.jovenes",
+   "theme": "relevo",
+   "label": "Titulares de explotación menores de 40 años",
+   "unit": "%",
+   "scope": "Altiplano según el censo agrario A",
+   "baseline": {
+    "year": 2009,
+    "value": 11
+   },
+   "latest": {
+    "year": 2020,
+    "value": 6
+   },
+   "target": {
+    "year": 2030,
+    "value": 12
+   },
+   "series": [
+    {
+     "year": 2009,
+     "value": 11
+    },
+    {
+     "year": 2012,
+     "value": 9.5
+    },
+    {
+     "year": 2016,
+     "value": 7.5
+    },
+    {
+     "year": 2020,
+     "value": 6
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-rel-a",
+   "notes": ""
+  },
+  {
+   "id": "relevo.mayores",
+   "theme": "relevo",
+   "label": "Población de 65 años o más",
+   "unit": "%",
+   "scope": "Municipios ficticios del Altiplano (padrón B)",
+   "baseline": {
+    "year": 2005,
+    "value": 19
+   },
+   "latest": {
+    "year": 2023,
+    "value": 28
+   },
+   "target": null,
+   "series": [
+    {
+     "year": 2005,
+     "value": 19
+    },
+    {
+     "year": 2010,
+     "value": 21
+    },
+    {
+     "year": 2015,
+     "value": 24
+    },
+    {
+     "year": 2019,
+     "value": 26
+    },
+    {
+     "year": 2023,
+     "value": 28
+    }
+   ],
+   "status": "bajo_presion",
+   "availability": "disponible",
+   "sourceId": "s-rel-b",
+   "notes": ""
+  },
+  {
+   "id": "relevo.saldo",
+   "theme": "relevo",
+   "label": "Saldo migratorio de personas de 20 a 34 años",
+   "unit": "personas/año",
+   "scope": "Municipios ficticios del Altiplano (padrón B)",
+   "baseline": {
+    "year": 2010,
+    "value": -120
+   },
+   "latest": {
+    "year": 2023,
+    "value": -310
+   },
+   "target": {
+    "year": 2030,
+    "value": 0
+   },
+   "series": [
+    {
+     "year": 2010,
+     "value": -120
+    },
+    {
+     "year": 2014,
+     "value": -180
+    },
+    {
+     "year": 2018,
+     "value": -250
+    },
+    {
+     "year": 2023,
+     "value": -310
+    }
+   ],
+   "status": "critico",
+   "availability": "disponible",
+   "sourceId": "s-rel-b",
+   "notes": "Negativo = más salidas que llegadas."
+  },
+  {
+   "id": "relevo.incorporaciones",
+   "theme": "relevo",
+   "label": "Incorporaciones de jóvenes a la actividad agraria por año",
+   "unit": "personas/año",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": {
+    "year": 2030,
+    "value": 40
+   },
+   "series": [],
+   "status": "mixto",
+   "availability": "pendiente",
+   "sourceId": "s-rel-c",
+   "notes": "Datos solicitados al organismo (ficticio)."
+  },
+  {
+   "id": "relevo.vivienda",
+   "theme": "relevo",
+   "label": "Acceso a vivienda asequible para jóvenes rurales",
+   "unit": "índice",
+   "scope": "Sin definir",
+   "baseline": null,
+   "latest": null,
+   "target": null,
+   "series": [],
+   "status": "mixto",
+   "availability": "no_disponible",
+   "sourceId": "s-rel-d",
+   "notes": "No hay una fuente sistemática conocida."
   }
  ],
  "sources": [
@@ -1125,6 +1335,54 @@
    "url": "#",
    "retrieved": "2026-01-15",
    "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-rel-a",
+   "title": "Censo agrario ficticio, 2020",
+   "publisher": "Instituto Ficticio de Estadística",
+   "type": "official_dataset",
+   "year": 2020,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-rel-b",
+   "title": "Padrón ficticio de habitantes por edad, serie 2005–2023",
+   "publisher": "Instituto Ficticio de Estadística",
+   "type": "official_dataset",
+   "year": 2023,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "alta",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-rel-c",
+   "title": "Estudio ficticio sobre relevo generacional en el medio rural",
+   "publisher": "Fundación Ficticia de Estudios Rurales",
+   "type": "ngo_report",
+   "year": 2022,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "media",
+   "verifiedBy": "Sin verificar (ficticio)"
+  },
+  {
+   "id": "s-rel-d",
+   "title": "Encuesta propia a jóvenes del territorio (autoinformada)",
+   "publisher": "Socios del proyecto (ficticio)",
+   "type": "self_reported",
+   "year": 2024,
+   "licence": "CC BY 4.0 (ficticia)",
+   "url": "#",
+   "retrieved": "2026-01-15",
+   "confidence": "baja",
    "verifiedBy": "Sin verificar (ficticio)"
   }
  ],
@@ -1266,6 +1524,64 @@
      "label": "Otros",
      "before": 5,
      "after": 3
+    }
+   ]
+  },
+  {
+   "id": "c-relevo-edad",
+   "theme": "relevo",
+   "type": "line",
+   "title": "Edad media de las personas titulares de explotación, 2009–2020",
+   "unit": "años",
+   "scope": "Altiplano según el censo agrario A",
+   "sourceId": "s-rel-a",
+   "indicatorId": "relevo.edad",
+   "note": "La línea discontinua marca el objetivo ficticio a 2035."
+  },
+  {
+   "id": "c-relevo-grupos",
+   "theme": "relevo",
+   "type": "stacked",
+   "title": "Titulares de explotación por grupo de edad (% del total)",
+   "unit": "%",
+   "scope": "Altiplano según el censo agrario A",
+   "sourceId": "s-rel-a",
+   "categories": [
+    {
+     "id": "menos40",
+     "label": "Menos de 40"
+    },
+    {
+     "id": "40_54",
+     "label": "40–54"
+    },
+    {
+     "id": "55_64",
+     "label": "55–64"
+    },
+    {
+     "id": "65mas",
+     "label": "65 o más"
+    }
+   ],
+   "rows": [
+    {
+     "label": "2009",
+     "values": {
+      "menos40": 11,
+      "40_54": 38,
+      "55_64": 30,
+      "65mas": 21
+     }
+    },
+    {
+     "label": "2020",
+     "values": {
+      "menos40": 6,
+      "40_54": 26,
+      "55_64": 31,
+      "65mas": 37
+     }
     }
    ]
   }

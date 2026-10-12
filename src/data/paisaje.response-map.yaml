@@ -34,3 +34,9 @@ themes:
     orgNames: []
     placeholders:
       - { name: Alma del Paisaje, kind: Programa, area: Educación, cultura y turismo }
+  relevo:
+    workAreas: [Articulación y desarrollo territorial, Articulación e impulso del territorio, Educación, cultura y turismo, Agricultura regenerativa]
+    keywords: [tierra, despoblaci, escuela, joven, formaci, relevo, pastor]
+    orgNames: []
+    placeholders:
+      - { name: Incubadora agraria para jóvenes, kind: Programa, area: Educación, cultura y turismo }

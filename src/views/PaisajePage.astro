@@ -5,12 +5,11 @@ import "../styles/app.css";
 import Layout from "@motiu/design/components/Layout.astro";
 import MockBanner from "../components/paisaje/MockBanner.astro";
 import StatusChip from "../components/paisaje/StatusChip.astro";
-import Sparkline from "../components/paisaje/Sparkline.astro";
 import TerritoryNote from "../components/paisaje/TerritoryNote.astro";
 import ContextMap from "../components/paisaje/ContextMap.astro";
 import ThemeSection from "../components/paisaje/ThemeSection.astro";
 import EvidenceList from "../components/paisaje/EvidenceList.astro";
-import { paisaje, indicatorById, fmtVal, loadResponses } from "../lib/paisaje/data";
+import { paisaje, loadResponses } from "../lib/paisaje/data";
 
 export interface Props {
     lang?: "es" | "en";
@@ -45,31 +44,23 @@ const empty = { interventions: [], orgs: [], placeholders: [] };
                 <p class="overline">Prototipo · Landscape data</p>
                 <h1 class="display phero__title">¿Cómo está el paisaje del Altiplano?</h1>
                 <p class="lede phero__lede">
-                    Seis temas, cada uno con lo que dicen los datos, de dónde salen, qué se está haciendo y qué vamos a medir.
+                    Cinco temas, cada uno con lo que dicen los datos, de dónde salen, qué se está haciendo y qué vamos a medir.
                     Todo lo que ves aquí es <strong>ficticio</strong>: sirve para probar el diseño y el relato, no para publicar cifras.
                 </p>
 
                 <ul class="ptiles">
-                    {paisaje.themes.map((t) => {
-                        const ind = indicatorById(t.headlineIndicatorId);
-                        const stub = t.status === "proximamente";
-                        return (
-                            <li>
-                                <a class={`ptile ${stub ? "ptile--stub" : ""}`} href={`#tema-${t.id}`} data-tab-link={t.id}>
-                                    <span class="ptile__top">
-                                        <span class="ptile__label">{t.label}</span>
-                                        <StatusChip status={t.status} size="sm" />
-                                    </span>
-                                    <span class="ptile__value">{ind?.latest ? fmtVal(ind.latest, ind.unit) : "—"}</span>
-                                    <span class="ptile__what">{ind ? ind.label : t.summary}</span>
-                                    <span class="ptile__bottom">
-                                        {ind && <Sparkline values={ind.series.map((s) => s.value)} label={ind.label} />}
-                                        <span class="ptile__year">{ind?.latest ? ind.latest.year : "Próximamente"}</span>
-                                    </span>
-                                </a>
-                            </li>
-                        );
-                    })}
+                    {paisaje.themes.map((t) => (
+                        <li>
+                            <a class="ptile" href={`#tema-${t.id}`} data-tab-link={t.id}>
+                                <span class="ptile__top">
+                                    <span class="ptile__label">{t.label}</span>
+                                    <StatusChip status={t.status} />
+                                </span>
+                                <span class="ptile__what">{t.tileSummary}</span>
+                                <span class="ptile__more">Ver el detalle →</span>
+                            </a>
+                        </li>
+                    ))}
                 </ul>
 
                 <div class="phero__tools">
@@ -208,16 +199,15 @@ const empty = { interventions: [], orgs: [], placeholders: [] };
     .phero { padding: var(--space-12) 0 var(--space-8); border-bottom: 1px solid var(--border-subtle); }
     .phero__title { font-size: clamp(2.4rem, 6vw, 4.2rem); margin: var(--space-3) 0 var(--space-4); max-width: 18ch; }
     .phero__lede { max-width: 62ch; margin-bottom: var(--space-8); }
-    .ptiles { list-style: none; margin: 0 0 var(--space-6); padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
-    .ptile { display: flex; flex-direction: column; gap: var(--space-2); height: 100%; border: 1px solid var(--border-subtle); background: var(--bg); padding: var(--space-4) var(--space-5); text-decoration: none; color: var(--fg); transition: border-color var(--t-fast), transform var(--t-fast); }
+    .ptiles { list-style: none; margin: 0 0 var(--space-6); padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
+    .ptiles li { grid-column: span 2; }
+    .ptiles li:nth-child(n + 4) { grid-column: span 3; }
+    .ptile { display: flex; flex-direction: column; gap: var(--space-4); height: 100%; border: 1px solid var(--border-subtle); background: var(--bg); padding: var(--space-5); text-decoration: none; color: var(--fg); transition: border-color var(--t-fast), transform var(--t-fast); }
     .ptile:hover { border-color: var(--fg); text-decoration: none; transform: translateY(-2px); }
-    .ptile--stub { border-style: dashed; }
-    .ptile__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
-    .ptile__label { font-family: var(--mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.07em; }
-    .ptile__value { font-family: var(--serif); font-size: var(--text-2xl); line-height: 1; margin-top: var(--space-2); }
-    .ptile__what { font-size: var(--text-xs); color: var(--muted); min-height: 2.4em; }
-    .ptile__bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: auto; }
-    .ptile__year { font-family: var(--mono); font-size: var(--text-2xs); color: var(--muted); text-transform: uppercase; }
+    .ptile__top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+    .ptile__label { font-family: var(--mono); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.07em; }
+    .ptile__what { font-family: var(--serif); font-size: var(--text-md); line-height: 1.3; }
+    .ptile__more { margin-top: auto; font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
     .phero__tools { display: flex; justify-content: flex-end; }
     .playout { display: inline-flex; align-items: center; gap: var(--space-2); }
     .playout__label { font-family: var(--mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-right: var(--space-1); }
@@ -268,6 +258,8 @@ const empty = { interventions: [], orgs: [], placeholders: [] };
     /* ---------- responsive ---------- */
     @media (max-width: 960px) {
         .ptiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ptiles li, .ptiles li:nth-child(n + 4) { grid-column: auto; }
+        .ptiles li:last-child { grid-column: 1 / -1; }
         .pmain { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
         .pnav { min-width: 0; max-width: 100%; }
         .pnav { position: static; overflow-x: auto; }
@@ -280,8 +272,8 @@ const empty = { interventions: [], orgs: [], placeholders: [] };
         .pmethods__grid { grid-template-columns: 1fr; }
         .phero__tools { justify-content: flex-start; }
     }
-    @media (max-width: 560px) { .ptiles { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .pfloat { font-size: 0.55rem; } .ptile__value { font-size: var(--text-xl); } }
+    @media (max-width: 560px) { .ptiles { grid-template-columns: 1fr; } .ptiles li:last-child { grid-column: auto; } }
+    @media (max-width: 480px) { .pfloat { font-size: 0.55rem; } }
 
     /* ---------- print ---------- */
     @media print {

@@ -23,12 +23,12 @@ two keys + `paisaje` in `src/lib/i18n.ts`, and the ES|EN toggle is inert on this
 it shows a tooltip). No other page, the Notion integration, the workflow or secrets were touched.
 
 ### Page structure
-Banner "Maqueta — datos y informes ficticios" (top bar, floating pill, and a tag on every chart) → hero question + 6 indicator
-tiles (status chip with icon + text, headline number, sparkline, year) → collapsible territory note (two indicators with
+Banner "Maqueta — datos y informes ficticios" (top bar, floating pill, and a tag on every chart) → hero question + 5 theme
+tiles (status chip with icon + text and one sentence saying what the issue is; no single headline number) → collapsible territory note (two indicators with
 different scopes) → context map (MapLibre; layers off by default except organizations) → 6 themes with sticky side nav →
 methods + all sources.
-Fully built themes: Agua (line), Suelo (stacked bars), Biodiversidad y protección (indicator vs reference bar),
-Uso del suelo (before/after). Stubs (collapsed, "Próximamente"): Clima, Personas y economía.
+Themes: Agua (line), Suelo (stacked bars), Biodiversidad (indicator vs reference bar), Uso del suelo (before/after),
+Relevo generacional (line + stacked age groups). The collapsed "Próximamente" stub template is still in `ThemeSection` but unused.
 Each theme = verdict + status → "Qué dicen los datos" (2 stat tiles + chart, each with scope/source/year and a data table) →
 "Por qué importa" (findings with citation chips that jump to the evidence) → limitations box ("Lo que aún no sabemos") →
 "Qué se está haciendo" → "Qué vamos a medir" (indicator table, includes *Pendiente* and *No disponible* rows on purpose) →
