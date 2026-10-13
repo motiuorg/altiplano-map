@@ -5,7 +5,7 @@ columns:
   - label: { es: Secciones, en: Sections }
     links:
       - { label: { es: Organizaciones, en: Organizations }, url: / }
-      - { label: { es: Intervenciones, en: Interventions }, url: /intervenciones/ }
+      - { label: { es: Portafolio, en: Portfolio }, url: /portafolio/ }
       - { label: { es: Simulador económico, en: Economic simulator }, url: /simulador/ }
   - label: { es: Proyecto, en: Project }
     links:

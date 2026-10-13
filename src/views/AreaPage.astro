@@ -1,0 +1,589 @@
+---
+import "../styles/app.css";
+// One work area: what drives it, its sub-areas in order, and the interventions of each sub-area.
+// The words come from src/data/areas.yaml; the interventions and their figures come from Notion.
+import Layout from "@motiu/design/components/Layout.astro";
+import InterventionCard from "../components/InterventionCard.astro";
+import { loadSiteData } from "../lib/data";
+import { buildAreaViews, pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
+import { interventionOrgNames } from "../lib/records";
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
+
+export interface Props {
+    lang?: Lang;
+    slug: string;
+}
+const { lang = "es", slug } = Astro.props;
+
+const { orgMap, interventions, dataError } = await loadSiteData();
+const views = buildAreaViews(interventions);
+const idx = views.findIndex((v) => v.def.slug === slug);
+const view = views[idx];
+const def = view.def;
+const prev = views[(idx + views.length - 1) % views.length];
+const next = views[(idx + 1) % views.length];
+const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.itvCount", { n }));
+const anchor = (id: string) => "sub-" + id.replace(".", "-");
+const tone = toneVars(def.tone);
+const name = pick(def.name, lang);
+---
+
+<Layout title={name} description={pick(def.kicker, lang)} current="portafolio" lang={lang}>
+    <article class="area" style={tone}>
+        <!-- ============ HERO ============ -->
+        <header class="ahero">
+            <div class="container">
+                <a class="ahero__back" href={portfolioHref(lang)}>← {t(lang, "pf.back")}</a>
+                <p class="ahero__eyebrow">{t(lang, "pf.areaN", { n: def.num })}</p>
+                <h1 class="display ahero__title">{name}</h1>
+                <p class="ahero__kicker">{pick(def.kicker, lang)}</p>
+                <p class="ahero__lead">{pick(def.lead, lang)}</p>
+
+            </div>
+        </header>
+
+        {dataError && (
+            <div class="container">
+                <div class="data-banner" role="alert"><strong>{t(lang, "banner.error")}</strong> {dataError}</div>
+            </div>
+        )}
+
+        <!-- ============ DYNAMICS ============ -->
+        <section class="asec">
+            <div class="container">
+                <p class="asec__eyebrow">{t(lang, "pf.dynamics")}</p>
+                <h2 class="asec__title">{t(lang, "pf.dynamicsH")}</h2>
+                <ol class="adyn">
+                    {def.dynamics.map((d, i) => (
+                        <li class="adyn__item">
+                            <span class="adyn__n">{String(i + 1).padStart(2, "0")}</span>
+                            <h3 class="adyn__title">{pick(d.title, lang)}</h3>
+                            <p class="adyn__text">{pick(d.text, lang)}</p>
+                        </li>
+                    ))}
+                </ol>
+
+                <blockquote class="aknot">
+                    <span class="aknot__label">{t(lang, "pf.tension")}</span>
+                    <p>{pick(def.tension, lang)}</p>
+                    {def.tensionNote && <footer>{pick(def.tensionNote, lang)}</footer>}
+                </blockquote>
+            </div>
+        </section>
+
+        <!-- ============ SUB-AREAS ============ -->
+        <section class="asec asec--soft">
+            <div class="container">
+                <p class="asec__eyebrow">{t(lang, "pf.subareas")}</p>
+                <h2 class="asec__title">{t(lang, "pf.subareasH")}</h2>
+                <p class="asec__lead">{pick(def.flow, lang)}</p>
+
+                <nav class="aflow" aria-label={t(lang, "pf.subareas")}>
+                    <ol>
+                        {view.subareas.map((s) => (
+                            <li class:list={{ "is-empty": s.items.length === 0 }}>
+                                <a href={"#" + anchor(s.def.id)}>
+                                    <span class="aflow__id">{s.def.id}</span>
+                                    <span class="aflow__name">{pick(s.def.name, lang)}</span>
+                                    <span class="aflow__meta">
+                                        {count(s.items.length)}{s.total > 0 && ` · ${compactEuro(s.total, lang)}`}
+                                    </span>
+                                </a>
+                            </li>
+                        ))}
+                    </ol>
+                </nav>
+
+                {view.subareas.map((s) => (
+                    <section class="asub" id={anchor(s.def.id)}>
+                        <header class="asub__head">
+                            <span class="asub__id">{s.def.id}</span>
+                            <div class="asub__titles">
+                                <h3 class="asub__name">{pick(s.def.name, lang)}</h3>
+                                <p class="asub__line">{pick(s.def.line, lang)}</p>
+                            </div>
+                            <p class="asub__meta">
+                                <span>{count(s.items.length)}</span>
+                                {s.total > 0 && <span>{compactEuro(s.total, lang)}</span>}
+                            </p>
+                        </header>
+                        {s.items.length > 0 ? (
+                            <div class="aitvs">
+                                {s.items.map((itv) => (
+                                    <InterventionCard intervention={itv} orgNames={interventionOrgNames(itv, orgMap)} filterable={false} lang={lang} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p class="asub__empty">{t(lang, "pf.noItvs")}</p>
+                        )}
+                    </section>
+                ))}
+
+                {view.loose.length > 0 && (
+                    <section class="asub">
+                        <header class="asub__head">
+                            <span class="asub__id">·</span>
+                            <div class="asub__titles"><h3 class="asub__name">{t(lang, "pf.loose")}</h3></div>
+                            <p class="asub__meta"><span>{count(view.loose.length)}</span></p>
+                        </header>
+                        <div class="aitvs">
+                            {view.loose.map((itv) => (
+                                <InterventionCard intervention={itv} orgNames={interventionOrgNames(itv, orgMap)} filterable={false} lang={lang} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+            </div>
+        </section>
+
+        <!-- ============ WHO + MONEY ============ -->
+        <section class="asec">
+            <div class="container awho">
+                <div>
+                    <p class="asec__eyebrow">{t(lang, "pf.actors")}</p>
+                    <ul class="achips">
+                        {def.actors.map((a) => <li>{pick(a, lang)}</li>)}
+                    </ul>
+                </div>
+                <div>
+                    <p class="asec__eyebrow">{t(lang, "pf.financing")}</p>
+                    <p class="awho__text">{pick(def.financing.text, lang)}</p>
+                    <ul class="achips achips--solid">
+                        {def.financing.mechanisms.map((m) => <li>{pick(m, lang)}</li>)}
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ NEXT / PREVIOUS ============ -->
+        <nav class="aadj" aria-label={t(lang, "pf.areaN", { n: "" })}>
+            <div class="container aadj__row">
+                <a class="aadj__link aadj__link--prev" style={toneVars(prev.def.tone)} href={portfolioHref(lang, prev.def.slug)}>
+                    <span>← {t(lang, "pf.prev")}</span>
+                    <strong>{pick(prev.def.short, lang)}</strong>
+                </a>
+                <a class="aadj__link aadj__link--next" style={toneVars(next.def.tone)} href={portfolioHref(lang, next.def.slug)}>
+                    <span>{t(lang, "pf.next")} →</span>
+                    <strong>{pick(next.def.short, lang)}</strong>
+                </a>
+            </div>
+            <p class="container aadj__note">{t(lang, "pf.sourceNote")}</p>
+        </nav>
+    </article>
+</Layout>
+
+<style>
+    .area {
+        --gutter: var(--space-6);
+    }
+
+    /* ---------- hero ---------- */
+    .ahero {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        padding: var(--space-12) 0 var(--space-10);
+        background:
+            radial-gradient(60rem 30rem at 85% 0%, color-mix(in srgb, var(--tone-l) 70%, transparent), transparent 70%),
+            color-mix(in srgb, var(--tone-l) 30%, var(--paper));
+        border-bottom: 1px solid color-mix(in srgb, var(--tone-m) 35%, transparent);
+    }
+    .ahero__back,
+    .ahero__eyebrow {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .ahero__back {
+        display: inline-block;
+        color: var(--tone-d);
+        text-decoration: none;
+        margin-bottom: var(--space-6);
+    }
+    .ahero__back:hover {
+        text-decoration: underline;
+    }
+    .ahero__eyebrow {
+        margin: 0 0 var(--space-3);
+        color: var(--tone-d);
+    }
+    .ahero__title {
+        margin: 0;
+        max-width: 16ch;
+        font-size: clamp(2.4rem, 6vw, 4.4rem);
+        line-height: 1.02;
+    }
+    .ahero__kicker {
+        margin: var(--space-5) 0 0;
+        max-width: 30ch;
+        font-family: var(--sans);
+        font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+        line-height: 1.2;
+        color: var(--tone-d);
+    }
+    .ahero__lead {
+        margin: var(--space-4) 0 0;
+        max-width: 52ch;
+        font-size: var(--text-md);
+        color: var(--text-secondary, var(--text-muted));
+    }
+
+
+    /* ---------- sections ---------- */
+    .asec {
+        padding: var(--space-16) 0;
+    }
+    .asec--soft {
+        background: var(--eggshell, var(--paper));
+        border-block: 1px solid var(--border-subtle);
+    }
+    .asec__eyebrow {
+        margin: 0 0 var(--space-2);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--tone-d);
+    }
+    .asec__title {
+        margin: 0 0 var(--space-6);
+        font-family: var(--sans);
+        font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+        line-height: 1.1;
+        font-weight: 400;
+    }
+    .asec__lead {
+        margin: calc(var(--space-3) * -1) 0 var(--space-6);
+        max-width: 56ch;
+        font-size: var(--text-md);
+        color: var(--text-secondary, var(--text-muted));
+    }
+
+    /* ---------- dynamics ---------- */
+    .adyn {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        gap: var(--space-5);
+    }
+    .adyn__item {
+        position: relative;
+        padding: var(--space-5) var(--space-5) var(--space-6);
+        border: 1px solid var(--border-subtle);
+        border-top: 3px solid var(--tone-m);
+        border-radius: 0 0 var(--radius-card, 0.75rem) var(--radius-card, 0.75rem);
+        background: var(--paper);
+    }
+    .adyn__n {
+        display: block;
+        margin-bottom: var(--space-3);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: 0.08em;
+        color: var(--tone-d);
+    }
+    .adyn__title {
+        margin: 0 0 var(--space-2);
+        font-family: var(--sans);
+        font-size: var(--text-xl);
+        line-height: 1.15;
+        font-weight: 400;
+    }
+    .adyn__text {
+        margin: 0;
+        font-size: var(--text-sm);
+        line-height: 1.55;
+        color: var(--text-secondary, var(--text-muted));
+    }
+
+    .aknot {
+        position: relative;
+        margin: var(--space-10) 0 0;
+        padding: var(--space-6) var(--space-8);
+        border-radius: var(--radius-card, 0.75rem);
+        background: color-mix(in srgb, var(--tone-l) 45%, var(--paper));
+        border: 1px solid color-mix(in srgb, var(--tone-m) 40%, transparent);
+    }
+    .aknot__label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--tone-d);
+    }
+    .aknot p {
+        margin: var(--space-2) 0 0;
+        max-width: 46ch;
+        font-family: var(--sans);
+        font-size: clamp(1.25rem, 2.4vw, 1.7rem);
+        line-height: 1.3;
+    }
+    .aknot footer {
+        margin-top: var(--space-3);
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+    }
+
+    /* ---------- flow strip ---------- */
+    .aflow ol {
+        list-style: none;
+        margin: 0 0 var(--space-12);
+        padding: 0;
+        display: flex;
+        gap: var(--space-3);
+        counter-reset: none;
+    }
+    .aflow li {
+        position: relative;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .aflow li:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        z-index: 1;
+        right: calc(var(--space-3) * -1 - 0.55em);
+        top: 50%;
+        translate: 0 -50%;
+        width: 1.1em;
+        text-align: center;
+        font-size: var(--text-md);
+        color: var(--tone-d);
+    }
+    .aflow a {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        height: 100%;
+        padding: var(--space-4);
+        text-decoration: none;
+        color: var(--text-primary);
+        border: 1px solid color-mix(in srgb, var(--tone-m) 45%, transparent);
+        border-radius: var(--radius-card, 0.75rem);
+        background: color-mix(in srgb, var(--tone-l) 38%, var(--paper));
+        transition: transform var(--t-fast), box-shadow var(--t-fast);
+    }
+    .aflow a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px color-mix(in srgb, var(--tone-d) 14%, transparent);
+    }
+    .aflow li.is-empty a {
+        background: transparent;
+        border-style: dashed;
+    }
+    .aflow__id {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        color: var(--tone-d);
+    }
+    .aflow__name {
+        font-size: var(--text-sm);
+        font-weight: 500;
+        line-height: 1.25;
+    }
+    .aflow__meta {
+        margin-top: auto;
+        padding-top: var(--space-2);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+    }
+
+    /* ---------- one sub-area ---------- */
+    .asub {
+        scroll-margin-top: 6rem;
+        margin-top: var(--space-12);
+    }
+    .asub:first-of-type {
+        margin-top: 0;
+    }
+    .asub__head {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: start;
+        gap: var(--space-5);
+        padding-bottom: var(--space-4);
+        margin-bottom: var(--space-5);
+        border-bottom: 2px solid var(--tone-m);
+    }
+    .asub__id {
+        font-family: var(--mono);
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 0.95;
+        color: var(--tone-m);
+    }
+    .asub__name {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+        line-height: 1.15;
+        font-weight: 400;
+    }
+    .asub__line {
+        margin: var(--space-1) 0 0;
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+        max-width: 54ch;
+    }
+    .asub__meta {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--tone-d);
+        white-space: nowrap;
+    }
+    .asub__empty {
+        margin: 0;
+        padding: var(--space-5);
+        border: 1px dashed var(--border-default);
+        border-radius: var(--radius-card, 0.75rem);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+    }
+
+    /* Same grid as the interventions gallery; the cards are the shared InterventionCard. */
+    .aitvs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: var(--space-5);
+    }
+
+    /* ---------- who + money ---------- */
+    .awho {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: var(--space-10);
+    }
+    .awho__text {
+        margin: 0 0 var(--space-4);
+        max-width: 52ch;
+        font-size: var(--text-md);
+        color: var(--text-secondary, var(--text-muted));
+    }
+    .achips {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+    .achips li {
+        padding: 0.35em 0.9em;
+        font-size: var(--text-sm);
+        border: 1px solid color-mix(in srgb, var(--tone-m) 50%, transparent);
+        border-radius: var(--radius-pill);
+        background: color-mix(in srgb, var(--tone-l) 30%, var(--paper));
+    }
+    .achips--solid li {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tone-d);
+        background: transparent;
+    }
+
+    /* ---------- previous / next ---------- */
+    .aadj {
+        padding: 0 0 var(--space-16);
+    }
+    .aadj__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+    }
+    .aadj__link {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        padding: var(--space-5);
+        text-decoration: none;
+        color: var(--text-primary);
+        border: 1px solid color-mix(in srgb, var(--tone-m) 45%, transparent);
+        border-radius: var(--radius-card, 0.75rem);
+        background: color-mix(in srgb, var(--tone-l) 30%, var(--paper));
+        transition: transform var(--t-fast);
+    }
+    .aadj__link:hover {
+        transform: translateY(-2px);
+    }
+    .aadj__link--next {
+        text-align: right;
+    }
+    .aadj__link span {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--tone-d);
+    }
+    .aadj__link strong {
+        font-family: var(--sans);
+        font-size: var(--text-xl);
+        font-weight: 400;
+    }
+    .aadj__note {
+        margin-top: var(--space-8);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+    }
+
+    .data-banner {
+        margin: var(--space-6) 0 0;
+        padding: var(--space-4) var(--space-5);
+        border: 1px solid color-mix(in srgb, var(--status-danger-mid) 45%, transparent);
+        background: color-mix(in srgb, var(--status-danger-mid) 7%, var(--bg));
+        font-size: var(--text-sm);
+    }
+
+    @media (max-width: 860px) {
+        .aflow ol {
+            flex-direction: column;
+        }
+        .aflow li:not(:last-child)::after {
+            content: "↓";
+            right: auto;
+            left: var(--space-5);
+            top: auto;
+            bottom: calc(var(--space-3) * -1 - 0.6em);
+            translate: 0 0;
+        }
+        .awho {
+            grid-template-columns: 1fr;
+            gap: var(--space-8);
+        }
+        .asub__head {
+            grid-template-columns: auto 1fr;
+        }
+        .asub__meta {
+            grid-column: 2;
+            align-items: flex-start;
+            flex-direction: row;
+            gap: var(--space-4);
+        }
+        .aadj__row {
+            grid-template-columns: 1fr;
+        }
+        .asec {
+            padding: var(--space-12) 0;
+        }
+    }
+</style>

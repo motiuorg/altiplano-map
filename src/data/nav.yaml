@@ -3,5 +3,5 @@ homeLabel: { es: inicio, en: home }
 variant: solid
 items:
   - { id: organizaciones, href: /, label: { es: Organizaciones, en: Organizations } }
-  - { id: intervenciones, href: /intervenciones/, label: { es: Intervenciones, en: Interventions } }
+  - { id: portafolio, href: /portafolio/, label: { es: Portafolio, en: Portfolio } }
   - { id: simulador, href: /simulador/, label: { es: Simulador económico, en: Economic simulator } }

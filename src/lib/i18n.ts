@@ -9,7 +9,7 @@ export type Lang = 'es' | 'en';
 const D = {
   // --- shell
   'nav.orgs': { es: 'Organizaciones', en: 'Organizations' },
-  'nav.itvs': { es: 'Intervenciones', en: 'Interventions' },
+  'nav.itvs': { es: 'Portafolio', en: 'Portfolio' },
   'nav.sim': { es: 'Simulador económico', en: 'Economic simulator' },
   'nav.label': { es: 'Secciones', en: 'Sections' },
   'lang.label': { es: 'Idioma', en: 'Language' },
@@ -83,17 +83,54 @@ const D = {
   'map.cluster': { es: '{n} organizaciones en este lugar', en: '{n} organizations at this location' },
 
   // --- interventions page
-  'itvs.title': { es: 'Altiplano Estepario — Intervenciones', en: 'Altiplano Estepario — Interventions' },
+  'itvs.title': { es: 'Altiplano Estepario — Portafolio', en: 'Altiplano Estepario — Portfolio' },
   'itvs.description': {
-    es: 'Portfolio de intervenciones del paisaje del Altiplano Estepario.',
-    en: 'Portfolio of interventions in the Altiplano Estepario landscape.',
+    es: 'Portafolio del paisaje del Altiplano Estepario: áreas de trabajo e intervenciones.',
+    en: 'Portfolio of the Altiplano Estepario landscape: work areas and interventions.',
   },
-  'itvs.overline': { es: 'El portfolio', en: 'The portfolio' },
-  'itvs.heading': { es: 'Intervenciones', en: 'Interventions' },
+  'itvs.overline': { es: 'El portafolio', en: 'The portfolio' },
+  'itvs.heading': { es: 'Portafolio', en: 'Portfolio' },
   'itvs.intro': {
-    es: 'Proyectos e intervenciones del paisaje, con su valor ajustado a 5 años, su financiación y su viabilidad comercial.',
-    en: 'Landscape projects and interventions, with their 5-year adjusted value, financing and commercial viability.',
+    es: 'Cuatro áreas de trabajo ordenan lo que se hace en el paisaje. Entra en un área para ver sus dinámicas y sus intervenciones, o recorre todas las intervenciones con su financiación y su viabilidad.',
+    en: 'Four work areas organise what happens in the landscape. Open an area to see its dynamics and interventions, or browse every intervention with its financing and viability.',
   },
+  'pf.glance': { es: 'De un vistazo', en: 'At a glance' },
+  'pf.glanceClick': { es: 'Haz clic en uno para entrar en el área.', en: 'Click one to open the area.' },
+  'pf.enter': { es: 'Entra en un área', en: 'Open an area' },
+  'pf.enterText': {
+    es: 'Cada área tiene su propia página, con las dinámicas que la mueven y sus intervenciones por subárea. Cada punto es una intervención.',
+    en: 'Each area has its own page, with the dynamics that drive it and its interventions by sub-area. Each dot is one intervention.',
+  },
+  'pf.tabAreas': { es: 'Áreas de trabajo', en: 'Work areas' },
+  'pf.tabItvs': { es: 'Intervenciones', en: 'Interventions' },
+  'pf.tabs': { es: 'Secciones del portafolio', en: 'Portfolio sections' },
+  'pf.statItvs': { es: 'intervenciones', en: 'interventions' },
+  'pf.statAreas': { es: 'áreas de trabajo', en: 'work areas' },
+  'pf.statSub': { es: 'subáreas', en: 'sub-areas' },
+  'pf.statFin': { es: 'de financiación total', en: 'in total financing' },
+  'pf.open': { es: 'Ver el área', en: 'Open the area' },
+  'pf.areaN': { es: 'Área {n}', en: 'Area {n}' },
+  'pf.itvCount': { es: '{n} intervenciones', en: '{n} interventions' },
+  'pf.itvCount1': { es: '1 intervención', en: '1 intervention' },
+  'pf.back': { es: 'Portafolio', en: 'Portfolio' },
+  'pf.dynamics': { es: 'Dinámicas', en: 'Dynamics' },
+  'pf.dynamicsH': { es: 'Qué mueve esta área', en: 'What drives this area' },
+  'pf.subareas': { es: 'Subáreas', en: 'Sub-areas' },
+  'pf.subareasH': { es: 'Cómo encajan', en: 'How they fit together' },
+  'pf.actors': { es: 'Quién participa', en: 'Who takes part' },
+  'pf.financing': { es: 'Cómo se financia', en: 'How it is financed' },
+  'pf.sourceNote': {
+    es: 'Cifras de la estrategia financiera del Altiplano. Las intervenciones, su financiación y sus fichas se leen en directo de la base de datos.',
+    en: 'Figures from the Altiplano financial strategy. Interventions, their financing and cards are read live from the database.',
+  },
+  'pf.noItvs': { es: 'Aún sin intervenciones en el portafolio.', en: 'No interventions in the portfolio yet.' },
+  'pf.loose': { es: 'Otras intervenciones del área', en: 'Other interventions in this area' },
+  'pf.prev': { es: 'Área anterior', en: 'Previous area' },
+  'pf.next': { es: 'Área siguiente', en: 'Next area' },
+  'pf.financingOf': { es: 'financiación', en: 'financing' },
+  'pf.years': { es: '{n} años', en: '{n} years' },
+  'pf.viable': { es: 'Viable', en: 'Viable' },
+  'pf.tension': { es: 'El nudo', en: 'The knot' },
   'itvs.area': { es: 'Área de trabajo', en: 'Work area' },
   'itvs.areaBy': { es: 'Filtrar por área de trabajo', en: 'Filter by work area' },
   'itvs.viability': { es: 'Viabilidad comercial', en: 'Commercial viability' },
@@ -111,8 +148,8 @@ const D = {
   'itvs.table': { es: 'Tabla', en: 'Table' },
   'itvs.areas': { es: 'Áreas', en: 'Areas' },
   'itvs.areasNote': {
-    es: 'El tamaño de cada círculo es la suma del valor ajustado a 5 años de las intervenciones que se muestran.',
-    en: 'Each circle is sized by the summed 5-year adjusted value of the interventions shown.',
+    es: 'El tamaño de cada círculo es la suma del valor ajustado a 5 años de las intervenciones del área.',
+    en: 'Each circle is sized by the summed 5-year adjusted value of the area\'s interventions.',
   },
   'itvs.areaCount': { es: '{n} intervenciones', en: '{n} interventions' },
   'itvs.none': { es: 'No hay intervenciones publicadas todavía.', en: 'No interventions published yet.' },
@@ -166,7 +203,7 @@ export function tv(lang: Lang, value: string): string {
 export const numberLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'es-ES');
 
 // Path of the same page in the other language.
-export type Page = 'organizaciones' | 'intervenciones' | 'simulador';
+export type Page = 'organizaciones' | 'portafolio' | 'simulador';
 export function pagePath(base: string, lang: Lang, page: Page): string {
   const b = base.replace(/\/?$/, '/');
   return b + (lang === 'en' ? 'en/' : '') + (page === 'organizaciones' ? '' : page + '/');
