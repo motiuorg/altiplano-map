@@ -431,6 +431,15 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--pillar-flow-3) 70%, transparent), 0 3px 10px rgba(34, 26, 18, 0.35);
     }
 
+    /* Grupo de trabajo pins and numbered dots sit above the other pins. */
+    .org-pin--grupo {
+        z-index: 2;
+    }
+
+    .org-cluster {
+        z-index: 3;
+    }
+
     .org-pin--spread {
         animation: org-pin-pop 220ms ease-out both;
     }
@@ -666,7 +675,10 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
 
         function makePin(p, lngLat, extraClass) {
             const el = document.createElement("div");
-            el.className = "org-pin" + (extraClass ? " " + extraClass : "");
+            el.className =
+                "org-pin" +
+                (p.grupo ? " org-pin--grupo" : "") +
+                (extraClass ? " " + extraClass : "");
             el.style.setProperty(
                 "--pin-color",
                 p.grupo ? "var(--pillar-flow-3)" : "var(--data-support)",
@@ -705,13 +717,30 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
             return marker;
         }
 
-        // Group by identical (rounded) coordinates.
-        const groups = new Map();
-        for (const p of pins) {
-            const key = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
-            const g = groups.get(key);
-            if (g) g.push(p);
-            else groups.set(key, [p]);
+        // Group pins that would overlap on screen at the current zoom (not only
+        // identical coordinates), so nearby orgs in the same village don't hide each
+        // other. Regrouped after every zoom. The grupo de trabajo seeds groups first.
+        const OVERLAP_PX = 26;
+        const samePlace = (group) =>
+            group.every(
+                (p) =>
+                    p.lat.toFixed(4) === group[0].lat.toFixed(4) &&
+                    p.lng.toFixed(4) === group[0].lng.toFixed(4),
+            );
+        function groupPins() {
+            const seeds = [];
+            const ordered = [...pins].sort(
+                (a, b) => Number(b.grupo) - Number(a.grupo),
+            );
+            for (const p of ordered) {
+                const pt = map.project([p.lng, p.lat]);
+                const near = seeds.find(
+                    (s) => Math.hypot(s.pt.x - pt.x, s.pt.y - pt.y) < OVERLAP_PX,
+                );
+                if (near) near.group.push(p);
+                else seeds.push({ pt, group: [p] });
+            }
+            return seeds.map((s) => s.group);
         }
 
         // Fan layout: concentric rings, ~40px between neighbours, in metres at
@@ -806,37 +835,63 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         if (map.loaded()) addSpokesLayer();
         else map.on("load", addSpokesLayer);
 
-        for (const group of groups.values()) {
-            const first = group[0];
-            if (group.length === 1) {
-                makePin(first, [first.lng, first.lat]);
-                continue;
+        // Markers currently on the map (pins and numbered dots), replaced on regroup.
+        let liveMarkers = [];
+
+        function render() {
+            collapse();
+            liveMarkers.forEach((m) => m.remove());
+            liveMarkers = [];
+            for (const group of groupPins()) {
+                if (group.length === 1) {
+                    liveMarkers.push(
+                        makePin(group[0], [group[0].lng, group[0].lat]),
+                    );
+                    continue;
+                }
+                const lng = group.reduce((s, p) => s + p.lng, 0) / group.length;
+                const lat = group.reduce((s, p) => s + p.lat, 0) / group.length;
+                const el = document.createElement("div");
+                el.className =
+                    "org-cluster" +
+                    (group.some((g) => g.grupo) ? " org-cluster--grupo" : "");
+                el.textContent = String(group.length);
+                el.title = (strings.cluster || "{n}").replace("{n}", group.length);
+                el.setAttribute("role", "button");
+                const cluster = { group, lng, lat, el };
+                el.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    if (openCluster && openCluster.el === el) {
+                        collapse();
+                        return;
+                    }
+                    // Different places: zoom in until they separate. Same place, or
+                    // already fully zoomed in: fan them out.
+                    if (!samePlace(group) && map.getZoom() < map.getMaxZoom() - 0.5) {
+                        const b = new maplibregl.LngLatBounds();
+                        group.forEach((p) => b.extend([p.lng, p.lat]));
+                        map.fitBounds(b, { padding: 120, maxZoom: map.getMaxZoom() });
+                    } else expand(cluster);
+                });
+                liveMarkers.push(
+                    new maplibregl.Marker({ element: el, anchor: "center" })
+                        .setLngLat([lng, lat])
+                        .addTo(map),
+                );
             }
-            const el = document.createElement("div");
-            el.className =
-                "org-cluster" +
-                (group.some((g) => g.grupo) ? " org-cluster--grupo" : "");
-            el.textContent = String(group.length);
-            el.title = (strings.cluster || "{n}").replace("{n}", group.length);
-            el.setAttribute("role", "button");
-            const cluster = { group, lng: first.lng, lat: first.lat, el };
-            el.addEventListener("click", (e) => {
-                e.stopPropagation();
-                if (openCluster && openCluster.el === el) collapse();
-                else expand(cluster);
-            });
-            new maplibregl.Marker({ element: el, anchor: "center" })
-                .setLngLat([first.lng, first.lat])
-                .addTo(map);
         }
 
-        map.on("click", collapse);
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") collapse();
+        render();
+        map.on("click", () => {
+            if (openCluster) render();
         });
-        // Fan collapses when the user zooms far back out.
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && openCluster) render();
+        });
+        // Regroup after every zoom; an open fan survives zooming until far out.
         map.on("zoomend", () => {
-            if (openCluster && map.getZoom() < 11) collapse();
+            if (openCluster && map.getZoom() >= 11) return;
+            render();
         });
     }
 
