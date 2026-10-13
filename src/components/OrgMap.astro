@@ -19,6 +19,20 @@ const { orgs, lang = "es" } = Astro.props;
 const REGION_JSON = JSON.parse(
     fs.readFileSync("./src/data/altiplano-region.geojson", "utf8"),
 );
+// Natural, national and regional parks in and around the Altiplano (MITECO ENP,
+// built by scripts/build-espacios-protegidos.sh).
+const PARKS_JSON = JSON.parse(
+    fs.readFileSync("./src/data/espacios-protegidos.geojson", "utf8"),
+);
+// Base map: MapTiler Basic's open style without its label layers, on OpenFreeMap's
+// OpenMapTiles vector tiles (no API key). See "metadata" in the file.
+const BASEMAP_JSON = JSON.parse(
+    fs.readFileSync("./src/data/basemap-style.json", "utf8"),
+);
+// Towns, villages and hamlets around the Altiplano, for labelling pinned towns.
+const PLACES_JSON = JSON.parse(
+    fs.readFileSync("./src/data/places.json", "utf8"),
+);
 const INSET_JSON = JSON.parse(
     fs.readFileSync("./src/data/spain-inset.json", "utf8"),
 );
@@ -143,12 +157,56 @@ const labels = [...labelGroups.entries()].map(([name, g]) => {
     return { name, core: g.core, lat, lng };
 });
 
+// Park labels sit on the centroid of each park's largest ring.
+const parkLabels = (PARKS_JSON.features ?? []).flatMap((f: any) => {
+    const ring = featureLargestRing(f);
+    if (!ring) return [];
+    return [{ name: f.properties.nombre, ...ringCentroid(ring) }];
+});
+
+// Town labels: the town nearest each pin, if there is one close enough (3 km for
+// a city, town or village; 1.5 km for a hamlet, which only wins when nothing
+// bigger is near). Places come from OpenStreetMap (src/data/places.json).
+const kmBetween = (lat1: number, lng1: number, lat2: number, lng2: number) =>
+    Math.hypot(
+        (lng1 - lng2) * 111.32 * Math.cos((lat1 * Math.PI) / 180),
+        (lat1 - lat2) * 110.57,
+    );
+const townLabels = new Map<string, { name: string; lat: number; lng: number; hamlet: boolean }>();
+for (const o of withCoords) {
+    let best: { score: number; p: any } | null = null;
+    for (const p of PLACES_JSON.places) {
+        const hamlet = p.place === "hamlet";
+        const d = kmBetween(o.lat!, o.lng!, p.lat, p.lng);
+        if (d > (hamlet ? 1.5 : 3)) continue;
+        const score = d + (hamlet ? 5 : 0);
+        if (!best || score < best.score) best = { score, p };
+    }
+    if (best)
+        townLabels.set(best.p.name, {
+            name: best.p.name,
+            lat: best.p.lat,
+            lng: best.p.lng,
+            hamlet: best.p.place === "hamlet",
+        });
+}
+
 const strings = {
     group: t(lang, "org.group"),
     website: t(lang, "org.website"),
     cluster: t(lang, "map.cluster", { n: "{n}" }),
 };
-const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
+const mapData = {
+    pins,
+    region: REGION_JSON,
+    labels,
+    parks: PARKS_JSON,
+    parkLabels,
+    towns: [...townLabels.values()],
+    basemap: BASEMAP_JSON,
+    bounds,
+    strings,
+};
 ---
 
 <section class="org-map-block" id="mapa">
@@ -203,6 +261,13 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
                 aria-hidden="true"
             ></span>
             {t(lang, "map.region")}
+        </span>
+        <span class="org-map-legend__item">
+            <span
+                class="org-map-legend__swatch org-map-legend__swatch--parks"
+                aria-hidden="true"
+            ></span>
+            {t(lang, "map.parks")}
         </span>
         {missing.length > 0 && (
             <span class="org-map-legend__missing">
@@ -349,6 +414,11 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         border: 1.5px solid #6b5a3e;
     }
 
+    .org-map-legend__swatch--parks {
+        background: color-mix(in srgb, var(--pillar-tissue-3) 30%, transparent);
+        border: 1.5px dashed var(--pillar-tissue-4);
+    }
+
     .org-map-legend__missing {
         color: var(--status-danger-mid);
         text-transform: none;
@@ -370,6 +440,53 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         pointer-events: none;
         user-select: none;
         padding: 0.1rem 0.35rem;
+    }
+
+    /* Park labels: like the comarca labels, in the park green, italic and
+       sentence case; shown from zoom 9 (see .org-map--parks-labels). */
+    .park-label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        font-style: italic;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        color: var(--pillar-tissue-4);
+        text-shadow:
+            0 0 3px var(--paper),
+            0 0 8px var(--paper);
+        pointer-events: none;
+        user-select: none;
+        opacity: 0;
+        transition: opacity var(--t-fast);
+    }
+
+    .org-map--parks-labels .park-label {
+        opacity: 1;
+    }
+
+    /* Town labels: the places that have pins, in plain dark text under the town
+       point. Hamlets appear from zoom 9, with the park labels. */
+    .town-label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        color: var(--text-primary);
+        text-shadow:
+            0 0 3px var(--paper),
+            0 0 6px var(--paper),
+            0 0 10px var(--paper);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .town-label--hamlet {
+        opacity: 0;
+        transition: opacity var(--t-fast);
+    }
+
+    .org-map--parks-labels .town-label--hamlet {
+        opacity: 1;
     }
 
     /* Map pins — round paper-ring dots with glow; hover scale goes on the INNER
@@ -438,6 +555,11 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
 
     .org-cluster {
         z-index: 3;
+    }
+
+    /* An org's hover card sits above every pin and numbered dot. */
+    .org-pin-popup {
+        z-index: 4;
     }
 
     .org-pin--spread {
@@ -541,7 +663,7 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
         if (!container) return;
 
         const data = JSON.parse(container.dataset.mapData || "{}");
-        const { pins = [], region = null, labels = [], bounds = null, strings = {} } = data;
+        const { pins = [], region = null, labels = [], parks = null, parkLabels = [], towns = [], basemap = null, bounds = null, strings = {} } = data;
 
         const hasRegion =
             region && region.features && region.features.length > 0;
@@ -554,20 +676,9 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
 
         const map = new maplibregl.Map({
             container,
-            style: {
-                version: 8,
-                sources: {
-                    osm: {
-                        type: "raster",
-                        tiles: [
-                            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        ],
-                        tileSize: 256,
-                        attribution: "&copy; OpenStreetMap contributors",
-                    },
-                },
-                layers: [{ id: "osm", type: "raster", source: "osm" }],
-            },
+            // No base-map labels: the only text on the map is ours (comarcas,
+            // parks, pins).
+            style: basemap,
             center: [regionCenter?.lng ?? -2.6, regionCenter?.lat ?? 37.6],
             zoom: 8.3,
             maxZoom: 14,
@@ -615,6 +726,67 @@ const mapData = { pins, region: REGION_JSON, labels, bounds, strings };
                         .setLngLat([label.lng, label.lat])
                         .addTo(map);
                 }
+            }
+
+            // Parks: the design system's tissue greens, read from the page's CSS
+            // (MapLibre paint can't use CSS variables). Fill under the comarca line,
+            // dashed outline on top.
+            if (parks && parks.features && parks.features.length > 0) {
+                const css = getComputedStyle(document.documentElement);
+                const token = (name, fallback) =>
+                    css.getPropertyValue(name).trim() || fallback;
+                const parkFill = token("--pillar-tissue-3", "#8FE84A");
+                const parkLine = token("--pillar-tissue-4", "#2C5A0D");
+                map.addSource("parks", { type: "geojson", data: parks });
+                const beforeRegionLine = map.getLayer("altiplano-region-line")
+                    ? "altiplano-region-line"
+                    : undefined;
+                map.addLayer(
+                    {
+                        id: "parks-fill",
+                        type: "fill",
+                        source: "parks",
+                        paint: { "fill-color": parkFill, "fill-opacity": 0.22 },
+                    },
+                    beforeRegionLine,
+                );
+                map.addLayer({
+                    id: "parks-line",
+                    type: "line",
+                    source: "parks",
+                    paint: {
+                        "line-color": parkLine,
+                        "line-width": 1.2,
+                        "line-opacity": 0.8,
+                        "line-dasharray": [3, 2],
+                    },
+                });
+
+                for (const label of parkLabels) {
+                    const el = document.createElement("div");
+                    el.className = "park-label";
+                    el.textContent = label.name;
+                    new maplibregl.Marker({ element: el, anchor: "center" })
+                        .setLngLat([label.lng, label.lat])
+                        .addTo(map);
+                }
+                const toggleParkLabels = () =>
+                    container.classList.toggle(
+                        "org-map--parks-labels",
+                        map.getZoom() >= 9,
+                    );
+                map.on("zoom", toggleParkLabels);
+                toggleParkLabels();
+            }
+
+            // Town labels for the places that have pins; hamlets from zoom 9.
+            for (const town of towns) {
+                const el = document.createElement("div");
+                el.className = "town-label" + (town.hamlet ? " town-label--hamlet" : "");
+                el.textContent = town.name;
+                new maplibregl.Marker({ element: el, anchor: "top", offset: [0, 19] })
+                    .setLngLat([town.lng, town.lat])
+                    .addTo(map);
             }
 
             // Framing: pins when there are any, the comarca region otherwise.
