@@ -74,6 +74,7 @@ const D = {
   'map.allyLegend': { es: 'Aliados · {n}', en: 'Allies · {n}' },
   'map.region': { es: 'Altiplano Estepario', en: 'Altiplano Estepario' },
   'map.parks': { es: 'Parques naturales', en: 'Natural parks' },
+  'map.basins': { es: 'Cuencas hidrográficas', en: 'River basins' },
   'map.country': { es: 'España', en: 'Spain' },
   'map.missing': {
     es: '⚠ {n} organizaciones sin coordenadas (no se muestran en el mapa)',

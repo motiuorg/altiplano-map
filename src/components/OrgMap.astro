@@ -29,6 +29,32 @@ const PARKS_JSON = JSON.parse(
 const BASEMAP_JSON = JSON.parse(
     fs.readFileSync("./src/data/basemap-style.json", "utf8"),
 );
+// Main rivers (built by scripts/build-cuencas.sh). Hidden until the legend
+// switch is on.
+const CUENCAS_JSON = JSON.parse(
+    fs.readFileSync("./src/data/cuencas.geojson", "utf8"),
+);
+// River names sit at the middle of each river's longest stretch.
+const riverLabels = [
+    ...CUENCAS_JSON.features
+        .filter((f: any) => f.properties.kind === "river")
+        .reduce((m: Map<string, any>, f: any) => {
+            const cur = m.get(f.properties.name);
+            if (!cur || f.geometry.coordinates.length > cur.geometry.coordinates.length)
+                m.set(f.properties.name, f);
+            return m;
+        }, new Map())
+        .values(),
+].map((f: any) => {
+    const c = f.geometry.coordinates;
+    const [lng, lat] = c[Math.floor(c.length / 2)];
+    return { text: f.properties.name.replace(/^R[ií]o /, ""), lng, lat };
+});
+const cuencasLines = {
+    type: "FeatureCollection",
+    features: CUENCAS_JSON.features.filter((f: any) => f.properties.kind === "river"),
+};
+
 // Towns, villages and hamlets around the Altiplano, for labelling pinned towns.
 const PLACES_JSON = JSON.parse(
     fs.readFileSync("./src/data/places.json", "utf8"),
@@ -203,6 +229,8 @@ const mapData = {
     parks: PARKS_JSON,
     parkLabels,
     towns: [...townLabels.values()],
+    cuencas: cuencasLines,
+    riverLabels,
     basemap: BASEMAP_JSON,
     bounds,
     strings,
@@ -269,6 +297,18 @@ const mapData = {
             ></span>
             {t(lang, "map.parks")}
         </span>
+        <button
+            type="button"
+            class="org-map-legend__item org-map-legend__toggle"
+            aria-pressed="false"
+            data-cuencas-toggle
+        >
+            <span
+                class="org-map-legend__swatch org-map-legend__swatch--cuencas"
+                aria-hidden="true"
+            ></span>
+            {t(lang, "map.basins")}
+        </button>
         {missing.length > 0 && (
             <span class="org-map-legend__missing">
                 {t(lang, "map.missing", { n: missing.length })}
@@ -419,6 +459,34 @@ const mapData = {
         border: 1.5px dashed var(--pillar-tissue-4);
     }
 
+    .org-map-legend__toggle {
+        font: inherit;
+        letter-spacing: inherit;
+        text-transform: inherit;
+        color: inherit;
+        background: none;
+        border: 1px solid var(--border-subtle);
+        border-radius: 999px;
+        padding: 0.15rem 0.6rem;
+        cursor: pointer;
+        transition: border-color var(--t-fast), background var(--t-fast);
+    }
+
+    .org-map-legend__toggle:hover {
+        border-color: var(--border-default);
+    }
+
+    .org-map-legend__toggle[aria-pressed="true"] {
+        background: color-mix(in srgb, var(--pillar-neural-4) 8%, transparent);
+        border-color: color-mix(in srgb, var(--pillar-neural-4) 45%, transparent);
+    }
+
+    .org-map-legend__swatch--cuencas {
+        height: 0;
+        border: 0;
+        border-top: 2px solid color-mix(in srgb, var(--pillar-neural-4) 55%, transparent);
+    }
+
     .org-map-legend__missing {
         color: var(--status-danger-mid);
         text-transform: none;
@@ -456,12 +524,39 @@ const mapData = {
             0 0 8px var(--paper);
         pointer-events: none;
         user-select: none;
-        opacity: 0;
-        transition: opacity var(--t-fast);
+        /* visibility, not opacity: MapLibre sets an inline opacity on markers. */
+        visibility: hidden;
     }
 
     .org-map--parks-labels .park-label {
-        opacity: 1;
+        visibility: visible;
+    }
+
+    /* River names: only while the "Cuencas" switch is on, from zoom 10. */
+    .river-label {
+        font-family: var(--mono);
+        white-space: nowrap;
+        color: var(--pillar-neural-4);
+        text-shadow:
+            0 0 3px var(--paper),
+            0 0 8px var(--paper);
+        pointer-events: none;
+        user-select: none;
+        display: none;
+    }
+
+    .river-label {
+        font-size: var(--text-2xs);
+        font-style: italic;
+        visibility: hidden;
+    }
+
+    .org-map--cuencas .river-label {
+        display: block;
+    }
+
+    .org-map--cuencas.org-map--river-labels .river-label {
+        visibility: visible;
     }
 
     /* Town labels: the places that have pins, in plain dark text under the town
@@ -481,12 +576,11 @@ const mapData = {
     }
 
     .town-label--hamlet {
-        opacity: 0;
-        transition: opacity var(--t-fast);
+        visibility: hidden;
     }
 
     .org-map--parks-labels .town-label--hamlet {
-        opacity: 1;
+        visibility: visible;
     }
 
     /* Map pins — round paper-ring dots with glow; hover scale goes on the INNER
@@ -663,7 +757,7 @@ const mapData = {
         if (!container) return;
 
         const data = JSON.parse(container.dataset.mapData || "{}");
-        const { pins = [], region = null, labels = [], parks = null, parkLabels = [], towns = [], basemap = null, bounds = null, strings = {} } = data;
+        const { pins = [], region = null, labels = [], parks = null, parkLabels = [], towns = [], cuencas = null, riverLabels = [], basemap = null, bounds = null, strings = {} } = data;
 
         const hasRegion =
             region && region.features && region.features.length > 0;
@@ -688,6 +782,22 @@ const mapData = {
 
         // Exposed for debugging/automation (layer inspection, programmatic pan).
         container.__map = map;
+
+        // "Cuencas hidrográficas" switch: wired up straight away, so a click
+        // before the map has loaded still counts; the layers pick up the state
+        // when they are added.
+        let cuencasOn = false;
+        const applyCuencas = () => {
+            container.classList.toggle("org-map--cuencas", cuencasOn);
+            if (map.getLayer("cuencas-rivers"))
+                map.setLayoutProperty("cuencas-rivers", "visibility", cuencasOn ? "visible" : "none");
+        };
+        const cuencasToggle = document.querySelector("[data-cuencas-toggle]");
+        cuencasToggle?.addEventListener("click", () => {
+            cuencasOn = !cuencasOn;
+            cuencasToggle.setAttribute("aria-pressed", String(cuencasOn));
+            applyCuencas();
+        });
 
         // Region overlay + comarca labels go in once the style is ready.
         map.on("load", () => {
@@ -770,13 +880,48 @@ const mapData = {
                         .setLngLat([label.lng, label.lat])
                         .addTo(map);
                 }
-                const toggleParkLabels = () =>
+                const toggleParkLabels = () => {
                     container.classList.toggle(
                         "org-map--parks-labels",
                         map.getZoom() >= 9,
                     );
+                    container.classList.toggle(
+                        "org-map--river-labels",
+                        map.getZoom() >= 10,
+                    );
+                };
                 map.on("zoom", toggleParkLabels);
                 toggleParkLabels();
+            }
+
+            // Main rivers (deep neural blue), hidden until the legend switch
+            // turns them on.
+            if (cuencas && cuencas.features.length > 0) {
+                const css = getComputedStyle(document.documentElement);
+                const token = (name, fallback) =>
+                    css.getPropertyValue(name).trim() || fallback;
+                map.addSource("cuencas", { type: "geojson", data: cuencas });
+                map.addLayer({
+                    id: "cuencas-rivers",
+                    type: "line",
+                    source: "cuencas",
+                    filter: ["==", ["get", "kind"], "river"],
+                    layout: { visibility: "none", "line-cap": "round", "line-join": "round" },
+                    paint: {
+                        "line-color": token("--pillar-neural-4", "#000FA0"),
+                        "line-opacity": 0.5,
+                        "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1, 11, 2.2],
+                    },
+                });
+                for (const l of riverLabels) {
+                    const el = document.createElement("div");
+                    el.className = "river-label";
+                    el.textContent = l.text;
+                    new maplibregl.Marker({ element: el, anchor: "bottom", offset: [0, -4] })
+                        .setLngLat([l.lng, l.lat])
+                        .addTo(map);
+                }
+                applyCuencas();
             }
 
             // Town labels for the places that have pins; hamlets from zoom 9.
