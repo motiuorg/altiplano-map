@@ -15,15 +15,23 @@ const compact = (n: number) => `${n.toLocaleString(locale, { notation: 'compact'
 const overFive = (n: number) => (lang === 'en' ? `${compact(n)} over 5 years` : `${compact(n)} a 5 años`);
 
 // Containers marked [data-shuffle] list their cards in a new random order on every load,
-// so no organisation or intervention always comes first. Tables keep their order.
+// so no organisation or intervention always comes first. The grupo de trabajo
+// (data-grupo="grupo") stays ahead of the rest; each part is shuffled on its own.
+// Tables keep their order.
+function shuffle<T>(xs: T[]): T[] {
+  for (let i = xs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [xs[i], xs[j]] = [xs[j], xs[i]];
+  }
+  return xs;
+}
+
 function shuffleCards(): void {
   document.querySelectorAll<HTMLElement>('[data-shuffle]').forEach((box) => {
-    const kids = [...box.children];
-    for (let i = kids.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [kids[i], kids[j]] = [kids[j], kids[i]];
-    }
-    kids.forEach((k) => box.appendChild(k));
+    const kids = [...box.children] as HTMLElement[];
+    const grupo = kids.filter((k) => k.dataset.grupo === 'grupo');
+    const rest = kids.filter((k) => k.dataset.grupo !== 'grupo');
+    [...shuffle(grupo), ...shuffle(rest)].forEach((k) => box.appendChild(k));
   });
 }
 
