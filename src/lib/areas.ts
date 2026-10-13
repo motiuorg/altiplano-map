@@ -8,7 +8,9 @@ const KNOWN: Array<[prefix: string, tone: string]> = [
   ['agricultura regenerativa', 'tissue'],
   ['espacios naturales', 'neural'], // earlier name of the same area
   ['zonas naturales', 'neural'],
+  ['tejido territorial', 'flow'], // current name of the area
   ['articulacion', 'flow'], // "Articulación e impulso del territorio" / "…y desarrollo territorial"
+  ['programacion educativa', 'purple'], // current name: "Programación educativa y turística"
   ['educacion', 'purple'], // "Educación cultura y turismo" (older: "Educación, cultura y turismo")
 ];
 

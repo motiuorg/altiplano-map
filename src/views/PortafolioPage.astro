@@ -25,22 +25,8 @@ const { orgMap, interventions, dataError, dataSource } = await loadSiteData();
 
 const areaViews = buildAreaViews(interventions);
 
-// The circle for a Notion area links to that area's page.
-const areaHref = (name: string) => {
-    const v = areaViews.find((x) => x.def.match.some((m) => name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(m)));
-    return portfolioHref(lang, v?.def.slug);
-};
-
 const collator = new Intl.Collator(lang);
-// Areas in the same order as the cards (the order of src/data/areas.yaml); unknown ones last.
-const areaOrder = (name: string) => {
-    const n = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const i = areaViews.findIndex((x) => x.def.match.some((m) => n.startsWith(m)));
-    return i === -1 ? areaViews.length : i;
-};
-const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
-    (a, b) => areaOrder(a) - areaOrder(b) || collator.compare(a, b),
-);
+const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(collator.compare);
 const orgOptions = [...new Set(interventions.flatMap((i) => i.orgIds))]
     .map((id) => ({ id, name: orgMap.get(id)?.name }))
     .filter((o): o is { id: string; name: string } => !!o.name)
@@ -108,11 +94,11 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                     <p class="pf-glance__text">{t(lang, "itvs.areasNote")} {t(lang, "pf.glanceClick")}</p>
                     <div class="area-view">
                         <div class="area-view__bubbles" data-bubbles>
-                            {areas.map((a) => (
-                                <a class="area-bubble" href={areaHref(a)} data-bubble-area={a.toLowerCase()}>
-                                    <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
+                            {areaViews.map((v) => (
+                                <a class="area-bubble" href={portfolioHref(lang, v.slug)} data-bubble-area={v.name.toLowerCase()}>
+                                    <span class={`area-bubble__disc badge badge--${v.tone}`}></span>
                                     <span class="area-bubble__caption">
-                                        <span class="area-bubble__name">{tv(lang, a)}</span>
+                                        <span class="area-bubble__name">{tv(lang, v.name)}</span>
                                         <span class="area-bubble__value" data-bubble-value></span>
                                         <span class="area-bubble__count" data-bubble-count></span>
                                     </span>

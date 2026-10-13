@@ -1,9 +1,11 @@
 ---
 import Page from "../../views/AreaPage.astro";
-import { loadAreas } from "../../lib/portfolio";
+import { loadSiteData } from "../../lib/data";
+import { buildAreaViews } from "../../lib/portfolio";
 
-export function getStaticPaths() {
-    return loadAreas().map((a) => ({ params: { slug: a.slug } }));
+export async function getStaticPaths() {
+    const { interventions } = await loadSiteData();
+    return buildAreaViews(interventions).map((v) => ({ params: { slug: v.slug } }));
 }
 const { slug } = Astro.params;
 ---

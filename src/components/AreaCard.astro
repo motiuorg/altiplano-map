@@ -10,22 +10,21 @@ export interface Props {
     lang?: Lang;
 }
 const { view, lang = "es" } = Astro.props;
-const { def } = view;
 const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.itvCount", { n }));
 ---
 
-<a class="area-card" style={toneVars(def.tone)} href={portfolioHref(lang, def.slug)}>
+<a class="area-card" style={toneVars(view.tone)} href={portfolioHref(lang, view.slug)}>
     <span class="area-card__top">
-        <span class="area-card__eyebrow">{t(lang, "pf.areaN", { n: def.num })}</span>
+        <span class="area-card__eyebrow">{t(lang, "pf.areaN", { n: view.num })}</span>
         <span class="area-card__count">{count(view.count)}</span>
     </span>
-    <span class="area-card__name">{pick(def.name, lang)}</span>
-    <span class="area-card__kicker">{pick(def.kicker, lang)}</span>
+    <span class="area-card__name">{view.name}</span>
+    {view.def.kicker.es && <span class="area-card__kicker">{pick(view.def.kicker, lang)}</span>}
     <ul class="area-card__subs">
         {view.subareas.map((s) => (
             <li class:list={{ "is-empty": s.items.length === 0 }}>
-                <span class="area-card__id">{s.def.id}</span>
-                <span class="area-card__sub">{pick(s.def.name, lang)}</span>
+                <span class="area-card__id">{s.id}</span>
+                <span class="area-card__sub">{s.name}</span>
                 <span class="area-card__dots" aria-label={count(s.items.length)}>
                     {s.items.slice(0, 12).map(() => <i />)}
                 </span>

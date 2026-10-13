@@ -6,37 +6,37 @@
 # when the strategy is revised. What IS live is everything about interventions (counts, financing,
 # the cards), which comes from Notion by area and "Subarea de trabajo".
 #
-# `match` is compared after dropping accents, punctuation and case, against the Notion select value
-# (areas: by prefix, so "Articulación e impulso" and "Articulación e impulso del territorio" both fit).
-# `tone` is a badge hue of the design system and must agree with src/lib/areas.ts.
+# Areas and sub-areas come from the interventions themselves (Notion: "Area de trabajo" and
+# "Subarea de trabajo"), with their names as written there. This file only adds the words around
+# them, and only where `match` fits: `match` lists names (accents, punctuation and case ignored; areas
+# by prefix, sub-areas exact) of the Notion value it applies to. An area or sub-area that is not
+# here still gets its page / section, just without the extra text. Sub-areas without interventions
+# are not shown.
 
 areas:
   # ------------------------------------------------------------------ 1
-  - slug: articulacion
+  - slug: tejido-territorial
     num: 1
-    tone: flow
-    match: [articulacion]
-    name: { es: "Articulación e impulso del territorio", en: "Territorial coordination and drive" }
-    short: { es: "Articulación e impulso", en: "Coordination and drive" }
+    match: [tejido territorial, articulacion]
     kicker:
-      es: "La capa que hace que todo lo demás sume."
-      en: "The layer that makes everything else add up."
+      es: "Las personas y las redes que mantienen en pie el trabajo del territorio."
+      en: "The people and networks that keep the territory's work standing."
     lead:
-      es: "Coordinar actores, demostrar con evidencia y dar forma a iniciativas nuevas. Sin esto, cada área avanza por su lado y nada se acumula a escala de paisaje."
-      en: "Coordinating actors, proving results with evidence and shaping new initiatives. Without it each area moves alone and nothing adds up at landscape scale."
+      es: "Equipos que sostienen a las organizaciones, redes que conectan actores y comunicación que cuenta lo que ocurre. Sin este tejido, las demás áreas no se sostienen."
+      en: "Teams that keep organisations running, networks that connect actors, and communication that tells what is happening. Without this fabric, the other areas cannot hold."
     dynamics:
       - title: { es: "Una agenda compartida", en: "A shared agenda" }
         text:
-          es: "Los cinco grupos de desarrollo rural trabajan cada uno en su provincia. Una agenda común multiplicaría lo que cualquiera logra solo."
-          en: "The five rural development groups each work inside their own province. A common agenda would multiply what any one can do alone."
-      - title: { es: "Sin evidencia no hay mercado", en: "No evidence, no market" }
+          es: "Los actores del territorio tienen mandatos y ritmos distintos. Una agenda común hace que lo que logra cada uno sume a escala de paisaje."
+          en: "Actors in the territory have different mandates and rhythms. A common agenda makes what each achieves add up at landscape scale."
+      - title: { es: "Las redes abaratan arrancar", en: "Networks make starting cheaper" }
         text:
-          es: "Sin medición verificable no hay pagos por servicios ecosistémicos; sin certificación, la diferencia del producto no tiene respaldo."
-          en: "Without verifiable measurement there are no ecosystem service payments; without certification, a product's difference has no backing."
-      - title: { es: "De la idea a la iniciativa", en: "From idea to initiative" }
+          es: "La confianza acumulada entre actores permite acceder a programas que exigen consorcio, tener voz ante la administración y replicar lo que funciona. La Comunidad Altiplano Regenerativo lo hizo con unas 40 empresas en 2023."
+          en: "Trust built up among actors opens access to programmes that require a consortium, a voice with the administration, and a way to replicate what works. The Comunidad Altiplano Regenerativo did this with about 40 businesses in 2023."
+      - title: { es: "Un relato que compartimos", en: "A story we share" }
         text:
-          es: "Incubar proyectos, con y sin modelo de negocio, hasta que puedan operar solos y recibir capital externo."
-          en: "Incubating projects, with or without a business model, until they can run on their own and take outside capital."
+          es: "Una narrativa común hace que el territorio se reconozca a sí mismo y se entienda desde fuera. Inspira prácticas y atrae a quien aún no lo conoce."
+          en: "A common narrative lets the territory recognise itself and be understood from outside. It inspires practice and draws in those who do not know it yet."
     tension:
       es: "Es más fácil conseguir dinero para lo que se coordina que para la coordinación. Cuando el proyecto termina, la articulación también se detiene."
       en: "It is easier to raise money for what gets coordinated than for the coordination itself. When the project ends, the coordination stops too."
@@ -44,44 +44,33 @@ areas:
       es: "Pasó con la Comunidad Altiplano Regenerativo."
       en: "It happened with the Comunidad Altiplano Regenerativo."
     flow:
-      es: "La coordinación da el marco, la evidencia lo hace verificable y el impulso lo convierte en iniciativas."
-      en: "Coordination sets the frame, evidence makes it verifiable, and drive turns it into initiatives."
+      es: "Equipos que sostienen, redes que conectan y comunicación que difunde."
+      en: "Teams that sustain, networks that connect, and communication that spreads the word."
     actors:
       - { es: "Asociación y red territorial", en: "Territorial association and network" }
+      - { es: "Fundaciones", en: "Foundations" }
       - { es: "Desarrollo rural y LEADER", en: "Rural development and LEADER" }
       - { es: "Administración pública", en: "Public administration" }
-      - { es: "Intermediación financiera", en: "Financial intermediaries" }
     financing:
       text:
-        es: "Produce valor para todo el ecosistema y no puede cobrarlo. Solo un fondo permanente (endowment) la sostiene más allá de los ciclos de subvención."
-        en: "It creates value for the whole ecosystem and cannot charge for it. Only a permanent fund (an endowment) can sustain it beyond grant cycles."
+        es: "Produce valor para todo el ecosistema y no puede cobrarlo, así que casi todo es concesional. Solo un fondo permanente (endowment) la sostendría más allá de los ciclos de subvención."
+        en: "It creates value for the whole ecosystem and cannot charge for it, so almost all of it is concessional. Only a permanent fund (an endowment) could sustain it beyond grant cycles."
       mechanisms:
         - { es: "Filantropía flexible", en: "Flexible philanthropy" }
         - { es: "Endowment territorial", en: "Territorial endowment" }
         - { es: "Grants por convocatoria", en: "Call-based grants" }
-        - { es: "Pagos por servicios ecosistémicos", en: "Payments for ecosystem services" }
-        - { es: "Fondos de incubación", en: "Incubation funds" }
     subareas:
-      - id: "1.1"
-        match: coordinacion de redes y gobernanza
-        name: { es: "Coordinación de redes y gobernanza", en: "Network coordination and governance" }
-        line: { es: "Sostiene la agenda compartida entre actores con mandatos distintos.", en: "Keeps a shared agenda among actors with different mandates." }
-      - id: "1.2"
-        match: evidencia certificacion y posicionamiento
-        name: { es: "Evidencia, certificación y posicionamiento", en: "Evidence, certification and positioning" }
-        line: { es: "Estándares y medición que hacen financiable y reconocible al territorio.", en: "Standards and measurement that make the territory fundable and recognisable." }
-      - id: "1.3"
-        match: impulso de iniciativas
-        name: { es: "Impulso de iniciativas", en: "Driving initiatives" }
-        line: { es: "Incuba proyectos hasta que pueden operar y absorber capital.", en: "Incubates projects until they can operate and absorb capital." }
+      - match: [operaciones estructurales]
+        line: { es: "Los equipos y costes fijos que mantienen en marcha a las organizaciones ancla.", en: "The teams and fixed costs that keep the anchor organisations running." }
+      - match: [articulacion de redes, coordinacion de redes y gobernanza]
+        line: { es: "Conecta actores con mandatos distintos y teje un relato compartido.", en: "Connects actors with different mandates and weaves a shared story." }
+      - match: [comunicacion y difusion]
+        line: { es: "Cuenta lo que ocurre y lo lleva a compradores, donantes y vecinos.", en: "Tells what is happening and takes it to buyers, donors and neighbours." }
 
   # ------------------------------------------------------------------ 2
   - slug: educacion-cultura-turismo
     num: 2
-    tone: purple
-    match: [educacion]
-    name: { es: "Educación, cultura y turismo", en: "Education, culture and tourism" }
-    short: { es: "Educación, cultura y turismo", en: "Education, culture and tourism" }
+    match: [programacion educativa, educacion]
     kicker:
       es: "Que la transición se entienda, se quiera y se pueda visitar."
       en: "So the transition is understood, wanted and can be visited."
@@ -102,8 +91,8 @@ areas:
           es: "El conocimiento da base al relato, el relato da valor a la experiencia y la experiencia deja ingresos que vuelven a la formación."
           en: "Knowledge feeds the story, the story gives value to the experience, and the experience brings income back to training."
     tension:
-      es: "El turismo es el eslabón con más potencial de retorno y el menos desarrollado. Hoy el territorio no tiene dónde alojar a quien ya sabe que existe."
-      en: "Tourism is the link with the most return potential and the least development. Today the territory has nowhere to host those who already know it exists."
+      es: "El turismo es el eslabón con más potencial de retorno y el menos desarrollado: queda mucho por construir."
+      en: "Tourism is the link with the most return potential and the least development: there is still a lot to build."
     tensionNote: null
     flow:
       es: "Conocimiento, relato, experiencia y vuelta a empezar: si falla un eslabón, el ciclo se rompe."
@@ -124,30 +113,21 @@ areas:
         - { es: "Capital público y de desarrollo", en: "Public and development capital" }
         - { es: "Banca y deuda privada", en: "Private banking and debt" }
     subareas:
-      - id: "2.1"
-        match: capacidad educativa regenerativa
-        name: { es: "Capacidad educativa regenerativa", en: "Regenerative education capacity" }
+      - match: [capacidad educativa regenerativa]
         line: { es: "Formación, itinerarios y redes de educadores.", en: "Training, learning paths and educator networks." }
-      - id: "2.2"
-        match: comunicacion y difusion
-        name: { es: "Comunicación y difusión", en: "Communication and outreach" }
+      - match: [comunicacion y difusion]
         line: { es: "Lleva los resultados a compradores, donantes y vecinos.", en: "Takes results to buyers, donors and neighbours." }
-      - id: "2.3"
-        match: eventos y actividades culturales
-        name: { es: "Eventos y actividades culturales", en: "Cultural events and activities" }
+      - match: [eventos y actividades culturales]
         line: { es: "Convierte el paisaje en experiencia colectiva y relato compartido.", en: "Turns the landscape into a shared experience and story." }
-      - id: "2.4"
-        match: infraestructura turistica recreativa y comunitaria
-        name: { es: "Infraestructura turística, recreativa y comunitaria", en: "Tourist, recreational and community infrastructure" }
+      - match: [programacion turistica]
+        line: { es: "Apoyo al turismo regenerativo y al destino AlVelAl.", en: "Support for regenerative tourism and the AlVelAl destination." }
+      - match: [infraestructura turistica recreativa y comunitaria]
         line: { es: "Las condiciones físicas para visitar el territorio como destino regenerativo.", en: "The physical conditions to visit the territory as a regenerative destination." }
 
   # ------------------------------------------------------------------ 3
   - slug: zonas-naturales
     num: 3
-    tone: neural
     match: [zonas naturales, espacios naturales]
-    name: { es: "Zonas naturales", en: "Natural areas" }
-    short: { es: "Zonas naturales", en: "Natural areas" }
     kicker:
       es: "La mitad del territorio, y la que menos capital recibe."
       en: "Half the territory, and the part that receives the least capital."
@@ -163,17 +143,13 @@ areas:
         text:
           es: "Los estudios de corredores y suelos orientan dónde restaurar. Hoy son el hueco más claro del portafolio."
           en: "Corridor and soil studies guide where to restore. Today they are the clearest gap in the portfolio."
-      - title: { es: "Dinero público en suelo público", en: "Public money on public land" }
-        text:
-          es: "En montes de titularidad pública solo puede entrar financiación pública, justo donde más suelo hay, y es de céntimos por hectárea."
-          en: "On publicly owned land only public funding can enter, right where most land is, and it amounts to cents per hectare."
       - title: { es: "Que el monte se pague solo", en: "A woodland that pays its way" }
         text:
           es: "Pagos por regulación hídrica y biodiversidad, junto a usos forestales diversos, podrían hacer viable la gestión sin subvención permanente."
           en: "Payments for water regulation and biodiversity, plus diverse forest uses, could make management viable without permanent subsidy."
     tension:
-      es: "Hacen falta dos saltos a la vez: escalar la restauración de 300 a 8.000 hectáreas, y diseñar los pagos que hoy no existen para el clima semiárido."
-      en: "Two jumps are needed at once: scaling restoration from 300 to 8,000 hectares, and designing the payments that do not yet exist for a semi-arid climate."
+      es: "Las entidades públicas invierten céntimos por hectárea, y la cifra cambia mucho de un año a otro. Así es difícil planificar la restauración a largo plazo."
+      en: "Public bodies invest cents per hectare, and the figure varies a lot from one year to the next. That makes long-term restoration hard to plan."
     tensionNote: null
     flow:
       es: "Los estudios orientan la restauración y los usos productivos buscan que la gestión se sostenga a largo plazo."
@@ -195,26 +171,19 @@ areas:
         - { es: "Filantropía flexible", en: "Flexible philanthropy" }
         - { es: "Pagos por servicios ecosistémicos", en: "Payments for ecosystem services" }
     subareas:
-      - id: "3.1"
-        match: estudios de uso de suelo y biodiversidad
-        name: { es: "Estudios de uso de suelo y biodiversidad", en: "Land use and biodiversity studies" }
+      - match: [coordinacion de zonas naturales]
+        line: { es: "El equipo y el voluntariado que coordinan el trabajo en el monte.", en: "The team and volunteers who coordinate work in the woodland." }
+      - match: [estudios de uso de suelo y biodiversidad]
         line: { es: "Herramientas para decidir dónde y cómo intervenir.", en: "Tools to decide where and how to intervene." }
-      - id: "3.2"
-        match: restauracion de zonas naturales
-        name: { es: "Restauración de zonas naturales", en: "Restoration of natural areas" }
+      - match: [restauracion de zonas naturales]
         line: { es: "Del suelo degradado al ecosistema funcional y conectado.", en: "From degraded soil to a working, connected ecosystem." }
-      - id: "3.3"
-        match: usos productivos de zonas forestales
-        name: { es: "Usos productivos de zonas forestales", en: "Productive uses of forest areas" }
+      - match: [usos productivos de zonas forestales]
         line: { es: "Modelos de gestión forestal que no dependan solo de subvención.", en: "Forest management models that do not rely on subsidy alone." }
 
   # ------------------------------------------------------------------ 4
   - slug: agricultura-regenerativa
     num: 4
-    tone: tissue
     match: [agricultura regenerativa]
-    name: { es: "Agricultura regenerativa", en: "Regenerative agriculture" }
-    short: { es: "Agricultura regenerativa", en: "Regenerative agriculture" }
     kicker:
       es: "Donde la transición tiene que verse en la finca."
       en: "Where the transition has to show up on the farm."
@@ -226,25 +195,34 @@ areas:
         text:
           es: "Cambiar el manejo cuesta y baja el rendimiento al principio. El valor ecológico, en cambio, se reparte por todo el paisaje."
           en: "Changing management costs money and lowers yields at first. The ecological value, meanwhile, is shared across the whole landscape."
-      - title: { es: "Una cadena de cuatro eslabones", en: "A chain of four links" }
+      - title: { es: "Dos flujos que se necesitan", en: "Two flows that need each other" }
         text:
-          es: "Sin conocimiento no hay asistencia; sin asistencia, la finca no cambia; sin cambio no hay producto distinto; sin venta, no hay quien lo pague."
-          en: "No knowledge, no support; no support, no change on the farm; no change, no different product; no sale, nobody to pay for it."
+          es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
+          en: "One changes the farm, through knowledge, support and practices, and lives on concessional funding. The other sells what it produces and can stand on its own income."
       - title: { es: "La brecha de capital", en: "The capital gap" }
         text:
           es: "Falta mucho entre lo que costaría la transición y los fondos que hoy llegan. El resto sale de los propios agricultores."
           en: "A lot is missing between what the transition would cost and the funds that arrive today. The rest comes from the farmers themselves."
-      - title: { es: "Los primeros años", en: "The first years" }
+      - title: { es: "Pagar primero, cobrar despacio", en: "Pay first, get paid slowly" }
         text:
-          es: "Los negocios son demasiado jóvenes para la banca y demasiado pequeños para el capital de impacto. Ahí entra la incubación."
-          en: "Businesses are too young for banks and too small for impact capital. That is where incubation comes in."
+          es: "Quien comercializa adelanta la campaña y el circulante, y el dinero entra poco a poco. Transformar dentro del territorio retiene más valor, pero pide inversión."
+          en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the territory keeps more value, but it needs investment."
     tension:
       es: "Sin hectáreas certificadas, productos en lineales y agricultores con ingresos estables, las demás áreas producen resultados que nadie puede contar."
       en: "Without certified hectares, products on shelves and farmers with steady income, the other areas produce results nobody can count."
     tensionNote: null
-    flow:
-      es: "Del conocimiento a la venta: cada eslabón es condición del siguiente."
-      en: "From knowledge to sale: each link is a condition for the next."
+    flows:
+      - title: { es: "Transición en finca", en: "Transition on the farm" }
+        blurb:
+          es: "Conocimiento, formación, apoyo material, financiación concesional, prácticas y evidencia."
+          en: "Knowledge, training, material support, concessional funding, practices and evidence."
+        subareas: [generacion de conocimiento agricola, formacion y asistencia tecnica, insumos y servicios, financiacion de la transicion, implementacion de practicas agricolas regenerativas, evidencia certificacion y posicionamiento]
+      - title: { es: "Comercialización", en: "Marketing" }
+        blurb:
+          es: "Dar salida al producto: venta, transformación y negocios que sostienen la transición con ingresos."
+          en: "Giving the produce a market: sales, processing and businesses that sustain the transition through income."
+        subareas: [impulso de iniciativas, estudios de mercado, comercializacion de productos, infraestructura de transformacion]
+        rest: true
     actors:
       - { es: "Explotación agraria", en: "Farm holding" }
       - { es: "Servicio técnico y agrario", en: "Technical and farm services" }
@@ -263,19 +241,23 @@ areas:
         - { es: "Equity e inversión de impacto", en: "Impact equity and investment" }
         - { es: "Pagos por servicios ecosistémicos", en: "Payments for ecosystem services" }
     subareas:
-      - id: "4.1"
-        match: generacion de conocimiento agricola y de cadena
-        name: { es: "Generación de conocimiento agrícola y de cadena", en: "Agricultural and value-chain knowledge" }
-        line: { es: "Evidencia técnica y de mercado que reduce la incertidumbre.", en: "Technical and market evidence that reduces uncertainty." }
-      - id: "4.2"
-        match: seguimiento y asistencia tecnica
-        name: { es: "Seguimiento y asistencia técnica", en: "Monitoring and technical support" }
-        line: { es: "Acompañamiento en finca, maquinaria compartida y compost.", en: "On-farm support, shared machinery and compost." }
-      - id: "4.3"
-        match: implementacion de practicas agricolas regenerativas
-        name: { es: "Implementación de prácticas agrícolas regenerativas", en: "Implementing regenerative farming practices" }
+      - match: [generacion de conocimiento agricola, generacion de conocimiento agricola y de cadena]
+        line: { es: "Finca experimental y estudios de purines, ganadería y razas autóctonas.", en: "An experimental farm and studies on slurry, livestock and local breeds." }
+      - match: [formacion y asistencia tecnica, seguimiento y asistencia tecnica]
+        line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y maquinaria compartida.", en: "On-farm support, training, visits to other territories and shared machinery." }
+      - match: [insumos y servicios, apoyo material]
+        line: { es: "Compost comunitario y otros servicios que las fincas comparten.", en: "Community compost and other services that farms share." }
+      - match: [financiacion de la transicion, financiacion concesional]
+        line: { es: "Fondos para semillas, cubiertas, agua y biodiversidad, y proyectos como el de carbono en suelo.", en: "Funds for seed, ground cover, water and biodiversity, and projects like soil carbon." }
+      - match: [implementacion de practicas agricolas regenerativas]
         line: { es: "El cambio de manejo en finca: suelo, cubiertas, biodiversidad y agua.", en: "The change of management on the farm: soil, cover, biodiversity and water." }
-      - id: "4.4"
-        match: comercializacion y transformacion de productos
-        name: { es: "Comercialización y transformación de productos", en: "Marketing and processing of products" }
-        line: { es: "Negocios que dan salida y valor añadido a lo que producen las fincas.", en: "Businesses that give farm produce a market and added value." }
+      - match: [evidencia certificacion y posicionamiento]
+        line: { es: "Certificación regenerativa y estándares que respaldan el producto.", en: "Regenerative certification and standards that back the product." }
+      - match: [impulso de iniciativas]
+        line: { es: "Fondos para que nuevas iniciativas del territorio arranquen.", en: "Funds to get new initiatives in the territory off the ground." }
+      - match: [estudios de mercado]
+        line: { es: "Estudios económicos y de valor añadido que orientan qué y cómo vender.", en: "Economic and added-value studies that guide what to sell and how." }
+      - match: [comercializacion de productos, comercializacion y transformacion de productos]
+        line: { es: "Negocios que venden lo que producen las fincas: almendra, oliva y esencias.", en: "Businesses that sell what the farms produce: almonds, olives and essences." }
+      - match: [infraestructura de transformacion]
+        line: { es: "Activos fijos y transformación de productos dentro del territorio.", en: "Fixed assets and product processing inside the territory." }

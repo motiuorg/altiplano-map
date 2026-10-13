@@ -18,27 +18,29 @@ const { lang = "es", slug } = Astro.props;
 
 const { orgMap, interventions, dataError } = await loadSiteData();
 const views = buildAreaViews(interventions);
-const idx = views.findIndex((v) => v.def.slug === slug);
+const idx = views.findIndex((v) => v.slug === slug);
 const view = views[idx];
 const def = view.def;
 const prev = views[(idx + views.length - 1) % views.length];
 const next = views[(idx + 1) % views.length];
 const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.itvCount", { n }));
+const hasFlows = view.flows.length > 0;
+const groups = hasFlows ? view.flows : [{ title: null, blurb: null, subareas: view.subareas }];
 const anchor = (id: string) => "sub-" + id.replace(".", "-");
-const tone = toneVars(def.tone);
-const name = pick(def.name, lang);
+const tone = toneVars(view.tone);
+const name = view.name;
 ---
 
-<Layout title={name} description={pick(def.kicker, lang)} current="portafolio" lang={lang}>
+<Layout title={name} description={pick(def.kicker, lang) || name} current="portafolio" lang={lang}>
     <article class="area" style={tone}>
         <!-- ============ HERO ============ -->
         <header class="ahero">
             <div class="container">
                 <a class="ahero__back" href={portfolioHref(lang)}>← {t(lang, "pf.back")}</a>
-                <p class="ahero__eyebrow">{t(lang, "pf.areaN", { n: def.num })}</p>
+                <p class="ahero__eyebrow">{t(lang, "pf.areaN", { n: view.num })}</p>
                 <h1 class="display ahero__title">{name}</h1>
-                <p class="ahero__kicker">{pick(def.kicker, lang)}</p>
-                <p class="ahero__lead">{pick(def.lead, lang)}</p>
+                {def.kicker.es && <p class="ahero__kicker">{pick(def.kicker, lang)}</p>}
+                {def.lead.es && <p class="ahero__lead">{pick(def.lead, lang)}</p>}
 
             </div>
         </header>
@@ -50,6 +52,7 @@ const name = pick(def.name, lang);
         )}
 
         <!-- ============ DYNAMICS ============ -->
+        {def.dynamics.length > 0 && (
         <section class="asec">
             <div class="container">
                 <p class="asec__eyebrow">{t(lang, "pf.dynamics")}</p>
@@ -64,60 +67,74 @@ const name = pick(def.name, lang);
                     ))}
                 </ol>
 
-                <blockquote class="aknot">
-                    <span class="aknot__label">{t(lang, "pf.tension")}</span>
-                    <p>{pick(def.tension, lang)}</p>
-                    {def.tensionNote && <footer>{pick(def.tensionNote, lang)}</footer>}
-                </blockquote>
+                {def.tension && (
+                    <blockquote class="aknot">
+                        <span class="aknot__label">{t(lang, "pf.tension")}</span>
+                        <p>{pick(def.tension, lang)}</p>
+                        {def.tensionNote && <footer>{pick(def.tensionNote, lang)}</footer>}
+                    </blockquote>
+                )}
             </div>
         </section>
+        )}
 
         <!-- ============ SUB-AREAS ============ -->
         <section class="asec asec--soft">
             <div class="container">
                 <p class="asec__eyebrow">{t(lang, "pf.subareas")}</p>
                 <h2 class="asec__title">{t(lang, "pf.subareasH")}</h2>
-                <p class="asec__lead">{pick(def.flow, lang)}</p>
+                {!hasFlows && def.flow && <p class="asec__lead">{pick(def.flow, lang)}</p>}
 
-                <nav class="aflow" aria-label={t(lang, "pf.subareas")}>
-                    <ol>
-                        {view.subareas.map((s) => (
-                            <li class:list={{ "is-empty": s.items.length === 0 }}>
-                                <a href={"#" + anchor(s.def.id)}>
-                                    <span class="aflow__id">{s.def.id}</span>
-                                    <span class="aflow__name">{pick(s.def.name, lang)}</span>
-                                    <span class="aflow__meta">
-                                        {count(s.items.length)}{s.total > 0 && ` · ${compactEuro(s.total, lang)}`}
-                                    </span>
-                                </a>
-                            </li>
-                        ))}
-                    </ol>
-                </nav>
-
-                {view.subareas.map((s) => (
-                    <section class="asub" id={anchor(s.def.id)}>
-                        <header class="asub__head">
-                            <span class="asub__id">{s.def.id}</span>
-                            <div class="asub__titles">
-                                <h3 class="asub__name">{pick(s.def.name, lang)}</h3>
-                                <p class="asub__line">{pick(s.def.line, lang)}</p>
-                            </div>
-                            <p class="asub__meta">
-                                <span>{count(s.items.length)}</span>
-                                {s.total > 0 && <span>{compactEuro(s.total, lang)}</span>}
-                            </p>
-                        </header>
-                        {s.items.length > 0 ? (
-                            <div class="aitvs">
-                                {s.items.map((itv) => (
-                                    <InterventionCard intervention={itv} orgNames={interventionOrgNames(itv, orgMap)} filterable={false} lang={lang} />
-                                ))}
-                            </div>
-                        ) : (
-                            <p class="asub__empty">{t(lang, "pf.noItvs")}</p>
+                {groups.map((g, gi) => (
+                    <div class:list={["aflowgroup", { "aflowgroup--titled": hasFlows }]}>
+                        {hasFlows && (
+                            <header class="aflowgroup__head">
+                                <p class="aflowgroup__eyebrow">{t(lang, "pf.flowN", { n: gi + 1 })}</p>
+                                <h3 class="aflowgroup__title">{pick(g.title, lang)}</h3>
+                                <p class="aflowgroup__blurb">{pick(g.blurb, lang)}</p>
+                            </header>
                         )}
-                    </section>
+                        <nav class="aflow" aria-label={t(lang, "pf.subareas")}>
+                            <ol>
+                                {g.subareas.map((s) => (
+                                    <li class:list={{ "is-empty": s.items.length === 0 }}>
+                                        <a href={"#" + anchor(s.id)}>
+                                            <span class="aflow__id">{s.id}</span>
+                                            <span class="aflow__name">{s.name}</span>
+                                            <span class="aflow__meta">
+                                                {count(s.items.length)}{s.total > 0 && ` · ${compactEuro(s.total, lang)} ${t(lang, "pf.at5")}`}
+                                            </span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ol>
+                        </nav>
+
+                        {g.subareas.map((s) => (
+                            <section class="asub" id={anchor(s.id)}>
+                                <header class="asub__head">
+                                    <span class="asub__id">{s.id}</span>
+                                    <div class="asub__titles">
+                                        <h3 class="asub__name">{s.name}</h3>
+                                        {s.line && <p class="asub__line">{pick(s.line, lang)}</p>}
+                                    </div>
+                                    <p class="asub__meta">
+                                        <span>{count(s.items.length)}</span>
+                                        {s.total > 0 && <span>{compactEuro(s.total, lang)} {t(lang, "pf.at5")}</span>}
+                                    </p>
+                                </header>
+                                {s.items.length > 0 ? (
+                                    <div class="aitvs">
+                                        {s.items.map((itv) => (
+                                            <InterventionCard intervention={itv} orgNames={interventionOrgNames(itv, orgMap)} filterable={false} lang={lang} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p class="asub__empty">{t(lang, "pf.noItvs")}</p>
+                                )}
+                            </section>
+                        ))}
+                    </div>
                 ))}
 
                 {view.loose.length > 0 && (
@@ -138,34 +155,40 @@ const name = pick(def.name, lang);
         </section>
 
         <!-- ============ WHO + MONEY ============ -->
+        {(def.actors.length > 0 || def.financing) && (
         <section class="asec">
             <div class="container awho">
-                <div>
-                    <p class="asec__eyebrow">{t(lang, "pf.actors")}</p>
-                    <ul class="achips">
-                        {def.actors.map((a) => <li>{pick(a, lang)}</li>)}
-                    </ul>
-                </div>
-                <div>
-                    <p class="asec__eyebrow">{t(lang, "pf.financing")}</p>
-                    <p class="awho__text">{pick(def.financing.text, lang)}</p>
-                    <ul class="achips achips--solid">
-                        {def.financing.mechanisms.map((m) => <li>{pick(m, lang)}</li>)}
-                    </ul>
-                </div>
+                {def.actors.length > 0 && (
+                    <div>
+                        <p class="asec__eyebrow">{t(lang, "pf.actors")}</p>
+                        <ul class="achips">
+                            {def.actors.map((a) => <li>{pick(a, lang)}</li>)}
+                        </ul>
+                    </div>
+                )}
+                {def.financing && (
+                    <div>
+                        <p class="asec__eyebrow">{t(lang, "pf.financing")}</p>
+                        <p class="awho__text">{pick(def.financing.text, lang)}</p>
+                        <ul class="achips achips--solid">
+                            {def.financing.mechanisms.map((m) => <li>{pick(m, lang)}</li>)}
+                        </ul>
+                    </div>
+                )}
             </div>
         </section>
+        )}
 
         <!-- ============ NEXT / PREVIOUS ============ -->
         <nav class="aadj" aria-label={t(lang, "pf.areaN", { n: "" })}>
             <div class="container aadj__row">
-                <a class="aadj__link aadj__link--prev" style={toneVars(prev.def.tone)} href={portfolioHref(lang, prev.def.slug)}>
+                <a class="aadj__link aadj__link--prev" style={toneVars(prev.tone)} href={portfolioHref(lang, prev.slug)}>
                     <span>← {t(lang, "pf.prev")}</span>
-                    <strong>{pick(prev.def.short, lang)}</strong>
+                    <strong>{prev.name}</strong>
                 </a>
-                <a class="aadj__link aadj__link--next" style={toneVars(next.def.tone)} href={portfolioHref(lang, next.def.slug)}>
+                <a class="aadj__link aadj__link--next" style={toneVars(next.tone)} href={portfolioHref(lang, next.slug)}>
                     <span>{t(lang, "pf.next")} →</span>
-                    <strong>{pick(next.def.short, lang)}</strong>
+                    <strong>{next.name}</strong>
                 </a>
             </div>
             <p class="container aadj__note">{t(lang, "pf.sourceNote")}</p>
@@ -402,6 +425,40 @@ const name = pick(def.name, lang);
     }
     .asub:first-of-type {
         margin-top: 0;
+    }
+
+    /* An area with several flows: each flow is its own block with a header, a strip and its sub-areas. */
+    .aflowgroup--titled {
+        margin-top: var(--space-16);
+        padding-top: var(--space-8);
+        border-top: 1px solid var(--border-default);
+    }
+    .aflowgroup--titled:first-of-type {
+        margin-top: var(--space-8);
+    }
+    .aflowgroup__head {
+        margin-bottom: var(--space-6);
+    }
+    .aflowgroup__eyebrow {
+        margin: 0 0 var(--space-1);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--tone-d);
+    }
+    .aflowgroup__title {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+        font-weight: 500;
+        line-height: 1.15;
+    }
+    .aflowgroup__blurb {
+        margin: var(--space-2) 0 0;
+        max-width: 56ch;
+        font-size: var(--text-md);
+        color: var(--text-secondary, var(--text-muted));
     }
     .asub__head {
         display: grid;

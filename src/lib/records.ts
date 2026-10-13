@@ -275,7 +275,7 @@ export interface InterventionRecord {
   description: string;
   orgIds: string[];
   areaTrabajo: string[];
-  subarea: string; // "Subarea de trabajo" select; '' when not set
+  subareas: string[]; // "Subarea de trabajo" values (may be several); [] when not set
   valor5Anos: number | null;
   valor5AnosRaw: string;
   viable: boolean | null; // null = unknown
@@ -362,7 +362,7 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
     description,
     orgIds,
     areaTrabajo: areaTrabajo.map((a) => a.replace(/^Área de trabajo[:\-]\s*/i, '').trim()),
-    subarea: firstString(pickProp(props, ['Subarea de trabajo', 'Subárea de trabajo', 'Subárea', 'Subarea'])),
+    subareas: anyValues(props, ['Subarea de trabajo', 'Subárea de trabajo', 'Subárea', 'Subarea']),
     valor5Anos,
     valor5AnosRaw,
     viable,
