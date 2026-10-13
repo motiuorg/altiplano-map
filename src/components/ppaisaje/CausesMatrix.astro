@@ -1,0 +1,51 @@
+---
+// Which underlying drivers feed which issues — a few root causes explain several problems.
+import { matrix, data, sourceNumber } from "../../lib/ppaisaje/data";
+import EvidenceTag from "./EvidenceTag.astro";
+---
+
+<div class="ppmatrix" role="region" aria-label="Matriz de causas de fondo e problemas">
+    <table>
+        <caption class="pp-sr">Causas de fondo (filas) y los problemas a los que contribuyen (columnas)</caption>
+        <thead>
+            <tr>
+                <th scope="col" class="ppmatrix__corner">Causa de fondo</th>
+                {data.themes.map((t) => <th scope="col" class="ppmatrix__issue"><a href={`#problema-${t.id}`}>{t.label}</a></th>)}
+                <th scope="col" class="ppmatrix__n">Contribuye a</th>
+            </tr>
+        </thead>
+        <tbody>
+            {matrix.map(({ cause, issues }) => (
+                <tr>
+                    <th scope="row" class="ppmatrix__cause">
+                        <span>{cause.label}</span>
+                        <EvidenceTag evidence={cause.evidence} confidence={cause.confidence} compact />
+                    </th>
+                    {data.themes.map((t) => (
+                        <td class="ppmatrix__cell">
+                            {issues.has(t.id) ? (
+                                <span class={`ppdot ppdot--${cause.evidence}`} title={`${cause.label} → ${t.label}`}>
+                                    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+                                        {cause.evidence === "documentado" && <circle cx="8" cy="8" r="6.5" fill="currentColor" />}
+                                        {cause.evidence === "plausible" && (<><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor" /></>)}
+                                        {cause.evidence === "hipotesis" && <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2.4" />}
+                                    </svg>
+                                    <span class="pp-sr">Sí ({cause.evidence})</span>
+                                </span>
+                            ) : (
+                                <span class="pp-sr">No</span>
+                            )}
+                        </td>
+                    ))}
+                    <td class="ppmatrix__n">{issues.size} {issues.size === 1 ? "problema" : "problemas"}</td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+    <p class="ppmatrix__legend">
+        <span class="ppdot ppdot--documentado"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="currentColor" /></svg></span> Documentado
+        <span class="ppdot ppdot--plausible"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor" /></svg></span> Plausible
+        <span class="ppdot ppdot--hipotesis"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2.4" /></svg></span> Hipótesis
+        · Un punto indica «puede contribuir», no una relación causal demostrada.
+    </p>
+</div>

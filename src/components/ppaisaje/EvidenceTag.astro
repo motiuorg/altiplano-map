@@ -1,0 +1,41 @@
+---
+// Evidence status (documentado / plausible / hipótesis) + confidence, as icon + text.
+import { EVIDENCE_LABEL, CONFIDENCE_LABEL } from "../../lib/ppaisaje/data";
+import type { Evidence, Confidence } from "../../lib/ppaisaje/schema";
+
+export interface Props {
+    evidence?: Evidence;
+    confidence?: Confidence;
+    compact?: boolean;
+}
+const { evidence, confidence, compact = false } = Astro.props;
+const bars = confidence === "alta" ? 3 : confidence === "media" ? 2 : 1;
+---
+
+<span class="pptag">
+    {evidence && (
+        <span class={`pptag__ev pptag__ev--${evidence}`}>
+            <svg viewBox="0 0 12 12" width="0.95em" height="0.95em" aria-hidden="true" focusable="false">
+                {evidence === "documentado" && <circle cx="6" cy="6" r="4.6" fill="currentColor" />}
+                {evidence === "plausible" && (
+                    <>
+                        <circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.4" />
+                        <path d="M6 1.4a4.6 4.6 0 0 1 0 9.2z" fill="currentColor" />
+                    </>
+                )}
+                {evidence === "hipotesis" && <circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 1.8" />}
+            </svg>
+            {EVIDENCE_LABEL[evidence]}
+        </span>
+    )}
+    {confidence && (
+        <span class="pptag__conf" title={CONFIDENCE_LABEL[confidence]}>
+            <svg viewBox="0 0 14 12" width="1.1em" height="0.95em" aria-hidden="true" focusable="false">
+                {[0, 1, 2].map((i) => (
+                    <rect x={i * 5} y={8 - i * 3.5} width="3.4" height={4 + i * 3.5} fill={i < bars ? "currentColor" : "none"} stroke="currentColor" stroke-width="1" />
+                ))}
+            </svg>
+            {compact ? confidence : CONFIDENCE_LABEL[confidence]}
+        </span>
+    )}
+</span>

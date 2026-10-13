@@ -1,0 +1,16 @@
+---
+// The passage from Part 1 (dark) to Part 2 (light). Static gradient + horizon; a tiny script
+// adds .is-green when the band is in view so the hills turn from brown to green.
+---
+
+<div class="pptrans" id="transicion" aria-labelledby="pptrans-text">
+    <div class="container pptrans__inner">
+        <p class="pptrans__kicker">Lo que sabemos</p>
+        <p class="pptrans__text" id="pptrans-text">Los problemas son reales y están conectados. Pero esas mismas conexiones señalan dónde hay margen de mejora.</p>
+    </div>
+    <svg class="pptrans__svg" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="pptrans__hill pptrans__hill--back" d="M0 110 C 180 60, 330 120, 520 90 S 880 40, 1060 82 S 1320 120, 1440 70 V200 H0z" />
+        <path class="pptrans__hill pptrans__hill--mid" d="M0 140 C 200 100, 380 150, 600 124 S 980 90, 1180 130 S 1380 150, 1440 120 V200 H0z" />
+        <path class="pptrans__hill pptrans__hill--front" d="M0 176 C 240 150, 460 186, 720 166 S 1160 150, 1440 172 V200 H0z" />
+    </svg>
+</div>

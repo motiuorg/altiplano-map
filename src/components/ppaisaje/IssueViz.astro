@@ -1,0 +1,165 @@
+---
+// One component, four chart types, two sizes. Build-time inline SVG.
+//  - mini: the 10-second overview (no axes, direct labels)
+//  - full: the issue module (axes, values, source line, data table)
+import type { Chart } from "../../lib/ppaisaje/schema";
+import { indicatorById, sourceById, sourceNumber, fmtNum } from "../../lib/ppaisaje/data";
+import { niceTicks, linear, pts } from "../../lib/ppaisaje/geom";
+
+export interface Props {
+    chart: Chart;
+    size?: "mini" | "full";
+}
+const { chart, size = "mini" } = Astro.props;
+const full = size === "full";
+const src = sourceById(chart.sourceId);
+
+const W = full ? 620 : 330;
+const rowH = full ? 40 : 21;
+const barH = full ? 24 : 13;
+const labelW = full ? 170 : 128;
+const fs = full ? 12 : 9.5;
+
+const RAMP = ["#7d6552", "#d19a55", "#ee6a3c", "#ff3d30"]; // low → high severity
+const RAMP_TEXT = ["#ffffff", "#1a1310", "#1a1310", "#1a1310"];
+
+// line
+let L: any = null;
+if (chart.type === "line") {
+    const ind = indicatorById(chart.indicatorId)!;
+    const ml = full ? 44 : 6, mr = full ? 120 : 62, mt = full ? 14 : 8, mb = full ? 26 : 16;
+    const H = full ? 250 : 74;
+    const vals = ind.series.map((s) => s.value);
+    const all = [...vals, ...(ind.target ? [ind.target.value] : [])];
+    const ticks = full ? niceTicks(Math.min(...all), Math.max(...all), 4) : [Math.min(...all), Math.max(...all)];
+    const years = ind.series.map((s) => s.year);
+    const x = linear(Math.min(...years), Math.max(...years), ml, W - mr);
+    const y = linear(ticks[0], ticks[ticks.length - 1], H - mb, mt);
+    L = { ind, ml, mr, mt, mb, H, ticks, x, y, p: ind.series.map((s) => [x(s.year), y(s.value)] as [number, number]), years };
+}
+const nRows =
+    chart.type === "stacked" ? (full ? chart.rows.length : Math.min(2, chart.rows.length))
+    : chart.type === "refbar" ? chart.bars.length
+    : chart.type === "beforeafter" ? chart.categories.length
+    : 0;
+const H = chart.type === "line" ? L.H : nRows * rowH + (chart.type === "stacked" && !full ? 4 : 6) + (full ? 4 : 0);
+const refMax = chart.type === "refbar" ? Math.max(...chart.bars.map((b) => b.value)) * 1.18 : 1;
+const baMax = chart.type === "beforeafter" ? Math.max(...chart.categories.flatMap((c) => [c.before, c.after])) * 1.15 : 1;
+const barX0 = labelW;
+const barW = W - labelW - (full ? 70 : 34);
+const alt = `${chart.title}. Ámbito: ${chart.scope}. ${full ? "Datos en la tabla siguiente." : "Detalle más abajo."}`;
+---
+
+<figure class={`ppviz ppviz--${size}`}>
+    {full && <figcaption class="ppviz__title">{chart.title}</figcaption>}
+    <svg class="ppviz__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+        {chart.type === "line" && (
+            <>
+                {L.ticks.map((t: number) => (
+                    <>
+                        <line class="ppv-grid" x1={L.ml} x2={W - L.mr} y1={L.y(t)} y2={L.y(t)} />
+                        {full && <text class="ppv-tick" x={L.ml - 6} y={L.y(t) + 4} text-anchor="end">{fmtNum(t)}</text>}
+                    </>
+                ))}
+                {full && L.years.filter((_: number, k: number) => k % Math.ceil(L.years.length / 5) === 0 || k === L.years.length - 1).map((yr: number) => (
+                    <text class="ppv-tick" x={L.x(yr)} y={L.H - 6} text-anchor="middle">{yr}</text>
+                ))}
+                {L.ind.target && (
+                    <>
+                        <line class="ppv-target" x1={L.ml} x2={W - L.mr} y1={L.y(L.ind.target.value)} y2={L.y(L.ind.target.value)} />
+                        <text class="ppv-lbl ppv-lbl--muted" x={W - L.mr + 6} y={L.y(L.ind.target.value) + 3.5} font-size={fs}>meta {L.ind.target.year}: {fmtNum(L.ind.target.value)}</text>
+                    </>
+                )}
+                <polyline class="ppv-line" points={pts(L.p)} />
+                <circle class="ppv-dot" cx={L.p[L.p.length - 1][0]} cy={L.p[L.p.length - 1][1]} r={full ? 4.5 : 3.5} />
+                <text class="ppv-lbl ppv-lbl--strong" x={L.p[L.p.length - 1][0] + 8} y={L.p[L.p.length - 1][1] + 4} font-size={fs + 2}>{fmtNum(L.ind.series[L.ind.series.length - 1].value)} {chart.unit}</text>
+                {!full && <text class="ppv-lbl ppv-lbl--muted" x={L.p[0][0]} y={L.H - 3} font-size={fs}>{L.years[0]}: {fmtNum(L.ind.series[0].value)}</text>}
+            </>
+        )}
+
+        {chart.type === "stacked" && (chart.rows.slice(0, nRows)).map((r, ri) => {
+            const total = chart.categories.reduce((a, c) => a + r.values[c.id], 0);
+            let acc = 0;
+            return (
+                <g>
+                    <text class="ppv-lbl" x="0" y={ri * rowH + barH / 2 + 4} font-size={fs}>{r.label}</text>
+                    {chart.categories.map((c, k) => {
+                        const w = (barW * r.values[c.id]) / total;
+                        const x = barX0 + (barW * acc) / total;
+                        acc += r.values[c.id];
+                        return (
+                            <g>
+                                <rect x={x} y={ri * rowH + 2} width={w} height={barH} fill={RAMP[k]} stroke="var(--pp-stroke)" stroke-width="1.2" />
+                                {w > (full ? 20 : 15) && <text x={x + w / 2} y={ri * rowH + barH / 2 + 4} text-anchor="middle" font-size={fs} font-weight="700" fill={RAMP_TEXT[k]}>{r.values[c.id]}</text>}
+                            </g>
+                        );
+                    })}
+                </g>
+            );
+        })}
+
+        {chart.type === "refbar" && chart.bars.map((b, k) => {
+            const w = (barW * b.value) / refMax;
+            return (
+                <g>
+                    <text class="ppv-lbl" x="0" y={k * rowH + barH / 2 + 4} font-size={fs}>{b.label}</text>
+                    <rect
+                        x={barX0} y={k * rowH + 2} width={w} height={barH}
+                        fill={b.kind === "value" ? "var(--pp-red)" : b.kind === "reference" ? "url(#ppv-hatch)" : "none"}
+                        stroke={b.kind === "value" ? "var(--pp-red)" : "var(--pp-dark-fg)"}
+                        stroke-width="1.4" stroke-dasharray={b.kind === "target" ? "5 3" : "none"}
+                    />
+                    <text class="ppv-lbl ppv-lbl--strong" x={barX0 + w + 6} y={k * rowH + barH / 2 + 4} font-size={fs + 1}>{fmtNum(b.value)} {chart.unit}</text>
+                </g>
+            );
+        })}
+
+        {chart.type === "beforeafter" && chart.categories.map((c, k) => {
+            const wb = (barW * c.before) / baMax;
+            const wa = (barW * c.after) / baMax;
+            const d = c.after - c.before;
+            const bh = barH / 2 - 0.5;
+            return (
+                <g>
+                    <text class="ppv-lbl" x="0" y={k * rowH + barH / 2 + 4} font-size={fs}>{c.label}</text>
+                    <rect x={barX0} y={k * rowH + 2} width={wb} height={bh} fill="var(--pp-brown)" />
+                    <rect x={barX0} y={k * rowH + 2 + bh + 1} width={wa} height={bh} fill="var(--pp-red)" />
+                    <text class="ppv-lbl ppv-lbl--strong" x={W} y={k * rowH + barH / 2 + 4} text-anchor="end" font-size={fs}>{d > 0 ? "▲ +" : d < 0 ? "▼ " : "■ "}{d} pp</text>
+                </g>
+            );
+        })}
+        <defs>
+            <pattern id="ppv-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="6" height="6" fill="var(--pp-bg-2)" />
+                <line x1="0" y1="0" x2="0" y2="6" stroke="var(--pp-dark-muted)" stroke-width="2.2" />
+            </pattern>
+        </defs>
+    </svg>
+
+    {chart.type === "stacked" && full && (
+        <ul class="ppviz__legend">{chart.categories.map((c, k) => <li><i style={`background:${RAMP[k]}`}></i>{c.label}</li>)}</ul>
+    )}
+    {chart.type === "beforeafter" && (
+        <ul class="ppviz__legend"><li><i style="background:var(--pp-brown)"></i>{chart.beforeYear}</li><li><i style="background:var(--pp-red)"></i>{chart.afterYear}</li></ul>
+    )}
+
+    <p class="ppviz__src">
+        {chart.scope} · {full ? <a href={`#ev-${src.id}`}>Fuente [{sourceNumber(src.id)}]</a> : <span>Fuente [{sourceNumber(src.id)}]</span>} {src.year}
+        <span class="ppviz__fake">Maqueta — datos ficticios</span>
+    </p>
+
+    {full && (
+        <details class="pp-details pp-details--table">
+            <summary>Datos del gráfico</summary>
+            <div class="pp-tablewrap">
+                <table>
+                    <caption class="pp-sr">{chart.title}</caption>
+                    {chart.type === "line" && (<><thead><tr><th scope="col">Año</th><th scope="col" class="num">{L.ind.label} ({chart.unit})</th></tr></thead><tbody>{L.ind.series.map((s: any) => <tr><th scope="row">{s.year}</th><td class="num">{fmtNum(s.value)}</td></tr>)}</tbody></>)}
+                    {chart.type === "stacked" && (<><thead><tr><th scope="col">Grupo</th>{chart.categories.map((c) => <th scope="col" class="num">{c.label} (%)</th>)}</tr></thead><tbody>{chart.rows.map((r) => <tr><th scope="row">{r.label}</th>{chart.categories.map((c) => <td class="num">{r.values[c.id]}</td>)}</tr>)}</tbody></>)}
+                    {chart.type === "refbar" && (<><thead><tr><th scope="col">Referencia</th><th scope="col" class="num">Valor ({chart.unit})</th></tr></thead><tbody>{chart.bars.map((b) => <tr><th scope="row">{b.label}</th><td class="num">{fmtNum(b.value)}</td></tr>)}</tbody></>)}
+                    {chart.type === "beforeafter" && (<><thead><tr><th scope="col">Uso</th><th scope="col" class="num">{chart.beforeYear} (%)</th><th scope="col" class="num">{chart.afterYear} (%)</th><th scope="col" class="num">Cambio (pp)</th></tr></thead><tbody>{chart.categories.map((c) => <tr><th scope="row">{c.label}</th><td class="num">{c.before}</td><td class="num">{c.after}</td><td class="num">{c.after - c.before}</td></tr>)}</tbody></>)}
+                </table>
+            </div>
+        </details>
+    )}
+</figure>
