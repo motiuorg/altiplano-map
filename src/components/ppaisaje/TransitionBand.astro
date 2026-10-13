@@ -1,12 +1,17 @@
 ---
-// The passage from Part 1 (dark) to Part 2 (light). Static gradient + horizon; a tiny script
-// adds .is-green when the band is in view so the hills turn from brown to green.
+// Dark → green passage. Static gradient + hills; a tiny script greens the hills when in view.
 ---
-
 <div class="pptrans" id="transicion" aria-labelledby="pptrans-text">
     <div class="container pptrans__inner">
-        <p class="pptrans__kicker">Lo que sabemos</p>
-        <p class="pptrans__text" id="pptrans-text">Los problemas son reales y están conectados. Pero esas mismas conexiones señalan dónde hay margen de mejora.</p>
+        <svg class="pptrans__flow" viewBox="0 0 700 90" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="pptf" x1="0" x2="1"><stop offset="0" stop-color="#ff5a4a" /><stop offset="0.5" stop-color="#e6bf4f" /><stop offset="1" stop-color="#5fae7c" /></linearGradient>
+            </defs>
+            <path d="M0 20 C 200 20, 260 70, 460 60 S 640 30, 690 45" fill="none" stroke="url(#pptf)" stroke-width="7" stroke-linecap="round" />
+            <path d="M0 45 C 180 45, 280 20, 470 35 S 640 70, 690 45" fill="none" stroke="url(#pptf)" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+            <path d="M676 34 l16 11 -16 11" fill="none" stroke="#5fae7c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p class="pptrans__text" id="pptrans-text">Las conexiones que causan los problemas también muestran por dónde mejorar.</p>
     </div>
     <svg class="pptrans__svg" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path class="pptrans__hill pptrans__hill--back" d="M0 110 C 180 60, 330 120, 520 90 S 880 40, 1060 82 S 1320 120, 1440 70 V200 H0z" />

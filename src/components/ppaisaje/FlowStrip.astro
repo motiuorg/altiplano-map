@@ -1,0 +1,40 @@
+---
+// Per-issue flow: causes de fondo → presiones → problema. Short labels, evidence as icon.
+import { driversOf, pressuresOf } from "../../lib/ppaisaje/data";
+import type { Theme } from "../../lib/ppaisaje/schema";
+import type { Evidence } from "../../lib/ppaisaje/schema";
+import IssueIcon from "./IssueIcon.astro";
+
+export interface Props { issue: Theme }
+const { issue } = Astro.props;
+const ds = driversOf(issue.id);
+const ps = pressuresOf(issue.id);
+const mark = (e: Evidence) => e;
+---
+<div class="ppflow" role="group" aria-label={`De las causas al problema: ${issue.label}`}>
+    <div class="ppflow__col">
+        <p class="ppflow__h">Causas de fondo</p>
+        <ul>
+            {ds.map((c) => (
+                <li class="ppflow__pill ppflow__pill--driver" title={c.label}>
+                    <span class={`ppev ppev--${mark(c.evidence)}`} aria-hidden="true"></span>{c.short}
+                    <span class="pp-sr">({c.evidence})</span>
+                </li>
+            ))}
+        </ul>
+    </div>
+    <svg class="ppflow__arrow" viewBox="0 0 40 24" aria-hidden="true"><path d="M2 12h32m-8-8 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    <div class="ppflow__col">
+        <p class="ppflow__h">Presiones</p>
+        <ul>
+            {ps.map((c) => (
+                <li class="ppflow__pill ppflow__pill--pressure" title={c.label}>
+                    <span class={`ppev ppev--${mark(c.evidence)}`} aria-hidden="true"></span>{c.short}
+                    <span class="pp-sr">({c.evidence})</span>
+                </li>
+            ))}
+        </ul>
+    </div>
+    <svg class="ppflow__arrow" viewBox="0 0 40 24" aria-hidden="true"><path d="M2 12h32m-8-8 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    <div class="ppflow__end"><IssueIcon id={issue.id} size={30} /><strong>{issue.label}</strong></div>
+</div>

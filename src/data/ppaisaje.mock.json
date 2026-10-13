@@ -1574,7 +1574,8 @@
    "feeds": [
     "p-abandono",
     "p-sucesion"
-   ]
+   ],
+   "short": "Baja renta agraria"
   },
   {
    "id": "d-regadio",
@@ -1586,7 +1587,8 @@
    "feeds": [
     "p-extraccion",
     "p-monocultivo"
-   ]
+   ],
+   "short": "Regadío intensivo"
   },
   {
    "id": "d-clima",
@@ -1598,7 +1600,8 @@
    "feeds": [
     "p-recarga",
     "p-laboreo"
-   ]
+   ],
+   "short": "Menos lluvia"
   },
   {
    "id": "d-acceso",
@@ -1609,7 +1612,8 @@
    "sourceId": "s-rel-d",
    "feeds": [
     "p-sucesion"
-   ]
+   ],
+   "short": "Acceso a tierra y vivienda"
   },
   {
    "id": "d-servicios",
@@ -1620,7 +1624,8 @@
    "sourceId": "s-rel-c",
    "feeds": [
     "p-sucesion"
-   ]
+   ],
+   "short": "Cierre de servicios"
   },
   {
    "id": "d-normas",
@@ -1631,7 +1636,8 @@
    "feeds": [
     "p-laboreo",
     "p-monocultivo"
-   ]
+   ],
+   "short": "Normas inadecuadas"
   },
   {
    "id": "p-extraccion",
@@ -1642,7 +1648,8 @@
    "sourceId": "s-agua-a",
    "feeds": [
     "agua"
-   ]
+   ],
+   "short": "Extracción > recarga"
   },
   {
    "id": "p-recarga",
@@ -1653,7 +1660,8 @@
    "sourceId": "s-agua-a",
    "feeds": [
     "agua"
-   ]
+   ],
+   "short": "Menor recarga"
   },
   {
    "id": "p-laboreo",
@@ -1665,7 +1673,8 @@
    "feeds": [
     "suelo",
     "biodiversidad"
-   ]
+   ],
+   "short": "Suelo desnudo"
   },
   {
    "id": "p-abandono",
@@ -1678,7 +1687,8 @@
     "suelo",
     "uso_suelo",
     "relevo"
-   ]
+   ],
+   "short": "Abandono de fincas"
   },
   {
    "id": "p-monocultivo",
@@ -1690,7 +1700,8 @@
    "feeds": [
     "biodiversidad",
     "uso_suelo"
-   ]
+   ],
+   "short": "Paisaje simplificado"
   },
   {
    "id": "p-sucesion",
@@ -1702,7 +1713,8 @@
    "feeds": [
     "relevo",
     "uso_suelo"
-   ]
+   ],
+   "short": "Falta de relevo"
   }
  ],
  "opportunities": [
@@ -1728,7 +1740,8 @@
     "low": 3,
     "high": 5
    },
-   "fake": true
+   "fake": true,
+   "short": "Retener agua"
   },
   {
    "id": "o-regenerativa",
@@ -1753,7 +1766,8 @@
     "low": 3,
     "high": 5
    },
-   "fake": true
+   "fake": true,
+   "short": "Agricultura regenerativa"
   },
   {
    "id": "o-cadenas",
@@ -1777,7 +1791,8 @@
     "low": 2,
     "high": 4
    },
-   "fake": true
+   "fake": true,
+   "short": "Valor local"
   },
   {
    "id": "o-corredor",
@@ -1801,7 +1816,8 @@
     "low": 2,
     "high": 4
    },
-   "fake": true
+   "fake": true,
+   "short": "Corredor y naturaleza"
   },
   {
    "id": "o-pobladores",
@@ -1825,7 +1841,8 @@
     "low": 3,
     "high": 5
    },
-   "fake": true
+   "fake": true,
+   "short": "Nuevos pobladores"
   },
   {
    "id": "o-energia",
@@ -1849,7 +1866,8 @@
     "low": 2,
     "high": 4
    },
-   "fake": true
+   "fake": true,
+   "short": "Energía renovable"
   },
   {
    "id": "o-proximidad",
@@ -1873,7 +1891,8 @@
     "low": 2,
     "high": 3
    },
-   "fake": true
+   "fake": true,
+   "short": "Venta de proximidad"
   }
  ]
 }

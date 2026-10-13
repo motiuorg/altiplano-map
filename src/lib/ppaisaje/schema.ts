@@ -74,6 +74,7 @@ export type Horizon = (typeof HORIZONS)[number];
 export interface Cause {
   id: string;
   label: string;
+  short: string; // ≤3 words, for diagrams
   level: 'driver' | 'pressure';
   evidence: Evidence;
   confidence: Confidence;
@@ -84,6 +85,7 @@ export interface Cause {
 export interface Opportunity {
   id: string;
   label: string;
+  short: string; // ≤3 words, for diagrams
   summary: string;
   addresses: string[]; // theme ids
   size: { low: number; high: number; unit: string; note: string };
@@ -279,7 +281,7 @@ export function validatePaisaje(raw: any): PaisajeData {
     const p = `causes[${i}]`;
     if (!isObj(c)) fail(p, 'expected an object');
     const cause: Cause = {
-      id: str(c.id, `${p}.id`), label: str(c.label, `${p}.label`), level: oneOf(c.level, ['driver', 'pressure'] as const, `${p}.level`),
+      id: str(c.id, `${p}.id`), label: str(c.label, `${p}.label`), short: str(c.short, `${p}.short`), level: oneOf(c.level, ['driver', 'pressure'] as const, `${p}.level`),
       evidence: oneOf(c.evidence, EVIDENCE, `${p}.evidence`), confidence: oneOf(c.confidence, CONFIDENCE, `${p}.confidence`),
       feeds: arr(c.feeds, `${p}.feeds`).map((x, j) => str(x, `${p}.feeds[${j}]`)),
     };
@@ -316,7 +318,7 @@ export function validatePaisaje(raw: any): PaisajeData {
     if (size.low > size.high) fail(`${p}.size`, 'low must be <= high');
     if (impact.low > impact.high || impact.low < 1 || impact.high > 5) fail(`${p}.impact`, 'impact must satisfy 1 <= low <= high <= 5');
     return {
-      id: str(o.id, `${p}.id`), label: str(o.label, `${p}.label`), summary: str(o.summary, `${p}.summary`), addresses, size, impact,
+      id: str(o.id, `${p}.id`), label: str(o.label, `${p}.label`), short: str(o.short, `${p}.short`), summary: str(o.summary, `${p}.summary`), addresses, size, impact,
       horizon: oneOf(o.horizon, HORIZONS, `${p}.horizon`), barrier: str(o.barrier, `${p}.barrier`), readiness: str(o.readiness, `${p}.readiness`),
       confidence: oneOf(o.confidence, CONFIDENCE, `${p}.confidence`), fake: true,
     };

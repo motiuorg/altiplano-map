@@ -1,0 +1,16 @@
+---
+// Gravity as a 3-step scale (filled steps + chip). Redundant encoding: count, shape, text.
+import { SEVERITY } from "../../lib/ppaisaje/data";
+import type { Status } from "../../lib/ppaisaje/schema";
+import SeverityChip from "./SeverityChip.astro";
+export interface Props { status: Status }
+const { status } = Astro.props;
+const steps = status === "critico" ? 3 : status === "bajo_presion" ? 2 : 1;
+---
+<div class={`ppmeter ppmeter--${status}`}>
+    <span class="ppmeter__bars" aria-hidden="true">
+        {[0, 1, 2].map((i) => <i class:list={[{ on: i < steps }]} style={`height:${0.7 + i * 0.5}rem`}></i>)}
+    </span>
+    <SeverityChip status={status} size="lg" />
+    <span class="pp-sr">Gravedad {steps} de 3: {SEVERITY[status].label}</span>
+</div>

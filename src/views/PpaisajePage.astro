@@ -1,20 +1,19 @@
 ---
-// /ppaisaje/ — visual experiment on the landscape-data prototype (ALL DATA FAKE).
-// Part 1: issues and their causes (dark). Transition. Part 2: opportunities (light).
-// No interventions anywhere. See PPAISAJE_NOTES.md.
+// /ppaisaje/ — v2: one flow. Causes → pressures → problems (dark), then problems → opportunities (light).
+// ALL DATA FAKE. No interventions anywhere. See PPAISAJE_NOTES.md.
 import "../styles/app.css";
 import "../styles/ppaisaje.css";
 import Layout from "@motiu/design/components/Layout.astro";
-import SeverityChip from "../components/ppaisaje/SeverityChip.astro";
-import EvidenceTag from "../components/ppaisaje/EvidenceTag.astro";
+import SeverityMeter from "../components/ppaisaje/SeverityMeter.astro";
+import IssueIcon from "../components/ppaisaje/IssueIcon.astro";
 import IssueViz from "../components/ppaisaje/IssueViz.astro";
-import CauseChain from "../components/ppaisaje/CauseChain.astro";
+import FlowStrip from "../components/ppaisaje/FlowStrip.astro";
+import Sankey from "../components/ppaisaje/Sankey.astro";
 import CausesMatrix from "../components/ppaisaje/CausesMatrix.astro";
+import Timeline from "../components/ppaisaje/Timeline.astro";
 import TransitionBand from "../components/ppaisaje/TransitionBand.astro";
-import OpportunityMap from "../components/ppaisaje/OpportunityMap.astro";
 import {
-    data, chartById, indicatorsOf, driversOf, themeById, sourceNumber,
-    availability, SEVERITY, CONFIDENCE_LABEL, HORIZON_LABEL, fmtNum, fmtVal, SOURCE_TYPE_LABEL,
+    data, chartById, indicatorsOf, sourceNumber, availability, drivers, pressures, SOURCE_TYPE_LABEL, CONFIDENCE_LABEL, fmtVal,
 } from "../lib/ppaisaje/data";
 
 export interface Props {
@@ -22,16 +21,37 @@ export interface Props {
 }
 const { lang = "es" } = Astro.props;
 
+const SEV_DARK = { critico: "#ff5a4a", bajo_presion: "#f39a45", moderado: "#e6bf4f", mejorando: "#5fae7c" } as const;
+const SEV_LIGHT = { critico: "#b93222", bajo_presion: "#b25f10", moderado: "#8c6f00", mejorando: "#1b6a42" } as const;
+
+// Diagram 1: causes → pressures → problems
+const flow1 = {
+    columns: [
+        { title: "CAUSAS DE FONDO", nodes: drivers.map((c) => ({ id: c.id, label: c.short, color: "#c9a98a", mark: c.evidence })), width: 230 },
+        { title: "PRESIONES", nodes: pressures.map((c) => ({ id: c.id, label: c.short, color: "#e0c58f", mark: c.evidence })), width: 230 },
+        { title: "PROBLEMAS", nodes: data.themes.map((t) => ({ id: t.id, label: t.label, color: SEV_DARK[t.status] })), width: 230 },
+    ],
+    links: data.causes.flatMap((c) => c.feeds.map((f) => ({ from: c.id, to: f }))),
+};
+// Diagram 2: problems → opportunities
+const flow2 = {
+    columns: [
+        { title: "PROBLEMAS", nodes: data.themes.map((t) => ({ id: t.id, label: t.label, color: SEV_LIGHT[t.status] })), width: 230 },
+        { title: "OPORTUNIDADES", nodes: data.opportunities.map((o, i) => ({ id: o.id, label: o.short, color: "#1b6a42", n: i + 1 })), width: 260 },
+    ],
+    links: data.opportunities.flatMap((o) => o.addresses.map((a) => ({ from: a, to: o.id }))),
+};
+
 const total = data.indicators.length;
 const AVAIL_LABEL = { disponible: "Disponible", pendiente: "Pendiente de solicitar", no_disponible: "No disponible" } as const;
 const gaps = [...availability.pendiente, ...availability.no_disponible];
 const yv = (v: any, unit: string) => (v ? `${fmtVal(v, unit)} (${v.year})` : "—");
-const usedSources = data.sources;
+const firstSentence = (s: string) => (s.split(". ")[0] + ".").replace(/\.\.$/, ".");
 ---
 
 <Layout
     title="Landscape data · ppaisaje (maqueta)"
-    description="Experimento visual con datos ficticios: problemas del paisaje del Altiplano, sus causas y las oportunidades."
+    description="Experimento visual con datos ficticios: de las causas a los problemas del paisaje, y de ahí a las oportunidades."
     current="ppaisaje"
     lang={lang}
     noindex
@@ -39,155 +59,113 @@ const usedSources = data.sources;
     <div class="pp" id="pp-root">
         <p class="pp-bar">Maqueta — datos y informes ficticios · Solo para socios y financiadores</p>
 
-        <!-- ================= PART 1 · PROBLEMAS Y CAUSAS ================= -->
-        <section class="pp-dark pp-hero" aria-labelledby="pp-h1">
+        <!-- ============ 1 · EL FLUJO: causas → presiones → problemas ============ -->
+        <section class="pp-dark pp-stage" aria-labelledby="pp-h1">
             <div class="container">
                 <p class="pp-kicker">Landscape data · Parte 1</p>
                 <h1 class="pp-h1" id="pp-h1">¿Cómo está el paisaje del Altiplano?</h1>
-                <p class="pp-lede">Cinco problemas, de qué dependen y dónde hay margen. Datos ficticios para probar el diseño.</p>
+                <p class="pp-lede">De qué vienen los problemas, y adónde llegan.</p>
 
-                <ol class="ppov" aria-label="Resumen de los cinco problemas">
-                    {data.themes.map((t) => (
-                        <li class="ppov__row">
-                            <div class="ppov__sev"><SeverityChip status={t.status} /></div>
-                            <div class="ppov__what">
-                                <h2 class="ppov__name"><a href={`#problema-${t.id}`}>{t.label}</a></h2>
-                                <p class="ppov__sentence">{t.statement}</p>
-                            </div>
-                            <div class="ppov__viz"><IssueViz chart={chartById(t.heroChartId)} size="mini" /></div>
-                            <div class="ppov__causes">
-                                <p class="ppov__h">Principales causas</p>
-                                <ul>{driversOf(t.id).slice(0, 3).map((c) => <li>{c.label}</li>)}</ul>
-                            </div>
-                        </li>
-                    ))}
-                </ol>
+                <div class="pp-stage__diagram">
+                    <Sankey columns={flow1.columns} links={flow1.links} prefix="sk1" tone="dark" label="Diagrama de flujo: causas de fondo, presiones y problemas del paisaje" />
+                </div>
+                <p class="pp-stage__mobile">Desliza hacia abajo: cada problema muestra sus causas.</p>
+                <p class="pp-legend" aria-hidden="true">
+                    <span><i class="ppev ppev--documentado"></i> documentado</span>
+                    <span><i class="ppev ppev--plausible"></i> plausible</span>
+                    <span><i class="ppev ppev--hipotesis"></i> hipótesis</span>
+                    <span class="pp-legend__note">Pasa el cursor por un nodo para seguir su camino. Un flujo indica «puede contribuir», no causalidad demostrada.</span>
+                </p>
+                <details class="pp-details pp-details--inline">
+                    <summary>Ver el diagrama como tabla</summary>
+                    <CausesMatrix />
+                </details>
+                <a class="pp-down" href="#problema-agua" aria-label="Ir al primer problema">↓</a>
             </div>
         </section>
 
-        <section class="pp-dark pp-causes" aria-labelledby="pp-causes-h">
-            <div class="container">
-                <h2 class="pp-h2" id="pp-causes-h">Pocas causas de fondo explican varios problemas</h2>
-                <p class="pp-sub">Qué causas de fondo pueden contribuir a cada problema. Un punto no demuestra causalidad: indica un factor que contribuye, con su nivel de evidencia.</p>
-                <CausesMatrix />
-            </div>
-        </section>
-
+        <!-- ============ 2 · UNA ESCENA POR PROBLEMA ============ -->
         {data.themes.map((t, i) => (
-            <section class="pp-dark pp-issue" id={`problema-${t.id}`} aria-labelledby={`pp-i-${t.id}`}>
-                <div class="container">
-                    <header class="pp-issue__head">
-                        <span class="pp-issue__n">{String(i + 1).padStart(2, "0")}</span>
-                        <h2 class="pp-h2" id={`pp-i-${t.id}`}>{t.label}</h2>
-                        <SeverityChip status={t.status} size="lg" />
+            <section class:list={["pp-dark", "pp-scene", { "pp-scene--alt": i % 2 === 1 }]} id={`problema-${t.id}`} aria-labelledby={`pp-i-${t.id}`}>
+                <div class="container pp-scene__grid">
+                    <header class="pp-scene__side">
+                        <span class="pp-scene__n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                        <div class="pp-scene__title"><IssueIcon id={t.id} size={44} /><h2 class="pp-h2" id={`pp-i-${t.id}`}>{t.label}</h2></div>
+                        <SeverityMeter status={t.status} />
+                        <p class="pp-scene__sentence">{t.statement}</p>
+                        <p class="pp-gap"><span aria-hidden="true">?</span> {firstSentence(t.limitations)}</p>
                     </header>
-                    <p class="pp-issue__verdict">{t.verdict}</p>
-                    <div class="pp-issue__grid">
-                        <div class="pp-issue__viz"><IssueViz chart={chartById(t.heroChartId)} size="full" /></div>
-                        <CauseChain issue={t} />
-                    </div>
-                    <p class="pp-unknown"><strong>Lo que aún no sabemos.</strong> {t.limitations}</p>
-
-                    <details class="pp-details">
-                        <summary>Indicadores y fuentes</summary>
-                        <div class="pp-tablewrap">
-                            <table>
-                                <caption class="pp-sr">Indicadores de {t.label}</caption>
-                                <thead><tr><th scope="col">Indicador</th><th scope="col">Referencia</th><th scope="col">Último dato</th><th scope="col">Meta</th><th scope="col">Disponibilidad</th></tr></thead>
-                                <tbody>
-                                    {indicatorsOf(t.id).map((ind) => (
-                                        <tr>
-                                            <th scope="row">{ind.label}<small>{ind.scope}</small></th>
-                                            <td>{yv(ind.baseline, ind.unit)}</td>
-                                            <td>{yv(ind.latest, ind.unit)}</td>
-                                            <td>{yv(ind.target, ind.unit)}</td>
-                                            <td>{AVAIL_LABEL[ind.availability]}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <ul class="pp-findings">
-                            {t.findings.map((f) => <li>{f.text} <a href={`#ev-${f.sourceId}`}>[{sourceNumber(f.sourceId)}]</a></li>)}
-                        </ul>
-                    </details>
+                    <div class="pp-scene__viz"><IssueViz chart={chartById(t.heroChartId)} size="full" /></div>
+                    <div class="pp-scene__flow"><FlowStrip issue={t} /></div>
                 </div>
             </section>
         ))}
 
-        <!-- ================= TRANSITION ================= -->
         <TransitionBand />
 
-        <!-- ================= PART 2 · OPORTUNIDADES ================= -->
+        <!-- ============ 3 · OPORTUNIDADES ============ -->
         <section class="pp-light pp-opps" id="oportunidades" aria-labelledby="pp-opps-h">
             <div class="container">
                 <p class="pp-kicker">Landscape data · Parte 2</p>
                 <h2 class="pp-h1 pp-h1--sm" id="pp-opps-h">Oportunidades</h2>
-                <p class="pp-lede">Siete líneas de mejora posibles, cada una ligada a los problemas de arriba. <strong>Cifras ilustrativas</strong>: órdenes de magnitud para comparar, no previsiones.</p>
-
-                <div class="pp-opps__top">
-                    <OpportunityMap />
-                    <ol class="ppolist" aria-label="Oportunidades numeradas">
-                        {data.opportunities.map((o, i) => (
-                            <li><span class="ppolist__n">{i + 1}</span>{o.label}</li>
-                        ))}
-                    </ol>
+                <p class="pp-lede">Qué podría mejorar cada problema. <strong>Cifras ilustrativas.</strong></p>
+                <div class="pp-stage__diagram">
+                    <Sankey columns={flow2.columns} links={flow2.links} prefix="sk2" tone="light" label="Diagrama de flujo: qué oportunidades ayudan a abordar cada problema" />
                 </div>
-
-                <ul class="ppcards">
-                    {data.opportunities.map((o, i) => (
-                        <li class="ppcard">
-                            <div class="ppcard__top">
-                                <span class="ppcard__n">{i + 1}</span>
-                                <h3 class="ppcard__name">{o.label}</h3>
-                            </div>
-                            <p class="ppcard__sum">{o.summary}</p>
-                            <p class="ppcard__size"><strong>{fmtNum(o.size.low)}–{fmtNum(o.size.high)}</strong> <span>{o.size.unit}</span></p>
-                            <p class="ppcard__note">{o.size.note}</p>
-                            <ul class="ppcard__addr" aria-label="Problemas que ayuda a abordar">
-                                {o.addresses.map((a) => <li><a href={`#problema-${a}`}>{themeById(a).label}</a></li>)}
-                            </ul>
-                            <dl class="ppcard__facts">
-                                <div><dt>Plazo</dt><dd>{HORIZON_LABEL[o.horizon]}</dd></div>
-                                <div><dt>Barrera</dt><dd>{o.barrier}</dd></div>
-                                <div><dt>Punto de partida</dt><dd>{o.readiness}</dd></div>
-                            </dl>
-                            <p class="ppcard__foot"><EvidenceTag confidence={o.confidence} /> <span class="ppviz__fake">Ilustrativo</span></p>
-                        </li>
-                    ))}
-                </ul>
+                <p class="pp-stage__mobile pp-stage__mobile--light">Cada oportunidad indica los problemas a los que ayuda.</p>
+                <h3 class="pp-h3"><span>Cuándo</span> <svg viewBox="0 0 120 16" aria-hidden="true"><path d="M2 8h108m-9-6 9 6-9 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg></h3>
+                <Timeline />
             </div>
         </section>
 
-        <!-- ================= CLOSING ================= -->
+        <!-- ============ 4 · QUÉ SABEMOS Y QUÉ FALTA ============ -->
         <section class="pp-light pp-know" aria-labelledby="pp-know-h">
             <div class="container">
                 <h2 class="pp-h2" id="pp-know-h">Qué sabemos y qué falta</h2>
                 <div class="ppknow">
                     <div class="ppknow__nums">
-                        <div class="ppknow__n ppknow__n--ok"><strong>{availability.disponible.length}</strong><span>indicadores con datos</span></div>
-                        <div class="ppknow__n ppknow__n--pend"><strong>{availability.pendiente.length}</strong><span>pendientes de solicitar</span></div>
-                        <div class="ppknow__n ppknow__n--no"><strong>{availability.no_disponible.length}</strong><span>sin datos disponibles</span></div>
+                        <div class="ppknow__n ppknow__n--ok"><strong>{availability.disponible.length}</strong><span>con datos</span></div>
+                        <div class="ppknow__n ppknow__n--pend"><strong>{availability.pendiente.length}</strong><span>pendientes</span></div>
+                        <div class="ppknow__n ppknow__n--no"><strong>{availability.no_disponible.length}</strong><span>sin datos</span></div>
                     </div>
                     <div class="ppknow__bar" role="img" aria-label={`De ${total} indicadores: ${availability.disponible.length} con datos, ${availability.pendiente.length} pendientes, ${availability.no_disponible.length} sin datos`}>
                         <span style={`flex:${availability.disponible.length}`} class="ppknow__seg ppknow__seg--ok"></span>
                         <span style={`flex:${availability.pendiente.length}`} class="ppknow__seg ppknow__seg--pend"></span>
                         <span style={`flex:${availability.no_disponible.length}`} class="ppknow__seg ppknow__seg--no"></span>
                     </div>
-                    <div>
-                        <h3 class="ppknow__h">Principales vacíos</h3>
-                        <ul class="ppknow__gaps">
-                            {gaps.map((g) => <li><span>{g.label}</span> <em>{AVAIL_LABEL[g.availability]}</em></li>)}
-                        </ul>
-                    </div>
                 </div>
-                <p class="pp-unknown pp-unknown--light">Todo lo que aparece en esta página es <strong>ficticio</strong>. Las oportunidades son órdenes de magnitud inventados y las causas son hipótesis de trabajo; se sustituirán por fuentes verificadas.</p>
+                <p class="pp-unknown pp-unknown--light">Todo en esta página es <strong>ficticio</strong>: las causas son hipótesis de trabajo y las oportunidades, órdenes de magnitud inventados.</p>
 
                 <details class="pp-details pp-details--light" id="fuentes">
-                    <summary>Método y fuentes ({usedSources.length})</summary>
+                    <summary>Datos, indicadores y fuentes</summary>
+                    <h3 class="pp-h4">Lo que aún no sabemos</h3>
+                    <ul class="ppknow__gaps">{gaps.map((g) => <li><span>{g.label}</span> <em>{AVAIL_LABEL[g.availability]}</em></li>)}</ul>
+                    {data.themes.map((t) => (
+                        <div class="pp-ind">
+                            <h3 class="pp-h4">{t.label}</h3>
+                            <p class="pp-ind__gap">{t.limitations}</p>
+                            <div class="pp-tablewrap">
+                                <table>
+                                    <caption class="pp-sr">Indicadores de {t.label}</caption>
+                                    <thead><tr><th scope="col">Indicador</th><th scope="col">Referencia</th><th scope="col">Último dato</th><th scope="col">Meta</th><th scope="col">Disponibilidad</th></tr></thead>
+                                    <tbody>
+                                        {indicatorsOf(t.id).map((ind) => (
+                                            <tr>
+                                                <th scope="row">{ind.label}<small>{ind.scope}</small></th>
+                                                <td>{yv(ind.baseline, ind.unit)}</td><td>{yv(ind.latest, ind.unit)}</td><td>{yv(ind.target, ind.unit)}</td>
+                                                <td>{AVAIL_LABEL[ind.availability]}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <ul class="pp-findings">{t.findings.map((f) => <li>{f.text} <a href={`#ev-${f.sourceId}`}>[{sourceNumber(f.sourceId)}]</a></li>)}</ul>
+                        </div>
+                    ))}
+                    <h3 class="pp-h4">Método y fuentes ({data.sources.length})</h3>
                     <p class="pp-method">Criterios previstos (texto provisional): preferir datos oficiales y revisados por pares; indicar siempre ámbito, año y licencia; registrar quién verificó cada fuente y cuándo; marcar con confianza baja lo autoinformado. «No listado» no es «privado»: esta página no está en el menú, pero cualquiera con el enlace puede abrirla.</p>
                     <ol class="ppsrc">
-                        {usedSources.map((s) => (
+                        {data.sources.map((s) => (
                             <li id={`ev-${s.id}`}>
                                 <span class="ppsrc__n">[{sourceNumber(s.id)}]</span>
                                 <a href={s.url}>{s.title}</a>
@@ -202,23 +180,21 @@ const usedSources = data.sources;
 </Layout>
 
 <script>
-    // Greening of the transition: purely cosmetic, the static gradient already carries the message.
+    import "../scripts/ppaisaje-flow";
+
+    // Greening of the transition (cosmetic; the static gradient already carries the message).
     const band = document.getElementById("transicion");
-    const root = document.getElementById("pp-root");
-    if (band && root && "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (band && "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
         band.classList.add("is-armed");
-        const io = new IntersectionObserver(
+        new IntersectionObserver(
             (entries) => {
-                for (const e of entries) {
-                    band.classList.toggle("is-green", e.isIntersecting || e.boundingClientRect.top < 0);
-                }
+                for (const e of entries) band.classList.toggle("is-green", e.isIntersecting || e.boundingClientRect.top < 0);
             },
             { threshold: 0.35 },
-        );
-        io.observe(band);
+        ).observe(band);
     }
 
-    // Citations point into the collapsed "Método y fuentes" list: open it first.
+    // Citations point into the collapsed sources list: open it first.
     const openSources = () => {
         if (location.hash.startsWith("#ev-")) {
             const d = document.getElementById("fuentes") as HTMLDetailsElement | null;
@@ -227,8 +203,7 @@ const usedSources = data.sources;
         }
     };
     document.addEventListener("click", (e) => {
-        const a = (e.target as HTMLElement).closest('a[href^="#ev-"]') as HTMLAnchorElement | null;
-        if (a) {
+        if ((e.target as HTMLElement).closest('a[href^="#ev-"]')) {
             const d = document.getElementById("fuentes") as HTMLDetailsElement | null;
             if (d) d.open = true;
         }

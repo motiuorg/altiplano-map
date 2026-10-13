@@ -1,0 +1,38 @@
+---
+// Part 2 as a left→right timeline: corto → medio → largo plazo. Minimal cards; detail on demand.
+import { data, HORIZON_LABEL, HORIZON_YEARS, fmtNum, themeById } from "../../lib/ppaisaje/data";
+import type { Horizon } from "../../lib/ppaisaje/schema";
+import EvidenceTag from "./EvidenceTag.astro";
+const cols: Horizon[] = ["corto", "medio", "largo"];
+const items = data.opportunities.map((o, i) => ({ o, n: i + 1 }));
+---
+<div class="pptl">
+    {cols.map((h, ci) => (
+        <section class="pptl__col" aria-labelledby={`pptl-${h}`}>
+            <header class="pptl__head">
+                <h3 id={`pptl-${h}`}>{HORIZON_LABEL[h]}</h3>
+                <p>{HORIZON_YEARS[h]}</p>
+                <span class="pptl__pips" aria-hidden="true">{[0, 1, 2].map((k) => <i class:list={[{ on: k <= ci }]}></i>)}</span>
+            </header>
+            <ul class="pptl__list">
+                {items.filter((it) => it.o.horizon === h).map(({ o, n }) => (
+                    <li class="pptl__card" id={`opp-${o.id}`}>
+                        <div class="pptl__top"><span class="pptl__n">{n}</span><h4>{o.short}</h4></div>
+                        <p class="pptl__size"><strong>{fmtNum(o.size.low)}–{fmtNum(o.size.high)}</strong><span>{o.size.unit}</span></p>
+                        <EvidenceTag confidence={o.confidence} compact />
+                        <details class="pptl__more">
+                            <summary>Más</summary>
+                            <p>{o.summary}</p>
+                            <dl>
+                                <div><dt>Barrera</dt><dd>{o.barrier}</dd></div>
+                                <div><dt>Punto de partida</dt><dd>{o.readiness}</dd></div>
+                            </dl>
+                            <ul class="pptl__addr">{o.addresses.map((a) => <li>{themeById(a).label}</li>)}</ul>
+                            <p class="pptl__fake">Cifra ilustrativa · {o.size.note}</p>
+                        </details>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    ))}
+</div>

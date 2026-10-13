@@ -1,0 +1,133 @@
+---
+// Flow diagram (Sankey-style) drawn at build time: pills in columns joined by ribbons.
+// Hovering / focusing a pill lights its whole upstream and downstream path (see
+// src/scripts/ppaisaje-flow.ts). Static SVG otherwise; fully readable without JS.
+import { linear } from "../../lib/ppaisaje/geom";
+
+export interface FlowNode {
+    id: string;
+    label: string;
+    color: string; // accent (border / ribbon end)
+    mark?: "documentado" | "plausible" | "hipotesis"; // evidence marker, left side of the pill
+    href?: string;
+    n?: number; // number badge
+}
+export interface FlowColumn {
+    title: string;
+    nodes: FlowNode[];
+    width?: number;
+}
+export interface FlowLink {
+    from: string;
+    to: string;
+}
+export interface Props {
+    columns: FlowColumn[];
+    links: FlowLink[];
+    prefix: string;
+    tone?: "dark" | "light";
+    label: string;
+}
+const { columns, links, prefix, tone = "dark", label } = Astro.props;
+
+const W = 1180;
+const pillH = 36;
+const gap = 14;
+const top = 40;
+const pillW = columns.map((c) => c.width ?? 215);
+const xs = columns.length === 2 ? [0, W - pillW[1]] : [0, (W - pillW[1]) / 2, W - pillW[2]];
+
+// order nodes inside each column by the average position of their neighbours (fewer crossings)
+const order = columns.map((c) => c.nodes.map((n) => n.id));
+const idx = (col: number, id: string) => order[col].indexOf(id);
+const colOf = (id: string) => columns.findIndex((c) => c.nodes.some((n) => n.id === id));
+for (let pass = 0; pass < 4; pass++) {
+    for (let ci = 0; ci < columns.length; ci++) {
+        if (ci === columns.length - 1 && columns.length > 1) continue; // last column keeps the given order
+        const key = (id: string) => {
+            const nb = links.filter((l) => l.from === id || l.to === id).map((l) => (l.from === id ? l.to : l.from));
+            const ys = nb.filter((x) => colOf(x) !== ci).map((x) => idx(colOf(x), x) / Math.max(1, order[colOf(x)].length - 1));
+            return ys.length ? ys.reduce((a, b) => a + b, 0) / ys.length : 0.5;
+        };
+        order[ci] = [...order[ci]].sort((a, b) => key(a) - key(b));
+    }
+}
+const maxN = Math.max(...order.map((o) => o.length));
+const colH = (n: number) => n * pillH + (n - 1) * gap;
+const H = top + colH(maxN) + 12;
+const pos = new Map<string, { x: number; y: number; w: number; col: number; node: FlowNode }>();
+columns.forEach((c, ci) => {
+    const off = (colH(maxN) - colH(order[ci].length)) / 2;
+    order[ci].forEach((id, k) => {
+        pos.set(id, { x: xs[ci], y: top + off + k * (pillH + gap), w: pillW[ci], col: ci, node: c.nodes.find((n) => n.id === id)! });
+    });
+});
+
+// spread link anchors along each pill's edge
+const outs = new Map<string, FlowLink[]>();
+const ins = new Map<string, FlowLink[]>();
+links.forEach((l) => {
+    (outs.get(l.from) ?? outs.set(l.from, []).get(l.from)!).push(l);
+    (ins.get(l.to) ?? ins.set(l.to, []).get(l.to)!).push(l);
+});
+outs.forEach((arr, id) => arr.sort((a, b) => pos.get(a.to)!.y - pos.get(b.to)!.y));
+ins.forEach((arr, id) => arr.sort((a, b) => pos.get(a.from)!.y - pos.get(b.from)!.y));
+const anchor = (arr: FlowLink[], l: FlowLink, node: { y: number }) => {
+    const i = arr.indexOf(l);
+    const span = pillH - 12;
+    return node.y + 6 + (arr.length === 1 ? span / 2 : (span * i) / (arr.length - 1));
+};
+const ribbons = links.map((l, i) => {
+    const a = pos.get(l.from)!;
+    const b = pos.get(l.to)!;
+    const x1 = a.x + a.w;
+    const x2 = b.x;
+    const y1 = anchor(outs.get(l.from)!, l, a);
+    const y2 = anchor(ins.get(l.to)!, l, b);
+    const mx = (x1 + x2) / 2;
+    return { l, i, x1, x2, y1, y2, d: `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`, c1: a.node.color, c2: b.node.color };
+});
+const textFill = tone === "dark" ? "var(--pp-dark-fg)" : "var(--pp-l-fg)";
+---
+
+<div class={`sk sk--${tone}`} data-flow>
+    <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={label} class="sk__svg">
+        <defs>
+            {ribbons.map((r) => (
+                <linearGradient id={`${prefix}-g${r.i}`} gradientUnits="userSpaceOnUse" x1={r.x1} y1="0" x2={r.x2} y2="0">
+                    <stop offset="0" stop-color={r.c1} />
+                    <stop offset="1" stop-color={r.c2} />
+                </linearGradient>
+            ))}
+        </defs>
+        {columns.map((c, ci) => (
+            <text class="sk__title" x={xs[ci]} y="18">{c.title}</text>
+        ))}
+        <g class="sk__links">
+            {ribbons.map((r) => (
+                <path class="sk__link" d={r.d} stroke={`url(#${prefix}-g${r.i})`} data-from={r.l.from} data-to={r.l.to} />
+            ))}
+        </g>
+        {[...pos.entries()].map(([id, p]) => (
+            <g class="sk__node" data-id={id} tabindex="0" role="listitem" aria-label={p.node.label} transform={`translate(${p.x},${p.y})`}>
+                <rect class="sk__pill" width={p.w} height={pillH} rx="7" style={`stroke:${p.node.color}`} />
+                <rect class="sk__bar" width="5" height={pillH} rx="2" style={`fill:${p.node.color}`} />
+                {p.node.n !== undefined && (
+                    <>
+                        <circle cx="22" cy={pillH / 2} r="10" style={`fill:${p.node.color}`} />
+                        <text class="sk__num" x="22" y={pillH / 2 + 4} text-anchor="middle">{p.node.n}</text>
+                    </>
+                )}
+                {p.node.mark === "documentado" && <circle cx="21" cy={pillH / 2} r="5.5" style={`fill:${p.node.color}`} />}
+                {p.node.mark === "plausible" && (
+                    <>
+                        <circle cx="21" cy={pillH / 2} r="5" fill="none" style={`stroke:${p.node.color}`} stroke-width="1.8" />
+                        <path d={`M21,${pillH / 2 - 5} a5,5 0 0 1 0,10z`} style={`fill:${p.node.color}`} />
+                    </>
+                )}
+                {p.node.mark === "hipotesis" && <circle cx="21" cy={pillH / 2} r="5" fill="none" style={`stroke:${p.node.color}`} stroke-width="1.8" stroke-dasharray="2.6 2.2" />}
+                <text class="sk__label" x={p.node.n !== undefined || p.node.mark ? 40 : 18} y={pillH / 2 + 4.5} fill={textFill}>{p.node.label}</text>
+            </g>
+        ))}
+    </svg>
+</div>
