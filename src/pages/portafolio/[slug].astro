@@ -1,0 +1,10 @@
+---
+import Page from "../../views/AreaPage.astro";
+import { loadAreas } from "../../lib/portfolio";
+
+export function getStaticPaths() {
+    return loadAreas().map((a) => ({ params: { slug: a.slug } }));
+}
+const { slug } = Astro.params;
+---
+<Page lang="es" slug={slug!} />

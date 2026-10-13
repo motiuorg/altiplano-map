@@ -1,13 +1,16 @@
 ---
 import "../styles/app.css";
-// Intervenciones — filterable portfolio with a cards/table switcher.
+// Portafolio — two tabs: the work areas (each with its own page) and the interventions (filterable, with a
+// cards/table/areas switcher).
 import Layout from "@motiu/design/components/Layout.astro";
 import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import Badge from "@motiu/design/components/Badge.astro";
 import Check from "@motiu/design/components/Check.astro";
 import InterventionCard from "../components/InterventionCard.astro";
+import AreaCard from "../components/AreaCard.astro";
 import { areaTone } from "../lib/areas";
 import { loadSiteData } from "../lib/data";
+import { buildAreaViews, portfolioHref } from "../lib/portfolio";
 import { formatValor, formatEuro, interventionOrgNames } from "../lib/records";
 import { t, tv, numberLocale } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
@@ -20,9 +23,23 @@ const loc = numberLocale(lang);
 
 const { orgMap, interventions, dataError, dataSource } = await loadSiteData();
 
+const areaViews = buildAreaViews(interventions);
+
+// The circle for a Notion area links to that area's page.
+const areaHref = (name: string) => {
+    const v = areaViews.find((x) => x.def.match.some((m) => name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith(m)));
+    return portfolioHref(lang, v?.def.slug);
+};
+
 const collator = new Intl.Collator(lang);
+// Areas in the same order as the cards (the order of src/data/areas.yaml); unknown ones last.
+const areaOrder = (name: string) => {
+    const n = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const i = areaViews.findIndex((x) => x.def.match.some((m) => n.startsWith(m)));
+    return i === -1 ? areaViews.length : i;
+};
 const areas = [...new Set(interventions.flatMap((i) => i.areaTrabajo))].sort(
-    collator.compare,
+    (a, b) => areaOrder(a) - areaOrder(b) || collator.compare(a, b),
 );
 const orgOptions = [...new Set(interventions.flatMap((i) => i.orgIds))]
     .map((id) => ({ id, name: orgMap.get(id)?.name }))
@@ -51,7 +68,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
 <Layout
     title={t(lang, "itvs.title")}
     description={t(lang, "itvs.description")}
-    current="intervenciones"
+    current="portafolio"
     lang={lang}
 >
     <section class="section">
@@ -74,6 +91,46 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                 </div>
             )}
 
+            <div class="pf-tabs" role="tablist" aria-label={t(lang, "pf.tabs")}>
+                <button class="pf-tab is-active" role="tab" id="tab-areas" aria-selected="true" aria-controls="panel-areas" data-tab="areas">
+                    {t(lang, "pf.tabAreas")}
+                    <span class="pf-tab__n">{areaViews.length}</span>
+                </button>
+                <button class="pf-tab" role="tab" id="tab-intervenciones" aria-selected="false" aria-controls="panel-intervenciones" data-tab="intervenciones">
+                    {t(lang, "pf.tabItvs")}
+                    <span class="pf-tab__n">{interventions.length}</span>
+                </button>
+            </div>
+
+            <div id="panel-areas" role="tabpanel" aria-labelledby="tab-areas" data-tab-panel="areas">
+                <section class="pf-glance">
+                    <p class="pf-eyebrow">{t(lang, "pf.glance")}</p>
+                    <p class="pf-glance__text">{t(lang, "itvs.areasNote")} {t(lang, "pf.glanceClick")}</p>
+                    <div class="area-view">
+                        <div class="area-view__bubbles" data-bubbles>
+                            {areas.map((a) => (
+                                <a class="area-bubble" href={areaHref(a)} data-bubble-area={a.toLowerCase()}>
+                                    <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
+                                    <span class="area-bubble__caption">
+                                        <span class="area-bubble__name">{tv(lang, a)}</span>
+                                        <span class="area-bubble__value" data-bubble-value></span>
+                                        <span class="area-bubble__count" data-bubble-count></span>
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <p class="pf-eyebrow pf-eyebrow--cards">{t(lang, "pf.enter")}</p>
+                <p class="pf-glance__text pf-glance__text--cards">{t(lang, "pf.enterText")}</p>
+                <div class="pf-areas">
+                    {areaViews.map((v) => <AreaCard view={v} lang={lang} />)}
+                </div>
+
+            </div>
+
+            <div id="panel-intervenciones" role="tabpanel" aria-labelledby="tab-intervenciones" data-tab-panel="intervenciones" hidden>
             <div class="filter-bar" data-filter-bar>
                 <label class="filter-select">
                     <span class="filter-bar__label">{t(lang, "itvs.area")}</span>
@@ -145,7 +202,6 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                         {t(lang, "itvs.cards")}
                     </button>
                     <button class="chip" data-view="table">{t(lang, "itvs.table")}</button>
-                    <button class="chip" data-view="areas">{t(lang, "itvs.areas")}</button>
                 </div>
             </div>
 
@@ -226,21 +282,6 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                         </table>
                     </div>
 
-                    <div class="area-view" data-view-panel="areas" hidden>
-                        <div class="area-view__bubbles" data-bubbles>
-                            {areas.map((a) => (
-                                <div class="area-bubble" data-bubble-area={a.toLowerCase()}>
-                                    <span class={`area-bubble__disc badge badge--${areaTone(a)}`}></span>
-                                    <span class="area-bubble__caption">
-                                        <span class="area-bubble__name">{tv(lang, a)}</span>
-                                        <span class="area-bubble__value" data-bubble-value></span>
-                                        <span class="area-bubble__count" data-bubble-count></span>
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        <p class="area-view__note">{t(lang, "itvs.areasNote")}</p>
-                    </div>
                 </>
             ) : (
                 <p class="empty-note">{t(lang, "itvs.none")}</p>
@@ -248,6 +289,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
             <p class="empty-note" data-empty hidden>
                 {t(lang, "itvs.noMatch")}
             </p>
+            </div>
         </div>
     </section>
 </Layout>
@@ -255,6 +297,28 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
 <script>
     import { initGalleryFilters } from "../scripts/gallery-filter";
     initGalleryFilters();
+
+    // Tabs: work areas / interventions. The address hash (#intervenciones) opens the second one.
+    const tabs = [...document.querySelectorAll<HTMLElement>("[data-tab]")];
+    const showTab = (name: string, updateHash = true) => {
+        tabs.forEach((b) => {
+            const on = b.dataset.tab === name;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-selected", String(on));
+        });
+        document
+            .querySelectorAll<HTMLElement>("[data-tab-panel]")
+            .forEach((p) => (p.hidden = p.dataset.tabPanel !== name));
+        if (updateHash) {
+            try {
+                history.replaceState(null, "", name === "areas" ? location.pathname + location.search : "#" + name);
+            } catch {}
+        }
+        // The areas bubbles measure their box: redo it now that the panel is visible.
+        window.dispatchEvent(new Event("resize"));
+    };
+    tabs.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab!)));
+    if (location.hash === "#intervenciones") showTab("intervenciones", false);
 
     // Cards / table switcher
     const buttons = document.querySelectorAll<HTMLElement>("[data-view]");
@@ -390,6 +454,103 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
 <style>
     .section {
         padding: var(--space-16) 0 var(--space-20);
+    }
+
+    /* Small text tabs. No rule of their own: the heading's line above is the only one, and the
+       active tab is marked by a short underline. */
+    .pf-tabs {
+        display: flex;
+        gap: var(--space-6);
+        margin: var(--space-6) 0 var(--space-8);
+    }
+
+    .pf-tab {
+        appearance: none;
+        background: none;
+        border: 0;
+        margin: 0;
+        padding: var(--space-1) 0;
+        display: inline-flex;
+        align-items: baseline;
+        gap: var(--space-2);
+        font-family: var(--sans);
+        font-size: var(--text-md);
+        font-weight: 500;
+        color: var(--text-muted);
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: color var(--t-fast), border-color var(--t-fast);
+    }
+    .pf-tab:hover {
+        color: var(--text-primary);
+    }
+    .pf-tab.is-active {
+        color: var(--text-primary);
+        border-bottom-color: var(--text-primary);
+    }
+    .pf-tab:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 4px;
+    }
+    .pf-tab__n {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        color: var(--text-muted);
+    }
+
+    [data-tab-panel][hidden] {
+        display: none;
+    }
+
+    .pf-eyebrow {
+        margin: 0 0 var(--space-2);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--text-muted);
+    }
+    .pf-eyebrow--cards {
+        margin-bottom: var(--space-2);
+    }
+    .pf-glance__text.pf-glance__text--cards {
+        margin-bottom: var(--space-6);
+    }
+    .pf-glance {
+        margin-bottom: var(--space-12);
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .pf-glance__text {
+        margin: 0;
+        max-width: 56ch;
+        font-size: var(--text-md);
+        color: var(--text-secondary, var(--text-muted));
+    }
+    .pf-glance .area-view {
+        padding: var(--space-8) 0 var(--space-4);
+    }
+    a.area-bubble {
+        color: inherit;
+        text-decoration: none;
+    }
+    a.area-bubble:hover .area-bubble__name {
+        text-decoration: underline;
+    }
+    a.area-bubble:hover .area-bubble__disc {
+        filter: brightness(0.97);
+    }
+
+    .pf-areas {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-5);
+    }
+
+    @media (max-width: 860px) {
+        .pf-areas {
+            grid-template-columns: 1fr;
+        }
     }
 
     .filter-bar {

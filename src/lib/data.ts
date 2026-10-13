@@ -18,7 +18,13 @@ export interface SiteData {
   dataSource: 'notion' | 'fixture';
 }
 
-export async function loadSiteData(): Promise<SiteData> {
+// Every page asks for the data; the build fetches Notion once and shares the result.
+let cached: Promise<SiteData> | null = null;
+export function loadSiteData(): Promise<SiteData> {
+  return (cached ??= fetchSiteData());
+}
+
+async function fetchSiteData(): Promise<SiteData> {
   const useFixture = isTruthy(import.meta.env.USE_FIXTURE ?? process.env.USE_FIXTURE);
   const dbConfig = loadDatabaseConfig();
 
