@@ -1741,7 +1741,16 @@
     "high": 5
    },
    "fake": true,
-   "short": "Retener agua"
+   "short": "Retener agua",
+   "visual": {
+    "kind": "balance",
+    "params": {
+     "extractionNow": 8,
+     "rechargeNow": 5,
+     "extractionWith": 6,
+     "rechargeWith": 5.8
+    }
+   }
   },
   {
    "id": "o-regenerativa",
@@ -1767,7 +1776,14 @@
     "high": 5
    },
    "fake": true,
-   "short": "Agricultura regenerativa"
+   "short": "Agricultura regenerativa",
+   "visual": {
+    "kind": "waffle",
+    "params": {
+     "nowPct": 12,
+     "withPct": 40
+    }
+   }
   },
   {
    "id": "o-cadenas",
@@ -1792,7 +1808,15 @@
     "high": 4
    },
    "fake": true,
-   "short": "Valor local"
+   "short": "Valor local",
+   "visual": {
+    "kind": "pricerange",
+    "params": {
+     "base": 100,
+     "low": 10,
+     "high": 25
+    }
+   }
   },
   {
    "id": "o-corredor",
@@ -1817,7 +1841,13 @@
     "high": 4
    },
    "fake": true,
-   "short": "Corredor y naturaleza"
+   "short": "Corredor y naturaleza",
+   "visual": {
+    "kind": "corridor",
+    "params": {
+     "patches": 6
+    }
+   }
   },
   {
    "id": "o-pobladores",
@@ -1842,7 +1872,15 @@
     "high": 5
    },
    "fake": true,
-   "short": "Nuevos pobladores"
+   "short": "Nuevos pobladores",
+   "visual": {
+    "kind": "isotype",
+    "params": {
+     "total": 16,
+     "nowYoung": 1,
+     "withYoung": 3
+    }
+   }
   },
   {
    "id": "o-energia",

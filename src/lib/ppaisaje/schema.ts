@@ -95,6 +95,8 @@ export interface Opportunity {
   readiness: string;
   confidence: Confidence;
   fake: true;
+  // when present, the opportunity gets its own scene with this (fake) illustrative visual
+  visual?: { kind: 'balance' | 'waffle' | 'corridor' | 'isotype' | 'pricerange'; params: Record<string, number> };
 }
 
 interface ChartBase {
@@ -164,6 +166,22 @@ function yearValue(v: any, path: string, nullable = true): YearValue | null {
   if (v === null && nullable) return null;
   if (!isObj(v)) fail(path, 'expected {year, value}');
   return { year: num(v.year, `${path}.year`), value: num(v.value, `${path}.value`) };
+}
+
+const VISUAL_PARAMS: Record<string, string[]> = {
+  balance: ['extractionNow', 'rechargeNow', 'extractionWith', 'rechargeWith'],
+  waffle: ['nowPct', 'withPct'],
+  corridor: ['patches'],
+  isotype: ['total', 'nowYoung', 'withYoung'],
+  pricerange: ['base', 'low', 'high'],
+};
+function validateVisual(v: any, path: string): NonNullable<Opportunity['visual']> {
+  if (!isObj(v)) fail(path, 'expected {kind, params}');
+  const kind = oneOf(v.kind, Object.keys(VISUAL_PARAMS) as (keyof typeof VISUAL_PARAMS & string)[], `${path}.kind`) as NonNullable<Opportunity['visual']>['kind'];
+  if (!isObj(v.params)) fail(`${path}.params`, 'expected an object');
+  const params: Record<string, number> = {};
+  for (const k of VISUAL_PARAMS[kind]) params[k] = num(v.params[k], `${path}.params.${k}`);
+  return { kind, params };
 }
 
 export function validatePaisaje(raw: any): PaisajeData {
@@ -321,6 +339,7 @@ export function validatePaisaje(raw: any): PaisajeData {
       id: str(o.id, `${p}.id`), label: str(o.label, `${p}.label`), short: str(o.short, `${p}.short`), summary: str(o.summary, `${p}.summary`), addresses, size, impact,
       horizon: oneOf(o.horizon, HORIZONS, `${p}.horizon`), barrier: str(o.barrier, `${p}.barrier`), readiness: str(o.readiness, `${p}.readiness`),
       confidence: oneOf(o.confidence, CONFIDENCE, `${p}.confidence`), fake: true,
+      ...(o.visual === undefined ? {} : { visual: validateVisual(o.visual, `${p}.visual`) }),
     };
   });
 

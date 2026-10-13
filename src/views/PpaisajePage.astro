@@ -11,6 +11,7 @@ import FlowStrip from "../components/ppaisaje/FlowStrip.astro";
 import Sankey from "../components/ppaisaje/Sankey.astro";
 import CausesMatrix from "../components/ppaisaje/CausesMatrix.astro";
 import Timeline from "../components/ppaisaje/Timeline.astro";
+import OppScene from "../components/ppaisaje/OppScene.astro";
 import TransitionBand from "../components/ppaisaje/TransitionBand.astro";
 import {
     data, chartById, indicatorsOf, sourceNumber, availability, drivers, pressures, SOURCE_TYPE_LABEL, CONFIDENCE_LABEL, fmtVal,
@@ -113,6 +114,15 @@ const firstSentence = (s: string) => (s.split(". ")[0] + ".").replace(/\.\.$/, "
                     <Sankey columns={flow2.columns} links={flow2.links} prefix="sk2" tone="light" label="Diagrama de flujo: qué oportunidades ayudan a abordar cada problema" />
                 </div>
                 <p class="pp-stage__mobile pp-stage__mobile--light">Cada oportunidad indica los problemas a los que ayuda.</p>
+            </div>
+        </section>
+
+        {data.opportunities.map((o, i) => o.visual && (
+            <OppScene opp={o} n={i + 1} alt={i % 2 === 1} />
+        ))}
+
+        <section class="pp-light pp-opps pp-opps--tail" aria-label="Las oportunidades en el tiempo">
+            <div class="container">
                 <h3 class="pp-h3"><span>Cuándo</span> <svg viewBox="0 0 120 16" aria-hidden="true"><path d="M2 8h108m-9-6 9 6-9 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg></h3>
                 <Timeline />
             </div>

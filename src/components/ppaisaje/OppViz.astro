@@ -1,0 +1,119 @@
+---
+// Five different, deliberately simple visual ideas for the opportunity scenes. ALL numbers are fake.
+// Each is build-time SVG with a text alternative in the aria-label.
+import type { Opportunity } from "../../lib/ppaisaje/schema";
+import { fmtNum } from "../../lib/ppaisaje/data";
+
+export interface Props {
+    opp: Opportunity;
+}
+const { opp } = Astro.props;
+const v = opp.visual!;
+const P = v.params;
+const W = 560;
+const H = v.kind === 'isotype' ? 350 : 300;
+
+// balance: extraction vs recharge, today and with measures
+const maxB = Math.max(P.extractionNow, P.rechargeNow, P.extractionWith, P.rechargeWith) * 1.15;
+const by = (x: number) => 230 - (x / maxB) * 190;
+// waffle
+const cell = (i: number, ox: number) => ({ x: ox + (i % 10) * 21, y: 62 + Math.floor(i / 10) * 21 });
+// corridor patches (deterministic layout)
+const patches = [[70, 90, 34, 24], [150, 160, 28, 20], [100, 215, 38, 22], [200, 100, 30, 22], [215, 205, 26, 18], [250, 150, 22, 16]].slice(0, Math.round(P.patches ?? 6));
+// pricerange
+const scale = (x: number) => (x / (P.base * (1 + P.high / 100) * 1.05)) * 400;
+const alt: Record<string, string> = {
+    balance: `Ilustrativo: hoy se extraen ${P.extractionNow} y se recargan ${P.rechargeNow}; con medidas, ${P.extractionWith} y ${P.rechargeWith}.`,
+    waffle: `Ilustrativo: la agricultura regenerativa pasaría del ${P.nowPct} % al ${P.withPct} % de la superficie de secano.`,
+    corridor: "Ilustrativo: hábitats hoy aislados, conectados por un corredor.",
+    isotype: `Ilustrativo: de cada ${P.total} personas titulares, ${P.nowYoung} es joven hoy y ${P.withYoung} con nuevos pobladores.`,
+    pricerange: `Ilustrativo: el precio en origen subiría entre un ${P.low} % y un ${P.high} % con valor local.`,
+};
+---
+
+<figure class="oppviz">
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt[v.kind]} class="oppviz__svg">
+        {v.kind === "balance" && (
+            <>
+                <line class="ov-base" x1="40" x2="520" y1="230" y2="230" />
+                {[{ x: 90, a: P.extractionNow, b: P.rechargeNow, t: "Hoy" }, { x: 330, a: P.extractionWith, b: P.rechargeWith, t: "Con medidas" }].map((g) => (
+                    <g>
+                        <rect class="ov-ext" x={g.x} y={by(g.a)} width="64" height={230 - by(g.a)} />
+                        <rect class="ov-rec" x={g.x + 76} y={by(g.b)} width="64" height={230 - by(g.b)} />
+                        <text class="ov-val" x={g.x + 32} y={by(g.a) - 8} text-anchor="middle">{fmtNum(g.a)}</text>
+                        <text class="ov-val" x={g.x + 108} y={by(g.b) - 8} text-anchor="middle">{fmtNum(g.b)}</text>
+                        <text class="ov-cat" x={g.x + 70} y="256" text-anchor="middle">{g.t}</text>
+                        <text class="ov-gap" x={g.x + 70} y="278" text-anchor="middle">déficit {fmtNum(Math.max(0, +(g.a - g.b).toFixed(1)))}</text>
+                    </g>
+                ))}
+                <path class="ov-arrow" d="M240 150 h60 m-10 -9 l10 9 l-10 9" />
+                <g transform="translate(40,14)"><rect class="ov-ext" width="12" height="12" /><text class="ov-leg" x="18" y="10">extracción</text><rect class="ov-rec" x="108" width="12" height="12" /><text class="ov-leg" x="126" y="10">recarga</text><text class="ov-leg" x="200" y="10">hm³/año · ilustrativo</text></g>
+            </>
+        )}
+        {v.kind === "waffle" && (
+            <>
+                {[{ ox: 40, pct: P.nowPct, t: "Hoy" }, { ox: 310, pct: P.withPct, t: "Potencial" }].map((g) => (
+                    <g>
+                        {Array.from({ length: 100 }, (_, i) => {
+                            const c = cell(i, g.ox);
+                            return <rect class:list={["ov-cell", { on: i < g.pct }]} x={c.x} y={c.y} width="17" height="17" rx="3" />;
+                        })}
+                        <text class="ov-big" x={g.ox} y="46">{g.pct} %</text>
+                        <text class="ov-cat" x={g.ox} y="292">{g.t}</text>
+                    </g>
+                ))}
+                <path class="ov-arrow" d="M258 150 h30 m-9 -8 l9 8 l-9 8" />
+                <text class="ov-leg" x="40" y="14">de la superficie de secano en manejo regenerativo · ilustrativo</text>
+            </>
+        )}
+        {v.kind === "corridor" && (
+            <>
+                <text class="ov-cat" x="40" y="30">Hoy: hábitats aislados</text>
+                <text class="ov-cat" x="312" y="30">Con corredor</text>
+                {[0, 285].map((dx, k) => (
+                    <g transform={`translate(${dx},0) scale(0.9)`}>
+                        <rect class="ov-frame" x="30" y="44" width="250" height="220" rx="10" />
+                        {k === 1 && <path class="ov-corr" d={`M${patches[0][0]},${patches[0][1]} C 110,120 120,150 ${patches[1][0]},${patches[1][1]} S 120,200 ${patches[2][0]},${patches[2][1]} M${patches[1][0]},${patches[1][1]} C 190,130 180,110 ${patches[3][0]},${patches[3][1]} M${patches[1][0]},${patches[1][1]} C 200,185 210,195 ${patches[4][0]},${patches[4][1]} M${patches[3][0]},${patches[3][1]} C 235,110 245,135 ${patches[5][0]},${patches[5][1]}`} />}
+                        {patches.map((p) => <ellipse class:list={["ov-patch", { linked: k === 1 }]} cx={p[0] + 10} cy={p[1] + 20} rx={p[2]} ry={p[3]} />)}
+                    </g>
+                ))}
+                <text class="ov-leg" x="40" y="290">hábitat · corredor · ilustrativo</text>
+            </>
+        )}
+        {v.kind === "isotype" && (
+            <>
+                {[{ y: 74, n: P.nowYoung, t: "Hoy" }, { y: 222, n: P.withYoung, t: "Con nuevos pobladores" }].map((r) => (
+                    <g>
+                        <text class="ov-cat" x="40" y={r.y - 22}>{r.t}</text>
+                        {Array.from({ length: P.total }, (_, i) => {
+                            const x = 40 + (i % 8) * 62;
+                            const y = r.y + Math.floor(i / 8) * 56 - 6;
+                            return (
+                                <g class:list={["ov-person", { young: i < r.n }]} transform={`translate(${x},${y})`}>
+                                    <circle cx="14" cy="9" r="7" />
+                                    <path d="M3 40 v-7 a11 11 0 0 1 22 0 v7z" />
+                                </g>
+                            );
+                        })}
+                    </g>
+                ))}
+                <text class="ov-leg" x="40" y="14">de cada {P.total} personas titulares, jóvenes (menos de 40) · ilustrativo</text>
+            </>
+        )}
+        {v.kind === "pricerange" && (
+            <>
+                <defs><pattern id="ov-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#e3f0da" /><line x1="0" y1="0" x2="0" y2="8" stroke="#2f8f5b" stroke-width="3" /></pattern></defs>
+                <text class="ov-leg" x="40" y="22">precio en origen, hoy = 100 · ilustrativo</text>
+                <text class="ov-cat" x="40" y="80">Hoy</text>
+                <rect class="ov-ext2" x="40" y="92" width={scale(P.base)} height="46" rx="4" />
+                <text class="ov-val" x={40 + scale(P.base) + 10} y="121">100</text>
+                <text class="ov-cat" x="40" y="186">Con valor local</text>
+                <rect class="ov-ext2" x="40" y="198" width={scale(P.base)} height="46" rx="4" />
+                <rect class="ov-range" x={40 + scale(P.base)} y="198" width={scale(P.base * (1 + P.high / 100)) - scale(P.base)} height="46" rx="4" />
+                <rect class="ov-range-solid" x={40 + scale(P.base)} y="198" width={scale(P.base * (1 + P.low / 100)) - scale(P.base)} height="46" rx="4" />
+                <text class="ov-big" x={40 + scale(P.base * (1 + P.high / 100)) + 12} y="230">+{P.low}–{P.high} %</text>
+            </>
+        )}
+    </svg>
+    <figcaption class="oppviz__cap"><span class="ppviz__fake">Maqueta — cifras ilustrativas</span></figcaption>
+</figure>

@@ -1,0 +1,50 @@
+---
+// One full scene per major opportunity: pictogram, name, rough size, one sentence, one illustrative
+// visual and a "problemas que ayuda a abordar" strip with the same direction as Part 1 (problem → opportunity).
+import type { Opportunity } from "../../lib/ppaisaje/schema";
+import { HORIZON_LABEL, fmtNum, themeById } from "../../lib/ppaisaje/data";
+import EvidenceTag from "./EvidenceTag.astro";
+import IssueIcon from "./IssueIcon.astro";
+import OppViz from "./OppViz.astro";
+
+export interface Props {
+    opp: Opportunity;
+    n: number;
+    alt?: boolean;
+}
+const { opp, n, alt = false } = Astro.props;
+const horizonIdx = opp.horizon === "corto" ? 1 : opp.horizon === "medio" ? 2 : 3;
+---
+
+<section class:list={["pp-light", "pp-oscene", { "pp-oscene--alt": alt }]} id={`oportunidad-${opp.id}`} aria-labelledby={`pp-o-${opp.id}`}>
+    <div class="container pp-oscene__grid">
+        <header class="pp-oscene__side">
+            <span class="pp-oscene__n" aria-hidden="true">{String(n).padStart(2, "0")}</span>
+            <h2 class="pp-h2" id={`pp-o-${opp.id}`}>{opp.short}</h2>
+            <p class="pp-oscene__sentence">{opp.summary}</p>
+            <p class="pp-oscene__size"><strong>{fmtNum(opp.size.low)}–{fmtNum(opp.size.high)}</strong><span>{opp.size.unit}</span></p>
+            <div class="pp-oscene__meta">
+                <span class="pp-oscene__when" title={HORIZON_LABEL[opp.horizon]}>
+                    <span class="pptl__pips" aria-hidden="true">{[1, 2, 3].map((k) => <i class:list={[{ on: k <= horizonIdx }]}></i>)}</span>
+                    {HORIZON_LABEL[opp.horizon]}
+                </span>
+                <EvidenceTag confidence={opp.confidence} />
+            </div>
+        </header>
+        <div class="pp-oscene__viz"><OppViz opp={opp} /></div>
+        <div class="pp-oscene__flow">
+            <p class="ppflow__h">Ayuda a abordar</p>
+            <ul class="pp-oscene__issues">
+                {opp.addresses.map((a) => (
+                    <li><a href={`#problema-${a}`}><IssueIcon id={a} size={20} /> {themeById(a).label}</a></li>
+                ))}
+            </ul>
+            <svg class="ppflow__arrow ppflow__arrow--green" viewBox="0 0 40 24" aria-hidden="true"><path d="M2 12h32m-8-8 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <p class="pp-oscene__end">{opp.short}</p>
+            <details class="pp-oscene__more">
+                <summary>Barrera y punto de partida</summary>
+                <dl><div><dt>Barrera</dt><dd>{opp.barrier}</dd></div><div><dt>Punto de partida</dt><dd>{opp.readiness}</dd></div></dl>
+            </details>
+        </div>
+    </div>
+</section>

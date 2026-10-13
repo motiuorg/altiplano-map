@@ -19,6 +19,12 @@ story with almost no paragraphs**:
 4. **Part 2**: a second flow diagram *problemas → oportunidades* (which opportunity helps which problem), then a **left→right
    timeline** (corto → medio → largo plazo) holding minimal cards: number, short name, big rough size, confidence; "Más" opens
    summary / barrier / starting point / issues addressed / "cifra ilustrativa".
+4b. **Opportunity scenes (new)**: up to 5 full scenes in the light palette, mirroring the problem scenes (number, name, one sentence,
+   big rough size, horizon pips + confidence, a flow strip *problemas → oportunidad*, barrier/starting point collapsed). Each has a
+   *different* illustrative visual to compare ideas (`OppViz.astro`): water balance bars (retener agua), 10×10 waffle
+   (agricultura regenerativa), isolated vs connected habitat patches (corredor), person isotype 1→3 of 16 (nuevos pobladores),
+   price bar with hatched range (valor local). An opportunity gets a scene only if it has a `visual` block in the data
+   (`kind` + numeric `params`, validated in `schema.ts`). The other two opportunities stay in the flow diagram and the timeline.
 5. **Qué sabemos y qué falta**: three numbers and a coverage bar; gaps and methods are collapsed.
 
 Page height ≈ 7,400 px (v1 ≈ 8,800 px; `/paisaje/` ≈ 19,000 px).
