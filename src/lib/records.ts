@@ -268,6 +268,31 @@ export function orgHasCoords(org: OrgRecord): boolean {
 // Interventions
 // ---------------------------------------------------------------------------
 
+export type CapitalKind = 'concesional' | 'deuda' | 'equity' | 'otro';
+
+const capitalKind = (name: string): CapitalKind => {
+  const n = normKey(name);
+  return /concesion|subvenc|donacion/.test(n) ? 'concesional' : /deuda|prestamo/.test(n) ? 'deuda' : /equity|capital propio|acciones/.test(n) ? 'equity' : 'otro';
+};
+
+// "Tipo de capital 1/2" with their "Porcentaje de capital tipo 1/2" (stored as 0–1; a stray 100 is read as 100%).
+// Several values on one side share its percentage equally. Percentages are rescaled to add up to 1.
+function capitalMix(props: Record<string, any>): InterventionRecord['capitalMix'] {
+  const side = (kinds: string[], pct: any) => ({ kinds: kinds.map(capitalKind), pct: typeof pct === 'number' ? (pct > 1 ? pct / 100 : pct) : null });
+  const sides = [
+    side(anyValues(props, ['Tipo de capital 1']), props['Porcentaje de capital tipo 1']),
+    side(anyValues(props, ['Tipo de capital 2']), props['Porcentaje de capital tipo 2']),
+  ].filter((x) => x.kinds.length > 0);
+  if (sides.length === 0) return null;
+  const only = sides.length === 1;
+  const weights = sides.map((x) => (x.pct === null ? (only ? 1 : 0) : x.pct));
+  const total = weights.reduce((a, b) => a + b, 0);
+  if (total <= 0) return null;
+  const mix: Partial<Record<CapitalKind, number>> = {};
+  sides.forEach((x, i) => x.kinds.forEach((k) => (mix[k] = (mix[k] ?? 0) + weights[i] / total / x.kinds.length)));
+  return mix;
+}
+
 export interface InterventionRecord {
   id: string;
   url?: string;
@@ -286,6 +311,7 @@ export interface InterventionRecord {
   recurrente: boolean | null; // null = unknown
   capital1: string;
   capital2: string;
+  capitalMix: Partial<Record<CapitalKind, number>> | null; // share of the intervention's financing by kind of capital (sums to 1); null = not stated
 }
 
 const YES_VALUES = ['sí', 'si', 'yes', 'y', 'true', '1', 'viable', 'comercialmente viable', 'sí, es viable', 'es viable'];
@@ -373,6 +399,7 @@ export function normalizeIntervention(record: NormalizedRecord): InterventionRec
     recurrente,
     capital1,
     capital2,
+    capitalMix: capitalMix(props),
   };
 }
 

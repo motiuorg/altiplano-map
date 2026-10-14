@@ -1,7 +1,8 @@
 ---
-// One work area on the portfolio page: a tinted card that links to the area's own page.
+// One work area on the portfolio page: a card that links to the area's own page.
 import type { AreaView } from "../lib/portfolio";
 import { pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
+import Badge from "@motiu/design/components/Badge.astro";
 import { t } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
@@ -15,8 +16,8 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
 
 <a class="area-card" style={toneVars(view.tone)} href={portfolioHref(lang, view.slug)}>
     <span class="area-card__top">
-        <span class="area-card__eyebrow">{t(lang, "pf.areaN", { n: view.num })}</span>
-        <span class="area-card__count">{count(view.count)}</span>
+        <Badge tone={view.tone as any} size="sm">{t(lang, "pf.areaN", { n: view.num })}</Badge>
+        <Badge shape="square" size="sm">{count(view.count)}</Badge>
     </span>
     <span class="area-card__name">{view.name}</span>
     {view.def.kicker.es && <span class="area-card__kicker">{pick(view.def.kicker, lang)}</span>}
@@ -51,16 +52,18 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
         padding: var(--space-6);
         color: var(--text-primary);
         text-decoration: none;
-        border: 1px solid color-mix(in srgb, var(--tone-m) 45%, transparent);
+        border: 1px solid var(--border-subtle);
+        border-top: 3px solid var(--tone-m);
         border-radius: var(--radius-card, 0.75rem);
-        background: color-mix(in srgb, var(--tone-l) 38%, var(--paper));
+        background: var(--paper);
         transition: transform var(--t-med), box-shadow var(--t-med), border-color var(--t-med);
     }
     .area-card:hover,
     .area-card:focus-visible {
         transform: translateY(-3px);
-        border-color: var(--tone-m);
-        box-shadow: 0 14px 34px color-mix(in srgb, var(--tone-d) 16%, transparent);
+        border-color: var(--border-default);
+        border-top-color: var(--tone-m);
+        box-shadow: var(--shadow-lg);
     }
     .area-card:focus-visible {
         outline: 2px solid var(--tone-d);
@@ -73,21 +76,6 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
         justify-content: space-between;
         gap: var(--space-3);
     }
-    .area-card__eyebrow,
-    .area-card__count {
-        font-family: var(--mono);
-        font-size: var(--text-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--tone-d);
-    }
-    .area-card__count {
-        padding: 0.2em 0.7em;
-        border: 1px solid color-mix(in srgb, var(--tone-m) 55%, transparent);
-        border-radius: var(--radius-pill);
-        background: color-mix(in srgb, var(--paper) 70%, transparent);
-    }
-
     .area-card__name {
         font-family: var(--sans);
         font-size: var(--text-2xl, 2rem);
@@ -96,7 +84,7 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
     }
     .area-card__kicker {
         font-size: var(--text-md);
-        color: var(--text-secondary, var(--text-muted));
+        color: var(--text-muted);
         max-width: 34ch;
     }
 
@@ -104,7 +92,7 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
         list-style: none;
         margin: var(--space-3) 0 0;
         padding: var(--space-3) 0 0;
-        border-top: 1px solid color-mix(in srgb, var(--tone-m) 30%, transparent);
+        border-top: 1px solid var(--border-subtle);
         display: flex;
         flex-direction: column;
         gap: var(--space-2);
@@ -122,7 +110,7 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
     .area-card__id {
         font-family: var(--mono);
         font-size: var(--text-2xs);
-        color: var(--tone-d);
+        color: var(--text-muted);
     }
     /* One dot per intervention: a quick read of where the portfolio is thick and where it is thin. */
     .area-card__dots {

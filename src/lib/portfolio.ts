@@ -23,14 +23,11 @@ export interface AreaDef {
   kicker: L;
   lead: L;
   dynamics: { title: L; text: L }[];
-  tension: L | null;
-  tensionNote: L | null;
   flow: L | null;
   // Optional: split the sub-areas into named flows. `subareas` lists the ones that belong (by match key),
   // `rest` takes everything not claimed by another flow.
   flows?: { title: L; blurb: L; subareas?: string[]; rest?: boolean }[];
   actors: L[];
-  financing: { text: L; mechanisms: L[] } | null;
   subareas: SubareaDef[];
 }
 
@@ -70,6 +67,7 @@ export interface AreaView {
   tone: string;
   subareas: SubareaView[];
   flows: { title: L; blurb: L; subareas: SubareaView[] }[]; // empty when the area has no flows
+  items: InterventionRecord[]; // every published intervention of the area
   loose: InterventionRecord[]; // in the area, but with no sub-area
   count: number;
   total: number;
@@ -108,11 +106,8 @@ export function buildAreaViews(interventions: InterventionRecord[]): AreaView[] 
       kicker: empty,
       lead: empty,
       dynamics: [],
-      tension: null,
-      tensionNote: null,
       flow: null,
       actors: [],
-      financing: null,
       subareas: [],
     };
     // Sub-areas: the values the area's interventions carry, known ones first in the yaml's order,
@@ -177,6 +172,7 @@ export function buildAreaViews(interventions: InterventionRecord[]): AreaView[] 
       flows: groups
         .map((g) => ({ title: g.title, blurb: g.blurb, subareas: subareas.filter((s) => g.keys.includes(s.key)) }))
         .filter((g) => g.subareas.length > 0),
+      items: v.items,
       loose: v.items.filter((it) => !placed.has(it)),
       count: v.items.length,
       total: sum(v.items),
