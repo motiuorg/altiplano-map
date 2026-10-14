@@ -187,9 +187,9 @@ areas:
       - match: [generacion de conocimiento agricola, generacion de conocimiento agricola y de cadena]
         line: { es: "Finca experimental y estudios de purines, ganadería y razas autóctonas.", en: "An experimental farm and studies on slurry, livestock and local breeds." }
       - match: [formacion y asistencia tecnica, seguimiento y asistencia tecnica]
-        line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y maquinaria compartida.", en: "On-farm support, training, visits to other territories and shared machinery." }
+        line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y un espacio físico de encuentro.", en: "On-farm support, training, visits to other territories and a physical meeting place." }
       - match: [insumos y servicios, apoyo material]
-        line: { es: "Compost comunitario y otros servicios que las fincas comparten.", en: "Community compost and other services that farms share." }
+        line: { es: "Compost comunitario y banco de maquinaria que las fincas comparten.", en: "Community compost and a machinery bank that farms share." }
       - match: [financiacion de la transicion, financiacion concesional]
         line: { es: "Fondos para semillas, cubiertas, agua y biodiversidad, y proyectos como el de carbono en suelo.", en: "Funds for seed, ground cover, water and biodiversity, and projects like soil carbon." }
       - match: [implementacion de practicas agricolas regenerativas]
