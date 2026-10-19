@@ -8,7 +8,7 @@ import InterventionCard from "../components/InterventionCard.astro";
 import { loadSiteData } from "../lib/data";
 import { buildAreaViews, pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
 import { interventionOrgNames } from "../lib/records";
-import { t, numberLocale } from "../lib/i18n";
+import { t, tv, numberLocale } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -36,8 +36,9 @@ const pct = (n: number) => (n / capTotal).toLocaleString(numberLocale(lang), { s
 const hasFlows = view.flows.length > 0;
 const groups = hasFlows ? view.flows : [{ title: null, blurb: null, subareas: view.subareas }];
 const anchor = (id: string) => "sub-" + id.replace(".", "-");
+const areaTotal = view.total;
 const tone = toneVars(view.tone);
-const name = view.name;
+const name = tv(lang, view.name);
 ---
 
 <Layout title={name} description={pick(def.kicker, lang) || name} current="portafolio" lang={lang}>
@@ -82,48 +83,58 @@ const name = view.name;
         <!-- ============ SUB-AREAS ============ -->
         <section class="asec asec--soft">
             <div class="container">
-                <p class="asec__eyebrow">{t(lang, "pf.subareas")}</p>
-                <h2 class="asec__title">{t(lang, "pf.subareasH")}</h2>
-                {!hasFlows && def.flow && <p class="asec__lead">{pick(def.flow, lang)}</p>}
+                <div class="ahead">
+                    <div class="ahead__text">
+                        <p class="asec__eyebrow">{t(lang, "pf.subareas")}</p>
+                        <h2 class="asec__title">{t(lang, "pf.subareasH")}</h2>
+                        {!hasFlows && def.flow && <p class="asec__lead">{pick(def.flow, lang)}</p>}
+                    </div>
+                    {areaTotal > 0 && (
+                        <div class="atot">
+                            <div class="atot__lbl">{t(lang, "pf.areaTotal")}</div>
+                            <div class="atot__val">{compactEuro(areaTotal, lang)}</div>
+                            <div class="atot__note">{t(lang, "pf.at5")} · {count(view.items.length)}</div>
+                        </div>
+                    )}
+                </div>
 
                 {groups.map((g, gi) => (
                     <div class:list={["aflowgroup", { "aflowgroup--titled": hasFlows }]}>
                         {hasFlows && (
                             <header class="aflowgroup__head">
-                                <p class="aflowgroup__eyebrow">{t(lang, "pf.flowN", { n: gi + 1 })}</p>
-                                <h3 class="aflowgroup__title">{pick(g.title, lang)}</h3>
-                                <p class="aflowgroup__blurb">{pick(g.blurb, lang)}</p>
+                                <div class="aflowgroup__text">
+                                    <p class="aflowgroup__eyebrow">{t(lang, "pf.flowN", { n: gi + 1 })}</p>
+                                    <h3 class="aflowgroup__title">{pick(g.title, lang)}</h3>
+                                    <p class="aflowgroup__blurb">{pick(g.blurb, lang)}</p>
+                                </div>
+                                {g.subareas.reduce((n, x) => n + x.total, 0) > 0 && (
+                                    <div class="atot">
+                                        <div class="atot__lbl">{t(lang, "pf.flowTotal")}</div>
+                                        <div class="atot__val">{compactEuro(g.subareas.reduce((n, x) => n + x.total, 0), lang)}</div>
+                                        <div class="atot__note">{t(lang, "pf.at5")} · {count(g.subareas.reduce((n, x) => n + x.items.length, 0))}</div>
+                                    </div>
+                                )}
                             </header>
                         )}
-                        <nav class="aflow" aria-label={t(lang, "pf.subareas")}>
-                            <ol>
-                                {g.subareas.map((s) => (
-                                    <li class:list={{ "is-empty": s.items.length === 0 }}>
-                                        <a href={"#" + anchor(s.id)}>
-                                            <span class="aflow__id">{s.id}</span>
-                                            <span class="aflow__name">{s.name}</span>
-                                            <span class="aflow__meta">
-                                                {count(s.items.length)}{s.total > 0 && ` · ${compactEuro(s.total, lang)} ${t(lang, "pf.at5")}`}
-                                            </span>
-                                        </a>
-                                    </li>
-                                ))}
-                            </ol>
-                        </nav>
-
                         {g.subareas.map((s) => (
-                            <section class="asub" id={anchor(s.id)}>
-                                <header class="asub__head">
-                                    <span class="asub__id">{s.id}</span>
+                            <details class:list={["asub", { "is-empty": s.items.length === 0 }]} id={anchor(s.id)}>
+                                <summary class="asub__head">
                                     <div class="asub__titles">
-                                        <h3 class="asub__name">{s.name}</h3>
+                                        <Badge tone={view.tone as any} size="sm">{s.id}</Badge>
+                                        <h3 class="asub__name">{tv(lang, s.name)}</h3>
                                         {s.line && <p class="asub__line">{pick(s.line, lang)}</p>}
                                     </div>
-                                    <p class="asub__meta">
-                                        <span>{count(s.items.length)}</span>
-                                        {s.total > 0 && <span>{compactEuro(s.total, lang)} {t(lang, "pf.at5")}</span>}
-                                    </p>
-                                </header>
+                                    <div class="asub__meta">
+                                        <Badge shape="square" size="sm">{count(s.items.length)}</Badge>
+                                        {s.total > 0 && (
+                                            <span class="asub__total">
+                                                <strong>{compactEuro(s.total, lang)}</strong>
+                                                <small>{t(lang, "pf.at5")}</small>
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span class="asub__chev" aria-hidden="true"></span>
+                                </summary>
                                 {s.items.length > 0 ? (
                                     <div class="aitvs">
                                         {s.items.map((itv) => (
@@ -133,24 +144,24 @@ const name = view.name;
                                 ) : (
                                     <p class="asub__empty">{t(lang, "pf.noItvs")}</p>
                                 )}
-                            </section>
+                            </details>
                         ))}
                     </div>
                 ))}
 
                 {view.loose.length > 0 && (
-                    <section class="asub">
-                        <header class="asub__head">
-                            <span class="asub__id">·</span>
+                    <details class="asub">
+                        <summary class="asub__head">
                             <div class="asub__titles"><h3 class="asub__name">{t(lang, "pf.loose")}</h3></div>
-                            <p class="asub__meta"><span>{count(view.loose.length)}</span></p>
-                        </header>
+                            <div class="asub__meta"><Badge shape="square" size="sm">{count(view.loose.length)}</Badge></div>
+                            <span class="asub__chev" aria-hidden="true"></span>
+                        </summary>
                         <div class="aitvs">
                             {view.loose.map((itv) => (
                                 <InterventionCard intervention={itv} orgNames={interventionOrgNames(itv, orgMap)} filterable={false} lang={lang} />
                             ))}
                         </div>
-                    </section>
+                    </details>
                 )}
             </div>
         </section>
@@ -192,16 +203,29 @@ const name = view.name;
             <div class="container aadj__row">
                 <a class="aadj__link aadj__link--prev" style={toneVars(prev.tone)} href={portfolioHref(lang, prev.slug)}>
                     <span>← {t(lang, "pf.prev")}</span>
-                    <strong>{prev.name}</strong>
+                    <strong>{tv(lang, prev.name)}</strong>
                 </a>
                 <a class="aadj__link aadj__link--next" style={toneVars(next.tone)} href={portfolioHref(lang, next.slug)}>
                     <span>{t(lang, "pf.next")} →</span>
-                    <strong>{next.name}</strong>
+                    <strong>{tv(lang, next.name)}</strong>
                 </a>
             </div>
         </nav>
     </article>
 </Layout>
+
+<script>
+    // Open the sub-area a #sub-… link points to.
+    const openHash = () => {
+        const el = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+        if (el instanceof HTMLDetailsElement) {
+            el.open = true;
+            el.scrollIntoView();
+        }
+    };
+    openHash();
+    window.addEventListener("hashchange", openHash);
+</script>
 
 <style>
     .area {
@@ -305,9 +329,9 @@ const name = view.name;
     .adyn__title {
         margin: 0 0 var(--space-2);
         font-family: var(--sans);
-        font-size: var(--text-xl);
-        line-height: 1.15;
-        font-weight: 400;
+        font-size: clamp(1.15rem, 2vw, 1.4rem);
+        line-height: 1.2;
+        font-weight: 500;
     }
     .adyn__text {
         margin: 0;
@@ -317,88 +341,79 @@ const name = view.name;
     }
 
 
-    /* ---------- flow strip ---------- */
-    .aflow ol {
-        list-style: none;
-        margin: 0 0 var(--space-12);
-        padding: 0;
-        display: flex;
-        gap: var(--space-3);
-        counter-reset: none;
-    }
-    .aflow li {
-        position: relative;
-        flex: 1 1 0;
-        min-width: 0;
-    }
-    .aflow li:not(:last-child)::after {
-        content: "→";
-        position: absolute;
-        z-index: 1;
-        right: calc(var(--space-3) * -1 - 0.55em);
-        top: 50%;
-        translate: 0 -50%;
-        width: 1.1em;
-        text-align: center;
-        font-size: var(--text-md);
-        color: var(--text-muted);
-    }
-    .aflow a {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-1);
-        height: 100%;
-        padding: var(--space-4);
-        text-decoration: none;
-        color: var(--text-primary);
-        border: 1px solid var(--border-subtle);
-        border-top: 3px solid var(--tone-l);
-        border-radius: var(--radius-card, 0.75rem);
-        background: var(--paper);
-        transition: transform var(--t-fast), box-shadow var(--t-fast);
-    }
-    .aflow a:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-    .aflow li.is-empty a {
-        background: transparent;
-        border-style: dashed;
-    }
-    .aflow__id {
-        font-family: var(--mono);
-        font-size: var(--text-xs);
-        color: var(--text-muted);
-    }
-    .aflow__name {
-        font-size: var(--text-sm);
-        font-weight: 500;
-        line-height: 1.25;
-    }
-    .aflow__meta {
-        margin-top: auto;
-        padding-top: var(--space-2);
-        font-family: var(--mono);
-        font-size: var(--text-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-    }
-
     /* ---------- one sub-area ---------- */
     .asub {
         scroll-margin-top: 6rem;
-        margin-top: var(--space-12);
+        border-bottom: 1px solid var(--rule, var(--text-primary));
     }
-    .asub:first-of-type {
+    .asub[open] {
+        padding-bottom: var(--space-8);
+    }
+    .asub[open] > .aitvs,
+    .asub[open] > .asub__empty {
+        margin-top: var(--space-2);
+    }
+
+    /* Total cards, in the simulator's KPI language: small mono label, mono figure, quiet note. */
+    .ahead,
+    .aflowgroup__head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-8);
+    }
+    .ahead__text,
+    .aflowgroup__text {
+        min-width: 0;
+    }
+    .ahead {
+        margin-bottom: var(--space-6);
+    }
+    .ahead .asec__title {
+        margin-bottom: 0;
+    }
+    .ahead .asec__lead {
+        margin: var(--space-3) 0 0;
+    }
+    /* The first flow's rule sits close under the area total card. */
+    .ahead + .aflowgroup--titled {
         margin-top: 0;
     }
+    .atot {
+        flex: none;
+        min-width: 14rem;
+        padding: var(--space-5) var(--space-6);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card, 0.75rem);
+        background: var(--bg);
+    }
+    .atot__lbl {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+    }
+    .atot__val {
+        margin-top: var(--space-3);
+        font-family: var(--mono);
+        font-size: var(--text-lg);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+    .atot__note {
+        margin-top: var(--space-2);
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+    }
+
 
     /* An area with several flows: each flow is its own block with a header, a strip and its sub-areas. */
     .aflowgroup--titled {
         margin-top: var(--space-16);
         padding-top: var(--space-8);
-        border-top: 1px solid var(--border-default);
+        border-top: 1px solid var(--border-subtle);
     }
     .aflowgroup--titled:first-of-type {
         margin-top: var(--space-8);
@@ -429,25 +444,52 @@ const name = view.name;
     }
     .asub__head {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: 1fr auto auto;
         align-items: start;
         gap: var(--space-5);
-        padding-bottom: var(--space-4);
-        margin-bottom: var(--space-5);
-        border-bottom: 1px solid var(--border-default);
+        padding: var(--space-4) 0;
+        cursor: pointer;
+        list-style: none;
     }
-    .asub__id {
-        font-family: var(--mono);
-        font-size: clamp(2rem, 4vw, 3rem);
-        line-height: 0.95;
-        color: var(--text-muted);
+    .asub__head::-webkit-details-marker {
+        display: none;
+    }
+    .asub__head:hover .asub__name {
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+    .asub__head:focus-visible {
+        outline: 2px solid var(--tone-m);
+        outline-offset: 2px;
+    }
+    .asub__chev {
+        width: 0.6rem;
+        height: 0.6rem;
+        border-right: 2px solid var(--text-muted);
+        border-bottom: 2px solid var(--text-muted);
+        rotate: 45deg;
+        translate: 0 -25%;
+        transition: rotate var(--t-fast);
+        align-self: center;
+    }
+    .asub[open] > .asub__head .asub__chev {
+        rotate: 225deg;
+        translate: 0 25%;
+    }
+    .asub.is-empty > .asub__head {
+        opacity: 0.6;
+    }
+    .asub__titles :global(.badge) {
+        display: flex;
+        width: fit-content;
+        margin-bottom: var(--space-2);
     }
     .asub__name {
         margin: 0;
         font-family: var(--sans);
-        font-size: clamp(1.3rem, 2.4vw, 1.75rem);
-        line-height: 1.15;
-        font-weight: 400;
+        font-size: clamp(1.15rem, 2vw, 1.4rem);
+        line-height: 1.2;
+        font-weight: 500;
     }
     .asub__line {
         margin: var(--space-1) 0 0;
@@ -460,13 +502,36 @@ const name = view.name;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 2px;
+        gap: var(--space-3);
         font-family: var(--mono);
         font-size: var(--text-xs);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: var(--text-muted);
         white-space: nowrap;
+    }
+    .asub__meta {
+        align-self: stretch;
+    }
+    /* Total and its "a 5 años" label are one block, a fixed step under the badge whatever the description's length. */
+    .asub__total {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    .asub__total strong {
+        font-family: var(--mono);
+        font-size: 1.75rem;
+        line-height: 1.1;
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: none;
+        color: var(--text-primary);
+    }
+    .asub__total small {
+        margin-top: var(--space-1);
+        line-height: 1;
+        font-size: var(--text-2xs);
     }
     .asub__empty {
         margin: 0;
@@ -614,29 +679,36 @@ const name = view.name;
     }
 
     @media (max-width: 860px) {
-        .aflow ol {
+        .ahead,
+        .aflowgroup__head {
             flex-direction: column;
-        }
-        .aflow li:not(:last-child)::after {
-            content: "↓";
-            right: auto;
-            left: var(--space-5);
-            top: auto;
-            bottom: calc(var(--space-3) * -1 - 0.6em);
-            translate: 0 0;
+            gap: var(--space-5);
         }
         .awho {
             grid-template-columns: 1fr;
             gap: var(--space-8);
         }
         .asub__head {
-            grid-template-columns: auto 1fr;
+            grid-template-columns: 1fr auto;
         }
         .asub__meta {
-            grid-column: 2;
-            align-items: flex-start;
+            grid-column: 1;
+            grid-row: 2;
+            align-items: baseline;
             flex-direction: row;
             gap: var(--space-4);
+        }
+        .asub__total {
+            flex-direction: row;
+            align-items: baseline;
+            gap: var(--space-2);
+        }
+        .asub__total small {
+            margin-top: 0;
+        }
+        .asub__chev {
+            grid-column: 2;
+            grid-row: 1;
         }
         .aadj__row {
             grid-template-columns: 1fr;

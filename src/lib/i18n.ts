@@ -114,9 +114,9 @@ const D = {
   'pf.itvCount1': { es: '1 intervención', en: '1 intervention' },
   'pf.back': { es: 'Portafolio', en: 'Portfolio' },
   'pf.dynamics': { es: 'Dinámicas', en: 'Dynamics' },
-  'pf.dynamicsH': { es: 'Qué mueve esta área', en: 'What drives this area' },
-  'pf.subareas': { es: 'Subáreas', en: 'Sub-areas' },
-  'pf.subareasH': { es: 'Cómo encajan', en: 'How they fit together' },
+  'pf.dynamicsH': { es: 'Cómo funciona', en: 'How it works' },
+  'pf.subareas': { es: 'Intervenciones', en: 'Interventions' },
+  'pf.subareasH': { es: 'Lo que hace falta', en: 'What it takes' },
   'pf.actors': { es: 'Quién participa', en: 'Who takes part' },
   'pf.financing': { es: 'Cómo se financia', en: 'How it is financed' },
   'pf.capNote': {
@@ -132,6 +132,8 @@ const D = {
   'pf.prev': { es: 'Área anterior', en: 'Previous area' },
   'pf.next': { es: 'Área siguiente', en: 'Next area' },
   'pf.financingOf': { es: 'valor a 5 años', en: '5-year value' },
+  'pf.areaTotal': { es: 'Total del área', en: 'Area total' },
+  'pf.flowTotal': { es: 'Total del flujo', en: 'Flow total' },
   'pf.at5': { es: 'a 5 años', en: 'over 5 years' },
   'pf.years': { es: '{n} años', en: '{n} years' },
   'pf.viable': { es: 'Viable', en: 'Viable' },
@@ -195,13 +197,18 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
 }
 
 // Switch for showing Notion select values in English via value-translations.json.
-// Off for now: Notion data is displayed as written.
-export const TRANSLATE_NOTION_DATA = false;
+// Spanish stays as written in Notion; English looks each text up (names, descriptions, page
+// text, values) in the dictionary and falls back to the Spanish when a text is not in it.
+export const TRANSLATE_NOTION_DATA = true;
 
 // Translate a Notion select value for display (filter values stay Spanish).
 export function tv(lang: Lang, value: string): string {
   if (lang === 'es' || !TRANSLATE_NOTION_DATA) return value;
-  return (valueTranslations as Record<string, string>)[value] ?? value;
+  const dict = valueTranslations as Record<string, string>;
+  if (dict[value] !== undefined) return dict[value];
+  // Texts from Notion pages can carry leading or trailing spaces; match on the trimmed text.
+  const core = value.trim();
+  return core !== value && dict[core] !== undefined ? value.replace(core, dict[core]) : value;
 }
 
 export const numberLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'es-ES');

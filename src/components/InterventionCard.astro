@@ -51,11 +51,11 @@ const loc = numberLocale(lang);
             </CardBadges>
         )}
 
-        <CardTitle size="sm">{itv.name}</CardTitle>
+        <CardTitle size="sm">{tv(lang, itv.name)}</CardTitle>
 
-        {showOrg && orgNames.length > 0 && <CardEyebrow>{orgNames.join(" · ")}</CardEyebrow>}
+        {showOrg && orgNames.length > 0 && <CardEyebrow>{orgNames.map((n) => tv(lang, n)).join(" · ")}</CardEyebrow>}
 
-        {itv.description && <CardText>{itv.description}</CardText>}
+        {itv.description && <CardText>{tv(lang, itv.description)}</CardText>}
 
         <CardFacts>
             <CardFact label={t(lang, "card.financing")} mono>

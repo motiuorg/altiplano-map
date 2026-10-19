@@ -3,11 +3,14 @@
 // as it is written there. Consecutive list items become one list; nested items sit
 // inside the list item above them.
 import type { PageBlock, TextSeg } from "../lib/notion";
+import { tv } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
 
 export interface Props {
   blocks: PageBlock[];
+  lang?: Lang;
 }
-const { blocks } = Astro.props;
+const { blocks, lang = "es" } = Astro.props;
 
 type Node =
   | { kind: "h2" | "h3" | "p"; text: TextSeg[] }
@@ -35,14 +38,14 @@ for (let i = 0; i < blocks.length; i++) {
 
 <div class="org-body">
   {nodes.map((n) => {
-    if (n.kind === "h2") return <h3 class="org-body__h2">{n.text.map((s) => s.t).join("")}</h3>;
-    if (n.kind === "h3") return <h4 class="org-body__h3">{n.text.map((s) => s.t).join("")}</h4>;
+    if (n.kind === "h2") return <h3 class="org-body__h2">{n.text.map((s) => tv(lang, s.t)).join("")}</h3>;
+    if (n.kind === "h3") return <h4 class="org-body__h3">{n.text.map((s) => tv(lang, s.t)).join("")}</h4>;
     if (n.kind === "p")
       return (
         <p class="org-body__p">
           {n.text.map((s) => (
-            s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{s.t}</a>
-            : s.b ? <strong>{s.t}</strong> : s.i ? <em>{s.t}</em> : s.t
+            s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{tv(lang, s.t)}</a>
+            : s.b ? <strong>{tv(lang, s.t)}</strong> : s.i ? <em>{tv(lang, s.t)}</em> : tv(lang, s.t)
           ))}
         </p>
       );
@@ -52,12 +55,12 @@ for (let i = 0; i < blocks.length; i++) {
         {n.items.map((it) => (
           <li>
             {it.text.map((s) => (
-              s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{s.t}</a>
-              : s.b ? <strong>{s.t}</strong> : s.i ? <em>{s.t}</em> : s.t
+              s.href ? <a href={s.href} target="_blank" rel="noopener noreferrer">{tv(lang, s.t)}</a>
+              : s.b ? <strong>{tv(lang, s.t)}</strong> : s.i ? <em>{tv(lang, s.t)}</em> : tv(lang, s.t)
             ))}
             {it.children.length > 0 && (
               <ul class="org-body__list">
-                {it.children.map((c) => <li>{c.text.map((s) => s.t).join("")}</li>)}
+                {it.children.map((c) => <li>{c.text.map((s) => tv(lang, s.t)).join("")}</li>)}
               </ul>
             )}
           </li>

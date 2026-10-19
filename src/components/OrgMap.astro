@@ -46,9 +46,9 @@ const restoCount = withCoords.length - grupoCount;
 // offsets) is computed client-side where pixel math lives.
 const pins = withCoords.map((o) => ({
     id: o.id,
-    name: o.name,
+    name: tv(lang, o.name),
     place: o.placeName,
-    desc: o.description,
+    desc: tv(lang, o.description),
     website: o.website,
     grupo: o.grupoTrabajo,
     tipos: o.tipos.map((x) => tv(lang, x)),

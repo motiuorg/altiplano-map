@@ -35,15 +35,15 @@ const { org, lang = 'es' } = Astro.props;
   <CardBody>
     <CardTitle size="sm">
       {org.grupoTrabajo ? (
-        <button type="button" class="org-card__name-btn" data-open-org={org.id}>{org.name}</button>
+        <button type="button" class="org-card__name-btn" data-open-org={org.id}>{tv(lang, org.name)}</button>
       ) : (
-        org.name
+        tv(lang, org.name)
       )}
     </CardTitle>
 
     {org.tipos.length > 0 && <CardEyebrow>{org.tipos.map((x) => tv(lang, x)).join(" · ")}</CardEyebrow>}
 
-    {org.description && <CardText>{org.description}</CardText>}
+    {org.description && <CardText>{tv(lang, org.description)}</CardText>}
 
     <CardFooter rule>
       {org.website ? (

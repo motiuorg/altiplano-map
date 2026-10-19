@@ -140,7 +140,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                     <select class="select" data-key="org" aria-label={t(lang, "itvs.orgBy")}>
                         <option value="">{t(lang, "itvs.allF")}</option>
                         {orgOptions.map((o) => (
-                            <option value={o.id}>{o.name}</option>
+                            <option value={o.id}>{tv(lang, o.name)}</option>
                         ))}
                     </select>
                 </label>
@@ -237,9 +237,9 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                                         data-fin={itv.financiacion ?? ""}
                                         data-valor5={itv.valor5Anos ?? ""}
                                     >
-                                        <th scope="row">{itv.name}</th>
+                                        <th scope="row">{tv(lang, itv.name)}</th>
                                         <td class="itv-table__orgs">
-                                            {interventionOrgNames(itv, orgMap).join(" · ")}
+                                            {interventionOrgNames(itv, orgMap).map((n) => tv(lang, n)).join(" · ")}
                                         </td>
                                         <td>
                                             <span class="itv-table__tags">

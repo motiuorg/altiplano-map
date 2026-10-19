@@ -153,18 +153,14 @@ areas:
         text:
           es: "Cambiar el manejo cuesta y baja el rendimiento al principio. El valor ecológico, en cambio, se reparte por todo el paisaje."
           en: "Changing management costs money and lowers yields at first. The ecological value, meanwhile, is shared across the whole landscape."
-      - title: { es: "Dos flujos que se necesitan", en: "Two flows that need each other" }
-        text:
-          es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
-          en: "One changes the farm, through knowledge, support and practices, and lives on concessional funding. The other sells what it produces and can stand on its own income."
-      - title: { es: "La brecha de capital", en: "The capital gap" }
-        text:
-          es: "Falta mucho entre lo que costaría la transición y los fondos que hoy llegan. El resto sale de los propios agricultores."
-          en: "A lot is missing between what the transition would cost and the funds that arrive today. The rest comes from the farmers themselves."
       - title: { es: "Pagar primero, cobrar despacio", en: "Pay first, get paid slowly" }
         text:
           es: "Quien comercializa adelanta la campaña y el circulante, y el dinero entra poco a poco. Transformar dentro del territorio retiene más valor, pero pide inversión."
           en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the territory keeps more value, but it needs investment."
+      - title: { es: "Dos flujos que se necesitan", en: "Two flows that need each other" }
+        text:
+          es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
+          en: "One changes the farm, through knowledge, support and practices, and lives on concessional funding. The other sells what it produces and can stand on its own income."
     flows:
       - title: { es: "Transición en finca", en: "Transition on the farm" }
         blurb:

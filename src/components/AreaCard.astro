@@ -3,7 +3,7 @@
 import type { AreaView } from "../lib/portfolio";
 import { pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
 import Badge from "@motiu/design/components/Badge.astro";
-import { t } from "../lib/i18n";
+import { t, tv } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -19,13 +19,13 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
         <Badge tone={view.tone as any} size="sm">{t(lang, "pf.areaN", { n: view.num })}</Badge>
         <Badge shape="square" size="sm">{count(view.count)}</Badge>
     </span>
-    <span class="area-card__name">{view.name}</span>
+    <span class="area-card__name">{tv(lang, view.name)}</span>
     {view.def.kicker.es && <span class="area-card__kicker">{pick(view.def.kicker, lang)}</span>}
     <ul class="area-card__subs">
         {view.subareas.map((s) => (
             <li class:list={{ "is-empty": s.items.length === 0 }}>
                 <span class="area-card__id">{s.id}</span>
-                <span class="area-card__sub">{s.name}</span>
+                <span class="area-card__sub">{tv(lang, s.name)}</span>
                 <span class="area-card__dots" aria-label={count(s.items.length)}>
                     {s.items.slice(0, 12).map(() => <i />)}
                 </span>

@@ -23,6 +23,12 @@ The same text in the vault: `Altiplano Estepario/8 Análisis Económico/Metodolo
   fixtures and the saved simulator snapshot `src/data/simulador.json` instead, so you can work without a key.
 - Real data differs from the fixtures: for example the real Notion work areas are not the fixture's four.
   Work-area badge colours are assigned in `src/lib/areas.ts`.
+- English pages show Notion text through a dictionary, not a live translation: `tv()` in `src/lib/i18n.ts`
+  looks each text up in `src/data/value-translations.json` (key: the Spanish text exactly as in Notion;
+  value: the English). A text that is not in the file shows in Spanish on the English pages, so after
+  adding or editing interventions, organisations or their page text in Notion, add the new texts there.
+  Proper names (organisations, brands, clients) are left out on purpose and show unchanged. The Paisaje
+  and Paisaje (prototype) pages keep a Spanish body by design.
 - Pushing to `main` deploys, and the site also rebuilds every 6 hours from Notion.
 
 ## Design system
