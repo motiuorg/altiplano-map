@@ -2,6 +2,8 @@ label: { es: Secciones, en: Sections }
 homeLabel: { es: inicio, en: home }
 variant: solid
 items:
-  - { id: organizaciones, href: /, label: { es: Organizaciones, en: Organizations } }
+  - { id: vision, href: /vision/, label: { es: Visión regenerativa, en: Regenerative vision } }
+  - { id: gobernanza, href: /gobernanza/, label: { es: Gobernanza, en: Governance } }
   - { id: portafolio, href: /portafolio/, label: { es: Portafolio, en: Portfolio } }
+  - { id: estrategia, href: /estrategia/, label: { es: Estrategia financiera, en: Financial strategy } }
   - { id: simulador, href: /simulador/, label: { es: Simulador económico, en: Economic simulator } }

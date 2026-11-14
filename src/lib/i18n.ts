@@ -8,18 +8,52 @@ export type Lang = 'es' | 'en';
 
 const D = {
   // --- shell
-  'nav.orgs': { es: 'Organizaciones', en: 'Organizations' },
+  'nav.gov': { es: 'Gobernanza', en: 'Governance' },
+  'nav.vision': { es: 'Visión regenerativa', en: 'Regenerative vision' },
   'nav.itvs': { es: 'Portafolio', en: 'Portfolio' },
   'nav.sim': { es: 'Simulador económico', en: 'Economic simulator' },
+  'nav.estr': { es: 'Estrategia financiera', en: 'Financial strategy' },
   'nav.label': { es: 'Secciones', en: 'Sections' },
   'lang.label': { es: 'Idioma', en: 'Language' },
   'footer.blurb': {
-    es: 'Mapa abierto de las organizaciones e intervenciones del paisaje del Altiplano Estepario, y simulador del coste de su transición regenerativa.',
-    en: 'Open map of the organizations and interventions of the Altiplano Estepario landscape, and a simulator of the cost of its regenerative transition.',
+    es: 'Las organizaciones que trabajan por la regeneración del Altiplano Estepario, su visión del territorio, sus intervenciones y cómo financiarlas.',
+    en: 'The organisations working to regenerate the Altiplano Estepario, their vision of the territory, their interventions and how to fund them.',
   },
   'footer.sections': { es: 'Secciones', en: 'Sections' },
-  'footer.project': { es: 'Proyecto', en: 'Project' },
+  'footer.project': { es: 'Creado por', en: 'Created by' },
   'footer.osm': { es: '© OpenStreetMap contributors · límites OSM (ODbL)', en: '© OpenStreetMap contributors · OSM boundaries (ODbL)' },
+
+  // --- regenerative vision page (the diagram's texts: src/data/vision.yaml)
+  'vis.title': { es: 'Altiplano Estepario — Visión regenerativa', en: 'Altiplano Estepario — Regenerative vision' },
+  'vis.description': {
+    es: 'Cómo imaginamos el Altiplano Estepario restaurado, desde las raíces hasta el paisaje.',
+    en: 'How we imagine the restored Altiplano Estepario, from its roots up to the landscape.',
+  },
+
+  // --- financial strategy page (texts of the diagram and cards: src/data/estrategia.yaml)
+  'estr.title': { es: 'Altiplano Estepario — Estrategia financiera', en: 'Altiplano Estepario — Financial strategy' },
+  'estr.description': {
+    es: 'Cómo puede circular el dinero en el Altiplano Estepario: fuentes, mecanismos y tipos de proyecto.',
+    en: 'How money can flow in the Altiplano Estepario: sources, mechanisms and kinds of project.',
+  },
+  'estr.overline': { es: 'Estrategia financiera', en: 'Financial strategy' },
+  'estr.heading': { es: 'Del capital al paisaje', en: 'From capital to landscape' },
+  'estr.diagram': {
+    es: 'Diagrama de flujo: fuentes de financiación, mecanismos y tipos de proyecto, sobre el proceso de la estrategia',
+    en: 'Flow diagram: funding sources, mechanisms and kinds of project, resting on the strategy process',
+  },
+  'estr.colSources': { es: 'Fuentes', en: 'Sources' },
+  'estr.colMechs': { es: 'Mecanismos', en: 'Mechanisms' },
+  'estr.colProjects': { es: 'Tipos de proyecto', en: 'Kinds of project' },
+  'estr.sinRetorno': { es: 'Sin retorno', en: 'No return' },
+  'estr.conRetorno': { es: 'Con retorno', en: 'With return' },
+  'estr.retornos': { es: 'retornos', en: 'returns' },
+  'estr.legendStructure': { es: 'A través de un mecanismo', en: 'Through a mechanism' },
+  'estr.legendDirect': { es: 'Directo, sin estructura', en: 'Direct, no structure' },
+  'estr.legendNote': {
+    es: 'Las cintas muestran conexiones, no cantidades. Pasa el cursor por una tarjeta para ver su recorrido y haz clic para abrirla.',
+    en: 'Ribbons show connections, not amounts. Hover over a card to see its path, and click it to open it.',
+  },
 
   // --- banners
   'banner.error': { es: '⚠ Datos no disponibles.', en: '⚠ Data unavailable.' },
@@ -29,7 +63,25 @@ const D = {
     en: 'You are looking at the development dataset, not the real data.',
   },
 
-  // --- organizations page
+  // --- home
+  'home.title': { es: 'Altiplano Estepario', en: 'Altiplano Estepario' },
+  'home.description': {
+    es: 'Quién trabaja por la regeneración del Altiplano Estepario, cómo imaginan el territorio, qué intervenciones están en marcha y cómo financiarlas.',
+    en: 'Who is working to regenerate the Altiplano Estepario, how they imagine the territory, which interventions are under way and how to fund them.',
+  },
+
+  'home.go': { es: 'Ver más', en: 'See more' },
+  'home.simCaption': { es: 'Flujo neto · {farm} · €/ha', en: 'Net cash flow · {farm} · €/ha' },
+
+  // --- governance page (texts: src/data/gobernanza.yaml)
+  'gov.title': { es: 'Altiplano Estepario — Gobernanza', en: 'Altiplano Estepario — Governance' },
+  'gov.description': {
+    es: 'Cómo se organiza el grupo de trabajo de la estrategia financiera del Altiplano Estepario: propósito, principios, círculos y decisiones.',
+    en: 'How the Altiplano Estepario financial strategy working group is organised: purpose, principles, circles and decisions.',
+  },
+  'gov.coordination': { es: 'Coordinación', en: 'Coordination' },
+
+  // --- organizations (the home hero, the cards and the side panel)
   'orgs.title': { es: 'Altiplano Estepario — Organizaciones', en: 'Altiplano Estepario — Organizations' },
   'orgs.description': {
     es: 'Mapa abierto de las organizaciones del paisaje del Altiplano Estepario.',
@@ -214,8 +266,8 @@ export function tv(lang: Lang, value: string): string {
 export const numberLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'es-ES');
 
 // Path of the same page in the other language.
-export type Page = 'organizaciones' | 'portafolio' | 'simulador';
+export type Page = 'inicio' | 'gobernanza' | 'vision' | 'portafolio' | 'simulador' | 'estrategia';
 export function pagePath(base: string, lang: Lang, page: Page): string {
   const b = base.replace(/\/?$/, '/');
-  return b + (lang === 'en' ? 'en/' : '') + (page === 'organizaciones' ? '' : page + '/');
+  return b + (lang === 'en' ? 'en/' : '') + (page === 'inicio' ? '' : page + '/');
 }

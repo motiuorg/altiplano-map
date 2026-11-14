@@ -1,0 +1,92 @@
+---
+import "../styles/app.css";
+// Estrategia financiera: one flow diagram (sources → mechanisms → projects, on the strategy process), as wide
+// as the screen like the nav. Each element opens its detail in a panel. Content: src/data/estrategia.yaml.
+import Layout from "@motiu/design/components/Layout.astro";
+import SectionHeading from "@motiu/design/components/SectionHeading.astro";
+import FinanceFlow from "../components/estrategia/FinanceFlow.astro";
+import { loadStrategy } from "../lib/estrategia";
+import { pick } from "../lib/portfolio";
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
+
+export interface Props {
+    lang?: Lang;
+}
+const { lang = "es" } = Astro.props;
+const data = loadStrategy();
+---
+
+<Layout title={t(lang, "estr.title")} description={t(lang, "estr.description")} current="estrategia" lang={lang}>
+    <section class="section">
+        <div class="container">
+            <SectionHeading eyebrow={t(lang, "estr.overline")} title={t(lang, "estr.heading")} intro={pick(data.intro, lang)} />
+        </div>
+
+        <figure class="estr-figure">
+            <FinanceFlow
+                data={data}
+                lang={lang}
+                label={t(lang, "estr.diagram")}
+                titles={{
+                    sources: t(lang, "estr.colSources"),
+                    mechanisms: t(lang, "estr.colMechs"),
+                    projects: t(lang, "estr.colProjects"),
+                    sinRetorno: t(lang, "estr.sinRetorno"),
+                    conRetorno: t(lang, "estr.conRetorno"),
+                    retornos: t(lang, "estr.retornos"),
+                }}
+            />
+            <figcaption class="estr-legend">
+                <span class="estr-legend__item"><i class="estr-legend__line" />{t(lang, "estr.legendStructure")}</span>
+                <span class="estr-legend__item"><i class="estr-legend__line estr-legend__line--dash" />{t(lang, "estr.legendDirect")}</span>
+                <span class="estr-legend__note">{t(lang, "estr.legendNote")}</span>
+            </figcaption>
+        </figure>
+    </section>
+</Layout>
+
+<style>
+    .section {
+        padding: var(--space-16) 0 var(--space-20);
+    }
+    /* As wide as the screen, with the nav's side padding instead of the content container. */
+    .estr-figure {
+        margin: 0;
+        padding: 0 var(--gutter);
+    }
+    .estr-legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2) var(--space-6);
+        margin-top: var(--space-6);
+        font-size: var(--copy-sm);
+        color: var(--text-muted);
+    }
+    .estr-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-primary);
+    }
+    .estr-legend__line {
+        display: inline-block;
+        width: 2rem;
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #6f6a64, #00aeff);
+        opacity: 0.7;
+    }
+    .estr-legend__line--dash {
+        height: 0;
+        border-radius: 0;
+        background: none;
+        border-top: 3px dashed #6f6a64;
+    }
+    @media (max-width: 560px) {
+        .estr-figure {
+            padding: 0 var(--space-4);
+        }
+    }
+</style>

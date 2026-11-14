@@ -1,0 +1,281 @@
+---
+import "../styles/app.css";
+// Visión regenerativa: the restored territory as a tree, from the landscape in its crown down to the roots.
+// The illustration (public/vision-arbol.svg) is drawn at 1440 × 2234 and the cards sit on it at fixed
+// positions; the whole stage scales to the screen width. Below 1024px the illustration is hidden and the
+// cards stack in reading order. Content and positions: src/data/vision.yaml.
+import Layout from "@motiu/design/components/Layout.astro";
+import SectionHeading from "@motiu/design/components/SectionHeading.astro";
+import Badge from "@motiu/design/components/Badge.astro";
+import { loadVision } from "../lib/vision";
+import { pick, toneVars } from "../lib/portfolio";
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
+
+export interface Props {
+    lang?: Lang;
+}
+const { lang = "es" } = Astro.props;
+const v = loadVision();
+const { w: W, h: H } = v.size;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
+const place = (p: { x: number; y: number; w: number; h?: number }) =>
+    `--x:${p.x}px;--y:${p.y}px;--w:${p.w}px;${p.h ? `--h:${p.h}px;` : ""}`;
+const tone = (name: string) => (name === "neutral" ? "" : toneVars(name) + ";");
+// A band's arrows take the colour of the layer each one comes from: ↑ from the layer below, ↓ from the one above.
+const layerTone = (i: number, step: 1 | -1) => {
+    for (let j = i + step; j >= 0 && j < v.parts.length; j += step) {
+        const p = v.parts[j];
+        if (!("band" in p)) return tone(p.tone);
+    }
+    return "";
+};
+const ARROW_UP = "M11 18 V5 M5.5 10.5 L11 5 L16.5 10.5";
+const ARROW_DOWN = "M11 4 V17 M5.5 11.5 L11 17 L16.5 11.5";
+---
+
+<Layout title={t(lang, "vis.title")} description={t(lang, "vis.description")} current="vision" lang={lang}>
+    <section class="section">
+        <div class="container">
+            <SectionHeading eyebrow={pick(v.eyebrow, lang)} title={pick(v.title, lang)} intro={pick(v.intro, lang)} />
+        </div>
+
+        <div class="vt">
+            <div class="vt__frame" data-vision-tree style={`--W:${W};--H:${H}`}>
+                <div class="vt__stage" style={`width:${W}px;height:${H}px`}>
+                    <img class="vt__art" src={`${base}vision-arbol.svg`} width={W} height={H} alt="" loading="lazy" decoding="async" />
+                    {v.parts.map((p, i) =>
+                        "band" in p ? (
+                            <div class="vt-band" data-band style={place(p.pos)}>
+                                <p class="vt-band__say vt-band__say--up" style={layerTone(i, 1)}>
+                                    <span>{pick(p.up, lang)}</span>
+                                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 22 22"><path d={ARROW_UP} /></svg>
+                                </p>
+                                <p class="vt-band__label">
+                                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 V13 M3 5 L7 1 L11 5 M3 9 L7 13 L11 9" /></svg>
+                                    <span>{pick(p.band, lang)}</span>
+                                </p>
+                                <p class="vt-band__say" style={layerTone(i, -1)}>
+                                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 22 22"><path d={ARROW_DOWN} /></svg>
+                                    <span>{pick(p.down, lang)}</span>
+                                </p>
+                            </div>
+                        ) : (
+                            <section class="vt-layer" data-row={p.pos.y} data-centre={p.centre ? "" : undefined} style={place(p.pos) + tone(p.tone)}>
+                                <header class="vt-layer__head">
+                                    <h3 class="vt-layer__tag"><Badge tone={p.tone as any} size="md">{pick(p.label, lang)}</Badge></h3>
+                                    <p class="vt-layer__sub">{pick(p.sub, lang)}</p>
+                                </header>
+                                <ul class="vt-layer__items">
+                                    {p.items.map((it) => <li><Badge shape="square" size="lg">{pick(it, lang)}</Badge></li>)}
+                                </ul>
+                            </section>
+                        ),
+                    )}
+                </div>
+            </div>
+        </div>
+    </section>
+</Layout>
+
+<script>
+    // Scale the fixed-size stage to the frame's width (never above its own size).
+    document.querySelectorAll<HTMLElement>("[data-vision-tree]").forEach((frame) => {
+        const W = Number(frame.style.getPropertyValue("--W"));
+        const fit = () => frame.style.setProperty("--k", String(Math.min(1, frame.clientWidth / W)));
+        new ResizeObserver(fit).observe(frame);
+        fit();
+
+        // Rows marked centre: halfway between the band above and the band below, as a group (tallest card).
+        // offsetTop / offsetHeight are in the stage's own pixels, unaffected by the scaling.
+        const centre = () => {
+            const items = [...frame.querySelectorAll<HTMLElement>("[data-band], [data-row]")];
+            const rows = new Map<string, HTMLElement[]>();
+            frame.querySelectorAll<HTMLElement>("[data-centre]").forEach((el) => {
+                (rows.get(el.dataset.row!) ?? rows.set(el.dataset.row!, []).get(el.dataset.row!)!).push(el);
+            });
+            rows.forEach((cards) => {
+                const i = items.indexOf(cards[0]);
+                const above = items.slice(0, i).reverse().find((el) => el.hasAttribute("data-band"));
+                const below = items.slice(i).find((el) => el.hasAttribute("data-band"));
+                if (!above || !below) return;
+                const top = above.offsetTop + above.offsetHeight;
+                const bottom = below.offsetTop;
+                const h = Math.max(...cards.map((c) => c.offsetHeight));
+                cards.forEach((c) => c.style.setProperty("--y", `${Math.round((top + bottom - h) / 2)}px`));
+            });
+        };
+        document.fonts?.ready.then(centre);
+        centre();
+    });
+</script>
+
+<style>
+    .section {
+        padding: var(--space-16) 0 var(--space-20);
+    }
+    .vt {
+        padding: 0 var(--gutter);
+    }
+    .vt__frame {
+        --k: 1;
+        position: relative;
+        max-width: calc(var(--W) * 1px);
+        height: calc(var(--H) * var(--k) * 1px);
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: var(--radius-card, 0.75rem);
+    }
+    .vt__stage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: scale(var(--k));
+        transform-origin: 0 0;
+    }
+    .vt__art {
+        position: absolute;
+        inset: 0;
+        display: block;
+    }
+
+    .vt-layer,
+    .vt-band {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--w);
+        box-sizing: border-box;
+    }
+    .vt-layer {
+        min-height: var(--h, auto);
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+        padding: 1.75rem 1.6rem;
+        border-radius: 1.25rem;
+        background: color-mix(in srgb, var(--tone-l, var(--surface-2)) 30%, var(--paper));
+    }
+    .vt-layer__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1rem;
+    }
+    .vt-layer__tag {
+        margin: 0;
+        font: inherit;
+    }
+    .vt-layer__sub {
+        margin: 0;
+        font-size: 0.9375rem;
+        line-height: 1.45;
+        color: var(--tone-d, var(--text-primary));
+    }
+    .vt-layer__items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .vt-layer__items li {
+        display: flex;
+        max-width: 100%;
+    }
+    /* long themes wrap instead of overflowing the card */
+    .vt-layer__items :global(.badge) {
+        white-space: normal;
+    }
+    /* A band: its label centred where the mockup puts it, what each layer gives on either side. */
+    .vt-band {
+        z-index: 1;
+        left: calc(var(--x) + var(--w) / 2) !important;
+        width: 74rem !important;
+        transform: translateX(-50%);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .vt-band p {
+        margin: 0;
+    }
+    .vt-band__label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.75rem;
+        border: 1.5px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        background: var(--paper);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        line-height: 1.5;
+        white-space: nowrap;
+    }
+    .vt-band__say {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-self: start;
+        max-width: 100%;
+        padding: 0.3rem 0.75rem;
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--paper) 92%, transparent);
+        font-size: 0.8125rem;
+        line-height: 1.4;
+        color: var(--text-primary);
+    }
+    .vt-band__say--up {
+        justify-self: end;
+        text-align: right;
+    }
+    .vt-band svg {
+        flex: none;
+        fill: none;
+        stroke: var(--tone-d, var(--text-muted));
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .vt-band__label svg {
+        stroke: var(--text-muted);
+    }
+
+    /* Narrow screens: no illustration, the cards stack in reading order. */
+    @media (max-width: 1024px) {
+        .vt__frame {
+            height: auto;
+            overflow: visible;
+        }
+        .vt__stage {
+            position: static;
+            width: auto !important;
+            height: auto !important;
+            transform: none;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--space-4);
+        }
+        .vt__art {
+            display: none;
+        }
+        .vt-layer,
+        .vt-band {
+            position: static;
+            width: auto !important;
+        }
+        .vt-band {
+            transform: none;
+            align-self: stretch;
+            margin-block: var(--space-2);
+        }
+        .vt-layer {
+            min-height: 0;
+        }
+    }
+</style>

@@ -1,0 +1,638 @@
+---
+import "../styles/app.css";
+// Home: the territory (hero with the core organisations on the map, then what is at stake), what the working
+// group is doing (with live figures from Notion), a guided tour of the five sections, and where to start.
+// Texts: src/data/home.yaml.
+import Layout from "@motiu/design/components/Layout.astro";
+import Badge from "@motiu/design/components/Badge.astro";
+import OrgMap from "../components/OrgMap.astro";
+import { loadSiteData } from "../lib/data";
+import { loadHome, withLinks } from "../lib/pages";
+import { loadVision } from "../lib/vision";
+import { loadSimuladorData } from "../lib/simulador/data";
+import Modelo from "../lib/simulador/model.js";
+import { buildAreaViews, compactEuro, pick, toneVars } from "../lib/portfolio";
+import { t, tv } from "../lib/i18n";
+import type { Lang } from "../lib/i18n";
+
+export interface Props {
+    lang?: Lang;
+}
+const { lang = "es" } = Astro.props;
+const { orgs, interventions, dataError, dataSource } = await loadSiteData();
+const home = loadHome();
+const base = import.meta.env.BASE_URL.replace(/\/+$/, "");
+const href = (path: string) => `${base}${lang === "en" ? "/en" : ""}${path}`;
+const loc = lang === "en" ? "en-GB" : "es-ES";
+
+// Only the core (working group) organisations, on the map and in the figures.
+const core = orgs.filter((o) => o.grupoTrabajo);
+const areas = buildAreaViews(interventions);
+const financing = interventions.reduce((sum, i) => sum + (i.financiacion ?? 0), 0);
+
+// Vision preview: the top of the tree, with simplified cards over the gaps the illustration leaves for them.
+const vision = loadVision();
+const MINI = { top: 150, h: 1000 }; // the slice of the illustration shown (its own pixels)
+const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(3)}%`;
+const miniCards = vision.parts
+    .flatMap((p) => ("band" in p ? [] : [p]))
+    .filter((p) => p.mock.y < MINI.top + MINI.h)
+    .map((p) => ({
+        tone: p.tone,
+        style:
+            `left:${pct(p.pos.x, vision.size.w)};top:${pct(p.mock.y, vision.size.h)};` +
+            `width:${pct(p.pos.w, vision.size.w)};height:${pct(p.mock.h, vision.size.h)};` +
+            (p.tone === "neutral" ? "" : toneVars(p.tone)),
+    }));
+
+// Simulator preview: the net flow of the transition for the simulator's default farm type, with its
+// default settings (central values, full CAP), from the same data and model the simulator uses.
+const { datos } = await loadSimuladorData();
+const arq = datos.arquetipos[0];
+const finca = Modelo.simularFinca(datos, {
+    arquetipo: arq.clave, escenario: "completa", conjunto: "central", pac: 1,
+    diversificacion: {}, primaRegen: true, carbono: false, pse: 0, overrides: {},
+});
+const years = finca.anios.map((a: { neto: number; acumulado: number }) => ({ neto: a.neto, acum: a.acumulado }));
+const CH = { w: 320, h: 190, padX: 18, padY: 16 };
+const maxAbs = Math.max(1, ...years.flatMap((y) => [Math.abs(y.neto), Math.abs(y.acum)]));
+const yOf = (v: number) => CH.padY + ((maxAbs - v) / (2 * maxAbs)) * (CH.h - 2 * CH.padY);
+const step = (CH.w - 2 * CH.padX) / years.length;
+const bars = years.map((y, i) => {
+    const x = CH.padX + i * step + step * 0.2;
+    const y0 = yOf(0);
+    const y1 = yOf(y.neto);
+    return { x, w: step * 0.6, y: Math.min(y0, y1), h: Math.max(1, Math.abs(y1 - y0)), pos: y.neto >= 0 };
+});
+const cumLine = years.map((y, i) => `${(CH.padX + i * step + step / 2).toFixed(1)},${yOf(y.acum).toFixed(1)}`).join(" ");
+const simCaption = tv(lang, arq.nombre);
+---
+
+<Layout title={t(lang, "home.title")} description={t(lang, "home.description")} lang={lang}>
+    <section class="landing">
+        <div class="landing__intro">
+            <h1 class="display landing__title">
+                {t(lang, "orgs.h1a")}
+                <br />
+                {t(lang, "orgs.h1b")}
+            </h1>
+            <p class="lede landing__lede">{pick(home.hero.lede, lang)}</p>
+            <p class="landing__actions">
+                <a class="btn btn--primary" href="#explorar">{pick(home.hero.cta, lang)} ↓</a>
+            </p>
+        </div>
+        <div class="landing__map" aria-label={pick(home.hero.mapNote, lang)}>
+            <OrgMap orgs={core} lang={lang} />
+        </div>
+    </section>
+
+    {dataError && (
+        <div class="container">
+            <div class="data-banner" role="alert">
+                <strong>{t(lang, "banner.error")}</strong> {dataError}
+            </div>
+        </div>
+    )}
+    {!dataError && dataSource === "fixture" && (
+        <div class="container">
+            <div class="data-banner data-banner--fixture">
+                <strong>{t(lang, "banner.fixture")}</strong>
+                {t(lang, "banner.fixtureText")}
+            </div>
+        </div>
+    )}
+
+    <!-- The territory -->
+    <section class="section">
+        <div class="container home-split">
+            <header>
+                <p class="eyebrow">{pick(home.territory.eyebrow, lang)}</p>
+                <h2 class="home-h">{pick(home.territory.title, lang)}</h2>
+            </header>
+            <div class="home-prose">
+                {home.territory.text.map((p) => <p set:html={withLinks(pick(p, lang))} />)}
+            </div>
+        </div>
+        <div class="container">
+            <dl class="home-stats">
+                {home.territory.stats.map((s) => (
+                    <div>
+                        <dt>{s.value}</dt>
+                        <dd>{pick(s.label, lang)}</dd>
+                    </div>
+                ))}
+            </dl>
+        </div>
+    </section>
+
+    <!-- What the group is doing -->
+    <section class="section section--alt">
+        <div class="container home-split">
+            <header>
+                <p class="eyebrow">{pick(home.process.eyebrow, lang)}</p>
+                <h2 class="home-h">{pick(home.process.title, lang)}</h2>
+            </header>
+            <div class="home-prose">
+                {home.process.text.map((p) => <p set:html={withLinks(pick(p, lang))} />)}
+            </div>
+        </div>
+        <div class="container">
+            <dl class="home-stats">
+                <div>
+                    <dt>{core.length}</dt>
+                    <dd>{pick(home.process.stats.core, lang)}</dd>
+                </div>
+                <div>
+                    <dt>{areas.length}</dt>
+                    <dd>{pick(home.process.stats.areas, lang)}</dd>
+                </div>
+                <div>
+                    <dt>{interventions.length.toLocaleString(loc)}</dt>
+                    <dd>{pick(home.process.stats.itvs, lang)}</dd>
+                </div>
+                {financing > 0 && (
+                    <div>
+                        <dt>{compactEuro(financing, lang)}</dt>
+                        <dd>{pick(home.process.stats.fin, lang)}</dd>
+                    </div>
+                )}
+            </dl>
+        </div>
+    </section>
+
+    <!-- The tour -->
+    <section class="section" id="explorar">
+        <div class="container">
+            <header class="tour-head">
+                <p class="eyebrow">{pick(home.tour.eyebrow, lang)}</p>
+                <h2 class="home-h">{pick(home.tour.title, lang)}</h2>
+                <p class="home-intro">{pick(home.tour.intro, lang)}</p>
+            </header>
+
+            <ol class="tour">
+                {home.tour.steps.map((s, i) => (
+                    <li class="tour-step">
+                        <div class="tour-step__text">
+                            <p class="tour-step__verb"><span>{String(i + 1).padStart(2, "0")}</span> {pick(s.verb, lang)}</p>
+                            <h3 class="tour-step__name"><a href={href(s.href)}>{pick(s.label, lang)}</a></h3>
+                            <p class="tour-step__q">{pick(s.question, lang)}</p>
+                            <p class="tour-step__body">{pick(s.text, lang)}</p>
+                            <a class="tour-step__go" href={href(s.href)}>{t(lang, "home.go")} →</a>
+                        </div>
+                        <a class="tour-step__visual" href={href(s.href)} tabindex="-1" aria-hidden="true">
+                            {s.id === "vision" && (
+                                <div class="mini-tree">
+                                    <div class="mini-tree__stage" style={`top:-${pct(MINI.top, MINI.h)};height:${pct(vision.size.h, MINI.h)}`}>
+                                        <img src={`${base}/vision-arbol.svg`} alt="" loading="lazy" decoding="async" />
+                                        {miniCards.map((c) => (
+                                            <span class="mini-card" style={c.style}>
+                                                <i class="mini-card__tag" />
+                                                <i class="mini-card__line" />
+                                                <i class="mini-card__line mini-card__line--short" />
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {s.id === "gobernanza" && (
+                                <svg class="tour-art" viewBox="0 0 320 220">
+                                    <circle cx="160" cy="110" r="100" class="mini-ring mini-ring--3" />
+                                    <circle cx="160" cy="110" r="68" class="mini-ring mini-ring--2" />
+                                    {[35, 90, 145, 215, 325].map((a) => (
+                                        <circle cx={160 + 52 * Math.cos((a * Math.PI) / 180)} cy={110 + 52 * Math.sin((a * Math.PI) / 180)} r="8" class="mini-ring mini-ring--small" />
+                                    ))}
+                                    <circle cx="160" cy="110" r="34" class="mini-ring mini-ring--1" />
+                                    <path d={"M60,110 " + Array.from({ length: 10 }, (_, k) => `q10,${k % 2 ? 6 : -6} 20,0`).join(" ")} class="mini-wave" />
+                                </svg>
+                            )}
+                            {s.id === "portafolio" && (
+                                <div class="tour-areas">
+                                    <p class="tour-areas__n"><strong>{interventions.length}</strong> {pick(home.process.stats.itvs, lang)}</p>
+                                    <ul>
+                                        {areas.map((a) => (
+                                            <li><Badge tone={a.tone as any} size="sm">{tv(lang, a.name)}</Badge> <span>{a.count}</span></li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {s.id === "estrategia" && (
+                                <svg class="tour-art" viewBox="0 0 320 220">
+                                    {[[40, 70], [40, 110], [40, 150]].map(([, y]) => <rect x="20" y={y - 9} width="70" height="18" rx="4" class="mini-pill" style="stroke:#6f6a64" />)}
+                                    <rect x="125" y="71" width="70" height="18" rx="4" class="mini-pill" style="stroke:#00aeff" />
+                                    <rect x="125" y="131" width="70" height="18" rx="4" class="mini-pill" style="stroke:#00b86b" />
+                                    {[50, 90, 130, 170].map((y, k) => <rect x="230" y={y - 9} width="70" height="18" rx="4" class="mini-pill" style={`stroke:${["#00aeff", "#00b1ce", "#00b59c", "#00b86b"][k]}`} />)}
+                                    {[[70, 80], [110, 80], [110, 140], [150, 140]].map(([y1, y2]) => <path d={`M90,${y1} C108,${y1} 108,${y2} 125,${y2}`} class="mini-link" style={`stroke:${y2 < 100 ? "#00aeff" : "#00b86b"}`} />)}
+                                    {[[80, 50], [80, 90], [80, 130], [140, 130], [140, 170]].map(([y1, y2]) => <path d={`M195,${y1} C212,${y1} 212,${y2} 230,${y2}`} class="mini-link" style={`stroke:${y1 < 100 ? "#00aeff" : "#00b86b"}`} />)}
+                                    <rect x="20" y="192" width="280" height="16" rx="4" class="mini-band" />
+                                </svg>
+                            )}
+                            {s.id === "simulador" && (
+                                <figure class="mini-flow">
+                                    <svg class="tour-art" viewBox={`0 0 ${CH.w} ${CH.h}`}>
+                                        <line x1={CH.padX} x2={CH.w - CH.padX} y1={yOf(0)} y2={yOf(0)} class="mini-flow__zero" />
+                                        {bars.map((b) => <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="1.5" class={b.pos ? "mini-flow__pos" : "mini-flow__neg"} />)}
+                                        <polyline points={cumLine} class="mini-flow__cum" />
+                                    </svg>
+                                    <figcaption>{t(lang, "home.simCaption", { farm: simCaption })}</figcaption>
+                                </figure>
+                            )}
+                        </a>
+                    </li>
+                ))}
+            </ol>
+        </div>
+    </section>
+
+    <!-- Where to start -->
+    <section class="closing">
+        <div class="container closing__inner">
+            <div>
+                <h2 class="home-h closing__title">{pick(home.closing.title, lang)}</h2>
+                <p class="closing__text">{pick(home.closing.text, lang)}</p>
+            </div>
+            <a class="btn btn--paper closing__cta" href={href("/vision/")}>{pick(home.closing.cta, lang)} →</a>
+        </div>
+    </section>
+</Layout>
+
+<style>
+    /* ============ landing: intro (left, 1/3) + map (right, 2/3) ============ */
+    .landing {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        height: calc(100vh - var(--nav-h, 4rem));
+        min-height: 560px;
+        border-bottom: 1px solid var(--border-subtle);
+        background: var(--bg);
+    }
+    .landing__intro {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: var(--space-6);
+        padding: var(--space-12) var(--space-16) var(--space-12) max(var(--space-16), calc((100vw - 1440px) / 2));
+    }
+    .landing__title {
+        font-size: clamp(2.25rem, 3.6vw, 4.25rem);
+        color: var(--text-primary);
+    }
+    .landing__actions {
+        margin: 0;
+    }
+    .landing__map {
+        min-height: 0;
+        border-left: 1px solid var(--border-subtle);
+    }
+    @media (max-width: 900px) {
+        .landing {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 70vh;
+            height: auto;
+        }
+        .landing__intro {
+            padding: var(--space-12) var(--gutter) var(--space-8);
+        }
+        .landing__map {
+            border-left: 0;
+            border-top: 1px solid var(--border-subtle);
+        }
+    }
+
+    /* ============ sections ============ */
+    .section {
+        padding: var(--space-20) 0;
+        scroll-margin-top: 4rem;
+    }
+    .section--alt {
+        background: var(--surface-1);
+        border-block: 1px solid var(--border-subtle);
+    }
+    .home-split {
+        display: grid;
+        grid-template-columns: minmax(14rem, 1fr) minmax(0, 1.7fr);
+        gap: var(--space-6) var(--space-16);
+    }
+    .home-h {
+        margin: var(--space-2) 0 0;
+        font-family: var(--serif);
+        font-size: var(--text-2xl);
+        font-weight: 400;
+        line-height: var(--leading-heading);
+    }
+    .home-prose p,
+    .home-intro {
+        max-width: var(--container-prose);
+        margin: 0 0 var(--space-5);
+        font-size: var(--copy-lg);
+        line-height: var(--leading-body);
+    }
+    .home-intro {
+        margin-top: var(--space-4);
+        color: var(--text-muted);
+    }
+    .home-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+        gap: var(--space-6);
+        margin: var(--space-12) 0 0;
+        padding: var(--space-8) 0 0;
+        border-top: 1px dashed var(--border-default);
+    }
+    .home-stats dt {
+        font-family: var(--serif);
+        font-size: var(--text-2xl);
+        line-height: 1.1;
+    }
+    .home-stats dd {
+        margin: var(--space-2) 0 0;
+        font-size: var(--copy-sm);
+        line-height: var(--leading-ui);
+        color: var(--text-muted);
+    }
+
+    /* ============ tour ============ */
+    .tour-head {
+        max-width: 48rem;
+        margin-bottom: var(--space-12);
+    }
+    .tour {
+        display: grid;
+        gap: var(--space-4);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .tour-step {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+        gap: var(--space-8) var(--space-16);
+        align-items: center;
+        padding: var(--space-10) 0;
+        border-top: 1px solid var(--border-subtle);
+    }
+    .tour-step:nth-child(even) .tour-step__visual {
+        order: -1;
+    }
+    .tour-step__verb {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .tour-step__verb span {
+        margin-right: 0.6em;
+        color: var(--text-primary);
+    }
+    .tour-step__name {
+        margin: var(--space-3) 0 var(--space-2);
+        font-family: var(--serif);
+        font-size: var(--text-xl);
+        font-weight: 400;
+        line-height: var(--leading-heading);
+    }
+    .tour-step__name a {
+        color: inherit;
+        text-decoration: none;
+    }
+    .tour-step__name a:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+    .tour-step__q {
+        margin: 0 0 var(--space-4);
+        font-size: var(--copy-md);
+        font-style: italic;
+        color: var(--text-muted);
+    }
+    .tour-step__body {
+        max-width: 38rem;
+        margin: 0 0 var(--space-5);
+        font-size: var(--copy-md);
+        line-height: var(--leading-body);
+    }
+    .tour-step__go {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-primary);
+    }
+    .tour-step__visual {
+        position: relative;
+        display: grid;
+        place-items: center;
+        aspect-ratio: 16 / 11;
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card, 0.75rem);
+        background: var(--surface-1);
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: border-color var(--t-med), transform var(--t-med);
+    }
+    .tour-step__visual:hover {
+        border-color: var(--border-default);
+        transform: translateY(-2px);
+    }
+    .tour-art {
+        width: 86%;
+        height: auto;
+    }
+    .mini-tree {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+    .mini-tree__stage {
+        position: absolute;
+        left: 0;
+        width: 100%;
+    }
+    .mini-tree__stage img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+    /* a card reduced to its colours: the label and two lines of text */
+    .mini-card {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        gap: 6%;
+        padding: 1.6% 1.4%;
+        box-sizing: border-box;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--tone-l, var(--surface-2)) 30%, var(--paper));
+    }
+    .mini-card i {
+        display: block;
+        height: 6px;
+        border-radius: 3px;
+    }
+    .mini-card__tag {
+        width: 38%;
+        background: color-mix(in srgb, var(--tone-m, var(--text-muted)) 55%, var(--paper));
+    }
+    .mini-card__line {
+        width: 80%;
+        background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+    }
+    .mini-card__line--short {
+        width: 55%;
+    }
+    .mini-flow {
+        width: 86%;
+        margin: 0;
+    }
+    .mini-flow .tour-art {
+        width: 100%;
+    }
+    .mini-flow__zero {
+        stroke: var(--border-default);
+        stroke-width: 1;
+    }
+    .mini-flow__pos {
+        fill: var(--data-positive);
+    }
+    .mini-flow__neg {
+        fill: var(--data-negative);
+    }
+    .mini-flow__cum {
+        fill: none;
+        stroke: var(--text-primary);
+        stroke-width: 2;
+        stroke-linejoin: round;
+    }
+    .mini-flow figcaption {
+        margin-top: var(--space-2);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        text-align: center;
+    }
+    .mini-ring {
+        stroke: var(--border-default);
+        stroke-width: 1;
+    }
+    .mini-ring--3 {
+        fill: color-mix(in srgb, var(--pillar-tissue-1) 14%, var(--paper));
+        stroke-dasharray: 3 3;
+    }
+    .mini-ring--2 {
+        fill: color-mix(in srgb, var(--pillar-tissue-1) 30%, var(--paper));
+    }
+    .mini-ring--small {
+        fill: var(--paper);
+        stroke: color-mix(in srgb, var(--pillar-tissue-3) 70%, var(--text-muted));
+    }
+    .mini-ring--1 {
+        fill: color-mix(in srgb, var(--pillar-tissue-3) 55%, var(--paper));
+    }
+    .mini-wave {
+        fill: none;
+        stroke: var(--text-primary);
+        stroke-width: 1.4;
+    }
+    .mini-pill {
+        fill: var(--paper);
+        stroke-width: 1.4;
+    }
+    .mini-link {
+        fill: none;
+        stroke-width: 3;
+        opacity: 0.55;
+    }
+    .mini-band {
+        fill: var(--paper);
+        stroke: var(--border-default);
+    }
+    .tour-areas {
+        width: 82%;
+    }
+    .tour-areas__n {
+        margin: 0 0 var(--space-4);
+        font-size: var(--copy-sm);
+        color: var(--text-muted);
+    }
+    .tour-areas__n strong {
+        display: block;
+        font-family: var(--serif);
+        font-size: var(--text-2xl);
+        font-weight: 400;
+        color: var(--text-primary);
+    }
+    .tour-areas ul {
+        display: grid;
+        gap: var(--space-2);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .tour-areas li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+    }
+
+    /* ============ closing ============ */
+    .closing {
+        padding: var(--space-16) 0;
+        background: var(--umber, #221a12);
+        color: var(--paper);
+    }
+    .closing__inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-6) var(--space-12);
+    }
+    .closing__title {
+        margin: 0 0 var(--space-3);
+        color: var(--paper);
+    }
+    .closing__text {
+        max-width: 40rem;
+        margin: 0;
+        font-size: var(--copy-lg);
+        line-height: var(--leading-body);
+        color: color-mix(in srgb, var(--paper) 78%, transparent);
+    }
+    .closing__cta {
+        background: var(--paper);
+        color: var(--umber, #221a12);
+        border-color: var(--paper);
+    }
+
+    @media (max-width: 860px) {
+        .home-split,
+        .tour-step {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .tour-step:nth-child(even) .tour-step__visual {
+            order: 0;
+        }
+    }
+
+    .data-banner {
+        margin-top: var(--space-6);
+        padding: var(--space-4) var(--space-5);
+        border: 1px solid color-mix(in srgb, var(--status-danger-mid) 45%, transparent);
+        background: color-mix(in srgb, var(--status-danger-mid) 7%, var(--bg));
+        font-size: var(--text-sm);
+        line-height: 1.55;
+    }
+    .data-banner--fixture {
+        border-color: var(--border-default);
+        background: color-mix(in srgb, var(--pillar-flow-2) 14%, var(--bg));
+    }
+</style>

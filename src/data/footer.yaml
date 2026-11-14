@@ -1,13 +1,16 @@
 blurb:
-  es: Mapa abierto de las organizaciones e intervenciones del paisaje del Altiplano Estepario, y simulador del coste de su transición regenerativa.
-  en: Open map of the organizations and interventions of the Altiplano Estepario landscape, and a simulator of the cost of its regenerative transition.
+  es: Las organizaciones que trabajan por la regeneración del Altiplano Estepario, su visión del territorio, sus intervenciones y cómo financiarlas.
+  en: The organisations working to regenerate the Altiplano Estepario, their vision of the territory, their interventions and how to fund them.
 columns:
   - label: { es: Secciones, en: Sections }
     links:
-      - { label: { es: Organizaciones, en: Organizations }, url: / }
+      - { label: { es: Inicio, en: Home }, url: / }
+      - { label: { es: Visión regenerativa, en: Regenerative vision }, url: /vision/ }
+      - { label: { es: Gobernanza, en: Governance }, url: /gobernanza/ }
       - { label: { es: Portafolio, en: Portfolio }, url: /portafolio/ }
+      - { label: { es: Estrategia financiera, en: Financial strategy }, url: /estrategia/ }
       - { label: { es: Simulador económico, en: Economic simulator }, url: /simulador/ }
-  - label: { es: Proyecto, en: Project }
+  - label: { es: Creado por, en: Created by }
     links:
       - { label: motiu.org, url: "https://motiu.org" }
 meta:

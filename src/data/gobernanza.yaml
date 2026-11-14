@@ -1,0 +1,104 @@
+# Gobernanza (/gobernanza/): how the working group is organised.
+#
+# Written for the site from the two final documents in Notion (Altiplano Estepario / Documentos Operativos):
+# "Acuerdo de colaboración [Final]" (September 2026) and "Guía de Gobernanza [Final]". A short public summary,
+# not the agreement itself: no people's names (the site shows organisations only), no confidential detail, and
+# no links to Notion. Texts can carry external links as [text](https://…). When the agreement is revised, check this file. The organisations shown are the
+# working group's ("Miembro" in the Notion Actores database), read live at build time.
+
+eyebrow: { es: "Gobernanza", en: "Governance" }
+title: { es: "Cómo nos organizamos", en: "How we organise ourselves" }
+intro:
+  es: "Desde 2025, un grupo de organizaciones del Altiplano Estepario trabaja junto para movilizar capital hacia la regeneración del territorio. En septiembre de 2026 dieron forma a esa colaboración con un acuerdo y una guía de gobernanza."
+  en: "Since 2025, a group of organisations in the Altiplano Estepario has worked together to mobilise capital for the territory's regeneration. In September 2026 they gave that collaboration a shape, with an agreement and a governance guide."
+
+why:
+  title: { es: "Por qué un acuerdo", en: "Why an agreement" }
+  text:
+    - es: "En su primera etapa, con el acompañamiento de [Commonland](https://commonland.com/es/), el grupo investigó los flujos financieros del territorio, con un potencial de hasta 177,5 millones de euros, organizó talleres de diagnóstico y abrió conversaciones con financiadores. La etapa que empieza ahora es distinta: activar financiación concreta exige firmar convenios, gestionar recursos y hablar con una sola voz ante financiadores e instituciones."
+      en: "In its first stage, supported by [Commonland](https://commonland.com/es/), the group researched the territory's financial flows, with a potential of up to €177.5 million, ran diagnostic workshops and opened conversations with funders. The stage starting now is different: activating real funding means signing agreements, managing resources and speaking with one voice to funders and institutions."
+    - es: "El acuerdo de colaboración fija los compromisos que lo hacen posible, y la guía de gobernanza explica cómo funciona el grupo en el día a día. Los dos son documentos vivos: el grupo evalúa cómo avanza y cómo colabora al cierre de cada etapa, la primera en diciembre de 2026."
+      en: "The collaboration agreement sets out the commitments that make this possible, and the governance guide explains how the group works day to day. Both are living documents: the group reviews how it is progressing and how it works together at the end of each stage, the first in December 2026."
+
+purpose:
+  title: { es: "Propósito", en: "Purpose" }  # shown together with `fronts`, the three lines of work
+  text:
+    es: "Explorar, diseñar y activar capital alineado con la regeneración integral del Altiplano Estepario: ecológica, social, cultural, educativa y económica."
+    en: "To explore, design and activate capital aligned with the full regeneration of the Altiplano Estepario: ecological, social, cultural, educational and economic."
+
+returns:
+  title: { es: "Los 4 Retornos", en: "The 4 Returns" }
+  lead:
+    es: "El trabajo del grupo se orienta por el marco de los 4 Retornos, el mismo del plan de paisaje 4R del Altiplano."
+    en: "The group's work is guided by the 4 Returns framework, the same one behind the Altiplano's 4R landscape plan."
+  items:
+    - label: { es: "Inspiración", en: "Inspiration" }
+      tone: purple
+      text: { es: "Identidad, cultura, sentido de pertenencia y un futuro compartido.", en: "Identity, culture, a sense of belonging and a shared future." }
+    - label: { es: "Social", en: "Social" }
+      tone: flow
+      text: { es: "Comunidades, relaciones, gobernanza y bienestar más fuertes.", en: "Stronger communities, relationships, governance and wellbeing." }
+    - label: { es: "Ecológico", en: "Ecological" }
+      tone: green
+      text: { es: "Ecosistemas del territorio restaurados y cuidados.", en: "The territory's ecosystems restored and cared for." }
+    - label: { es: "Financiero", en: "Financial" }
+      tone: blue
+      text: { es: "Viabilidad económica y capital alineado, al servicio de los otros tres.", en: "Economic viability and aligned capital, serving the other three." }
+
+principles:
+  title: { es: "Principios de trabajo", en: "Working principles" }
+  items:
+    - { es: "La regeneración del territorio es el objetivo; las soluciones financieras son un medio.", en: "Regenerating the territory is the goal; financial solutions are a means." }
+    - { es: "El capital debe adaptarse al territorio, no al revés.", en: "Capital should adapt to the territory, not the other way round." }
+    - { es: "El proceso importa tanto como el resultado.", en: "The process matters as much as the result." }
+    - { es: "Se privilegia el aprendizaje situado sobre los modelos importados.", en: "Learning rooted in place comes before imported models." }
+    - { es: "Se avanza paso a paso, con experimentos acotados y aprendizajes sucesivos.", en: "Progress is step by step, through bounded experiments and successive lessons." }
+
+circles:
+  title: { es: "Círculos", en: "Circles" }
+  lead:
+    es: "El grupo se organiza en círculos con distinto grado de compromiso. Así sostiene un núcleo ágil mientras construye relaciones más amplias con el territorio."
+    en: "The group is organised in circles with different degrees of commitment. That keeps a nimble core while it builds wider relationships across the territory."
+  items:
+    - label: { es: "Núcleo", en: "Core" }
+      text: { es: "Las organizaciones firmantes del acuerdo. Sostienen la coordinación, la investigación y las decisiones estratégicas, y responden por el trabajo colectivo ante terceros. Se reúnen una vez al mes y en talleres presenciales según los hitos del proceso.", en: "The organisations that signed the agreement. They carry the coordination, research and strategic decisions, and answer for the collective work to third parties. They meet monthly, and in person at workshops as the process requires." }
+    - label: { es: "Círculos de apoyo", en: "Support circles" }
+      text: { es: "Grupos temáticos que se convocan cuando el proceso los necesita. Hoy se explora uno de expertos financieros, con cajas rurales, fundaciones y finanzas éticas.", en: "Thematic groups convened when the process needs them. One of financial experts, with rural banks, foundations and ethical finance, is being explored now." }
+    - label: { es: "Círculo de escucha", en: "Listening circle" }
+      text: { es: "Personas y organizaciones del territorio que aportan su conocimiento mediante entrevistas, consultas y espacios de contraste, sin firmar el acuerdo. Informan el diagnóstico y son la cantera natural de futuras incorporaciones.", en: "People and organisations in the territory who contribute their knowledge through interviews, consultations and review sessions, without signing the agreement. They inform the diagnosis and are where future members naturally come from." }
+  coordination:
+    es: "Una coordinación transversal convoca los encuentros, comunica avances y sintetiza el trabajo de todos los círculos. No forma parte del núcleo ni vota. [Commonland](https://commonland.com/es/) financia hoy esta función y facilita el proceso, también sin formar parte del núcleo."
+    en: "A coordination role across all circles convenes meetings, shares progress and brings together the work of every circle. It is not part of the core and does not vote. [Commonland](https://commonland.com/es/) currently funds this role and facilitates the process, also from outside the core."
+
+members:
+  title: { es: "Núcleo", en: "Core" }
+  lead:
+    es: "Las organizaciones que firmaron el acuerdo. Haz clic en una para ver qué hace y en qué intervenciones participa."
+    en: "The organisations that signed the agreement. Click one to see what it does and which interventions it takes part in."
+
+fronts:
+  title: { es: "Qué hace el grupo", en: "What the group does" }
+  items:
+    - label: { es: "Gobernanza y coordinación", en: "Governance and coordination" }
+      text: { es: "Sostener al grupo como un colectivo capaz de reunirse, decidir, resolver sus tensiones y responder por lo que hace.", en: "Keeping the group able to meet, decide, work through its tensions and answer for what it does." }
+    - label: { es: "Investigación y estrategia", en: "Research and strategy" }
+      text: { es: "Un diagnóstico continuo del territorio y un criterio compartido sobre dónde concentrar el esfuerzo.", en: "An ongoing diagnosis of the territory and a shared sense of where to focus effort." }
+    - label: { es: "Mecanismos y recursos financieros", en: "Financial mechanisms and resources" }
+      text: { es: "Diseñar los mecanismos que movilizan capital hacia la regeneración, y gestionar con transparencia los recursos que los sostienen.", en: "Designing the mechanisms that move capital towards regeneration, and managing the resources behind them transparently." }
+  not:
+    title: { es: "Y lo que no hace", en: "And what it doesn't do" }
+    items:
+      - { es: "No trabaja directamente con agricultores: esa relación la sostienen las entidades del territorio.", en: "It doesn't work directly with farmers: the territory's organisations hold that relationship." }
+      - { es: "No es un negocio: no persigue beneficio propio.", en: "It isn't a business: it seeks no profit of its own." }
+      - { es: "No compite con las organizaciones locales ni duplica su trabajo.", en: "It doesn't compete with local organisations or duplicate their work." }
+      - { es: "No ejecuta proyectos: diseña, facilita e intermedia.", en: "It doesn't run projects: it designs, facilitates and brokers." }
+
+decisions:
+  title: { es: "Cómo decide", en: "How it decides" }
+  items:
+    - label: { es: "Decisiones ligeras y estratégicas", en: "Light and strategic decisions" }
+      text: { es: "Preparar materiales, explorar contactos u organizar un taller no necesita consulta. Incorporar organizaciones, firmar convenios, aceptar financiación o decidir quién gestiona los recursos sí: se busca el consenso y, solo si no se alcanza tras una deliberación de verdad, el núcleo vota por mayoría simple.", en: "Preparing materials, exploring contacts or organising a workshop needs no consultation. Bringing in organisations, signing agreements, accepting funding or deciding who manages resources does: the group seeks consensus and, only if a genuine deliberation doesn't reach it, the core votes by simple majority." }
+    - label: { es: "Conflictos de interés", en: "Conflicts of interest" }
+      text: { es: "Quien ve un posible conflicto, propio o ajeno, lo nombra antes de decidir. La organización afectada se abstiene sobre esa opción concreta, y el conflicto queda registrado junto a la decisión.", en: "Anyone who sees a possible conflict, their own or someone else's, names it before the decision. The organisation concerned abstains on that particular option, and the conflict is recorded alongside the decision." }
+    - label: { es: "Cuando hay desacuerdo", en: "When there is disagreement" }
+      text: { es: "Primero, conversación directa entre las partes; después, un diálogo facilitado con todo el grupo; y si hace falta, mediación externa con una persona elegida por consenso.", en: "First, a direct conversation between those involved; then a facilitated dialogue with the whole group; and if needed, external mediation by someone chosen by consensus." }

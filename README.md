@@ -6,13 +6,20 @@ alimentado por bases de datos de Notion, con la estética editorial-orgánica de
 
 ## Qué muestra
 
-Tres páginas:
+Una portada y cinco secciones:
 
-- **Organizaciones** (portada) — mitad izquierda texto, mitad derecha el mapa
+- **Inicio** (`/`) — mitad izquierda texto, mitad derecha el mapa de organizaciones
   (MapLibre sobre OpenStreetMap). Naranja = **grupo de trabajo** (solo "Miembro");
   azul = el resto. Las organizaciones en el mismo lugar se agrupan en un punto con
-  número que se abre en abanico al hacer clic. Debajo, la galería (grupo de trabajo
-  primero), filtrable por grupo y por **tipo**.
+  número que se abre en abanico al hacer clic. Debajo, una tarjeta por sección.
+  Textos en `src/data/home.yaml`.
+- **Gobernanza** (`/gobernanza/`) — por qué existe el acuerdo de colaboración, propósito,
+  los 4 Retornos, principios, círculos, cómo decide el grupo, y la galería de las
+  organizaciones del **grupo de trabajo** (solo "Miembro"). Textos en
+  `src/data/gobernanza.yaml`, resumidos del acuerdo y la guía de gobernanza.
+- **Visión regenerativa** (`/vision/`) — el territorio restaurado como un árbol, del paisaje en la
+  copa a las raíces: una ilustración (`public/vision-arbol.svg`) con las capas encima. Contenido y
+  posiciones en `src/data/vision.yaml`, adaptado del diseño "Versión árbol".
 - **Intervenciones** — tarjetas o tabla (selector), con valor ajustado a 5 años,
   financiación total, número de años, recurrencia y tipo de capital 1/2. Filtros
   desplegables por área de trabajo, viabilidad comercial y organización, y un
@@ -22,6 +29,11 @@ Tres páginas:
   por finca tipo (almendro, olivar, cereal, pistacho): flujo a 10 años, necesidad de
   financiación, capacidad de repago de un préstamo (DSCR), escala del paisaje y
   sensibilidad. El cálculo corre en el navegador (`src/lib/simulador/model.js`).
+
+- **Estrategia financiera** (`/estrategia/`) — un diagrama de flujo: fuentes de financiación →
+  mecanismos (sin y con retorno) → tipos de proyecto según su retorno, sobre una base que es el
+  propio proceso de la estrategia. Cada tarjeta se abre en su sitio con el detalle. Todo el contenido está en
+  `src/data/estrategia.yaml`, escrito a mano (no viene de Notion).
 
 Los campos nuevos de intervenciones se buscan por nombre aproximado en
 `src/lib/records.ts` (`normalizeIntervention`); fíjalos allí si difieren en Notion.

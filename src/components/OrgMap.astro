@@ -789,19 +789,13 @@ const mapData = {
                     .addTo(map);
             }
 
-            // Framing: pins when there are any, the comarca region otherwise.
-            if (pins.length > 0) {
-                const pb = new maplibregl.LngLatBounds();
-                for (const p of pins) pb.extend([p.lng, p.lat]);
-                map.fitBounds(pb, { padding: 48, maxZoom: 10 });
-            } else if (bounds) {
-                map.fitBounds(
-                    [
-                        [bounds.minLng, bounds.minLat],
-                        [bounds.maxLng, bounds.maxLat],
-                    ],
-                    { padding: 32, maxZoom: 9.5 },
-                );
+            // Framing: the whole comarca region, widened to any pin outside it. Framing the pins alone
+            // zooms in too far when there are few of them close together (e.g. only the core orgs).
+            if (bounds || pins.length > 0) {
+                const fb = new maplibregl.LngLatBounds();
+                if (bounds) fb.extend([bounds.minLng, bounds.minLat]).extend([bounds.maxLng, bounds.maxLat]);
+                for (const p of pins) fb.extend([p.lng, p.lat]);
+                map.fitBounds(fb, { padding: 32, maxZoom: 10 });
             }
         });
 

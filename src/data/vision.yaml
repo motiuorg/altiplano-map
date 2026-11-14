@@ -1,0 +1,131 @@
+# Visión regenerativa (/vision/): the restored territory as a tree, from the landscape in its crown down to
+# its roots.
+#
+# Adapted from Andrea's design mockup "Versión árbol" (November 2026), which gathers what came out of
+# collective workshops, interviews and research. The illustration is public/vision-arbol.svg, exported from
+# the mockup without its sky, grass and soil, and with the roots drawn down to its bottom edge; the cards are laid over it. The Spanish is the mockup's own wording; the English is a
+# translation.
+#
+# `pos` places each card or band on the illustration, in its own pixels (1440 wide): x, y = top-left
+# corner, w = width (h, a minimum height, is optional: cards otherwise fit their content). `centre: true`
+# places a row (the cards sharing its y) halfway between the bands above and below it, measured in the browser;
+# y is then only the fallback. The list order is also the reading order on phones, where the
+# illustration is hidden and the cards stack. A band sits between two layers: `up` is what the layer below
+# gives (↑), `down` what the layer above gives back (↓). `tone` is one of the site's badge tones (pillars tissue,
+# neural, flow; hues green, yellow, blue, purple, pink, red) or neutral. `mock` is where the mockup placed the card
+# (the illustration leaves a gap there); the small preview on the home page draws simplified cards at that spot.
+
+eyebrow: { es: "Visión regenerativa", en: "Regenerative vision" }
+title: { es: "Así florece el territorio", en: "How the territory flourishes" }
+intro:
+  es: "Un mapa de cómo imaginamos el territorio restaurado, desde las raíces hasta el paisaje. Reúne lo aprendido en talleres colectivos, entrevistas e investigación, y muestra cómo se sostienen entre sí las capas del territorio."
+  en: "A map of how we imagine the restored territory, from its roots up to the landscape. It brings together what we learned in collective workshops, interviews and research, and shows how the territory's layers hold each other up."
+
+size: { w: 1440, h: 2234 }
+
+parts:
+  - label: { es: "Paisaje restaurado", en: "Restored landscape" }
+    sub: { es: "La tierra, el agua y la vida, en plena recuperación", en: "Land, water and life, well on the way back" }
+    tone: yellow
+    pos: { x: 270, y: 200, w: 900 }
+    mock: { y: 200, h: 200 }
+    items:
+      - { es: "Suelo vivo", en: "Living soil" }
+      - { es: "Biodiversidad creciente", en: "Growing biodiversity" }
+      - { es: "Agua retenida", en: "Water held in the land" }
+      - { es: "Corredor ecológico conectado", en: "A connected ecological corridor" }
+      - { es: "Paisaje resiliente al fuego", en: "A fire-resilient landscape" }
+      - { es: "El territorio como refugio climático", en: "The territory as a climate refuge" }
+  - band: { es: "Tierra viva", en: "Living land" }
+    pos: { x: 645, y: 422, w: 150 }
+    up: { es: "Restauran suelo, agua y biodiversidad", en: "They restore soil, water and biodiversity" }
+    down: { es: "Devuelve suelo fértil, agua y refugio: cosechas, pastos y montes más seguros", en: "It gives back fertile soil, water and shelter: safer harvests, pastures and forests" }
+  - label: { es: "Agricultura regenerativa", en: "Regenerative agriculture" }
+    sub: { es: "Cultivos que producen, enseñan y cuidan", en: "Crops that produce, teach and care" }
+    tone: tissue
+    pos: { x: 105, y: 476, w: 410 }
+    mock: { y: 476, h: 292 }
+    centre: true
+    items:
+      - { es: "Fincas demostrativas", en: "Demonstration farms" }
+      - { es: "Producción diversificada", en: "Diversified production" }
+      - { es: "Transición acompañada", en: "A supported transition" }
+  - label: { es: "Ganadería regenerativa", en: "Regenerative grazing" }
+    sub: { es: "Animales que cuidan el campo y el monte", en: "Animals that care for fields and forest" }
+    tone: green
+    pos: { x: 530, y: 476, w: 410 }
+    mock: { y: 476, h: 292 }
+    centre: true
+    items:
+      - { es: "Ganadería rotacional", en: "Rotational grazing" }
+      - { es: "Más animales y razas diversas", en: "More animals and diverse breeds" }
+      - { es: "Ganadería que une finca y monte", en: "Livestock that links farm and forest" }
+  - label: { es: "Gestión forestal regenerativa", en: "Regenerative forestry" }
+    sub: { es: "Montes vivos que dan agua, madera y futuro", en: "Living forests that give water, timber and a future" }
+    tone: neural
+    pos: { x: 955, y: 476, w: 410 }
+    mock: { y: 476, h: 292 }
+    centre: true
+    items:
+      - { es: "Montes cuidados y vivos", en: "Well-tended, living forests" }
+      - { es: "Madera local que da valor al monte", en: "Local timber that gives the forest value" }
+      - { es: "Oficios forestales que vuelven al pueblo", en: "Forest trades coming back to the villages" }
+  - band: { es: "Valor que arraiga", en: "Value that takes root" }
+    pos: { x: 635, y: 784, w: 170 }
+    up: { es: "Aportan ingresos estables y personas que cuidan la tierra", en: "They bring steady income and people who look after the land" }
+    down: { es: "Producen alimentos, madera y oficios con identidad", en: "They produce food, timber and trades with an identity" }
+  - label: { es: "Economía con valor", en: "An economy with value" }
+    sub: { es: "Productos que se reconocen, se piden y se pagan bien", en: "Products that are recognised, asked for and well paid" }
+    tone: flow
+    pos: { x: 60, y: 832, w: 500 }
+    mock: { y: 832, h: 452 }
+    centre: true
+    items:
+      - { es: "Productos con identidad y confianza", en: "Products with identity and trust" }
+      - { es: "Gastronomía regenerativa", en: "Regenerative food culture" }
+      - { es: "Compradores comprometidos", en: "Committed buyers" }
+      - { es: "Emprendimiento más allá del campo", en: "Enterprise beyond farming" }
+      - { es: "Rutas y experiencias que abren nuevos caminos", en: "Routes and experiences that open new paths" }
+      - { es: "Valor que se queda en el territorio", en: "Value that stays in the territory" }
+  - label: { es: "Comunidad viva", en: "A living community" }
+    sub: { es: "Un pueblo con oportunidades, todo el año", en: "Villages with opportunities, all year round" }
+    tone: red
+    pos: { x: 880, y: 832, w: 500 }
+    mock: { y: 832, h: 452 }
+    centre: true
+    items:
+      - { es: "Jóvenes arraigados", en: "Young people who stay" }
+      - { es: "Nuevas oportunidades para los 40-60", en: "New opportunities for people aged 40–60" }
+      - { es: "Vivienda y tierra accesibles", en: "Affordable housing and land" }
+      - { es: "Gente de fuera integrada", en: "Newcomers who belong" }
+      - { es: "Educación que arraiga y abre camino en los oficios locales", en: "Education that roots people and opens a path into local trades" }
+      - { es: "Cultura que da orgullo y valor a lo local", en: "Culture that brings pride and value to what is local" }
+  - band: { es: "Confianza que atrae recursos", en: "Trust that draws resources" }
+    pos: { x: 595, y: 1330, w: 250 }
+    up: { es: "Ponen recursos, historia común y alianzas", en: "They bring resources, a shared story and alliances" }
+    down: { es: "Devuelven resultados visibles que atraen más apoyo", en: "They give back visible results that draw more support" }
+  - label: { es: "Motores", en: "Drivers" }
+    sub: { es: "Lo que pone en marcha las capas de arriba", en: "What sets the layers above in motion" }
+    tone: blue
+    pos: { x: 370, y: 1394, w: 700 }
+    mock: { y: 1394, h: 260 }
+    items:
+      - { es: "Financiación propia y a largo plazo", en: "Long-term funding of our own" }
+      - { es: "Comunicación y narrativa común", en: "Communication and a shared story" }
+      - { es: "Entidades, ayuntamientos y empresas remando en la misma dirección", en: "Organisations, town councils and companies pulling in the same direction" }
+      - { es: "Evidencia que genera confianza", en: "Evidence that builds trust" }
+  - band: { es: "Identidad que sostiene", en: "An identity that holds" }
+    pos: { x: 620, y: 1694, w: 200 }
+    up: { es: "Dan sentido, identidad y propósito compartido", en: "They give meaning, identity and a shared purpose" }
+    down: { es: "Cuidan y ponen en valor el patrimonio y el conocimiento", en: "They care for heritage and knowledge and give them value" }
+  - label: { es: "Raíces", en: "Roots" }
+    sub: { es: "Lo que somos y lo que nos une", en: "Who we are and what binds us" }
+    tone: purple
+    pos: { x: 90, y: 1772, w: 1260 }
+    mock: { y: 2024, h: 150 }
+    items:
+      - { es: "Conocimiento tradicional y moderno", en: "Traditional and modern knowledge" }
+      - { es: "Patrimonio valorado", en: "Valued heritage" }
+      - { es: "Cohesión y generosidad", en: "Cohesion and generosity" }
+      - { es: "Identidad de lugar", en: "A sense of place" }
+      - { es: "Mirada a muy largo plazo", en: "A very long-term view" }

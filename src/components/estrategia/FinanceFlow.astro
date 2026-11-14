@@ -1,0 +1,305 @@
+---
+// The financial strategy diagram: sources → mechanisms (without / with return) → projects by type of
+// return, resting on a full-width base, the strategy process and its four parts.
+// The cards are HTML <details>: each one opens in place to show its detail and closes again, and works
+// without JS. The ribbons are an SVG layer drawn in the browser from the cards' positions
+// (src/scripts/finance-flow.ts), so they follow the cards when one opens. Ribbons show connections,
+// not amounts; a ribbon to the whole projects column ends at a bracket.
+import type { Strategy } from "../../lib/estrategia";
+import { pick } from "../../lib/portfolio";
+import Badge from "@motiu/design/components/Badge.astro";
+import type { Lang } from "../../lib/i18n";
+
+export interface Props {
+    data: Strategy;
+    lang?: Lang;
+    titles: {
+        sources: string; mechanisms: string; projects: string; sinRetorno: string; conRetorno: string;
+        retornos: string;
+    };
+    label: string;
+}
+const { data, lang = "es", titles, label } = Astro.props;
+
+// Colours: sources neutral; the return axis runs from blue (supporting, no return) to green (gain).
+const NEUTRAL = "#6f6a64";
+const BLUE = "#00AEFF"; // --data-support
+const GREEN = "#00B86B"; // --hue-green-mid
+const PROJECT_TONES = [BLUE, "#00B1CE", "#00B59C", GREEN];
+const groups = [
+    { key: "sin-retorno", title: titles.sinRetorno, color: BLUE, ink: "#005a85", tone: "blue" },
+    { key: "con-retorno", title: titles.conRetorno, color: GREEN, ink: "#00502E", tone: "green" },
+] as const;
+
+const PROC = data.process.id;
+const projectIds = data.projects.map((p) => p.id);
+// For the script: who links to whom, and the label for returns.
+const wiring = JSON.stringify({ links: data.links, projects: projectIds, base: PROC, retornos: titles.retornos });
+---
+
+<div class="ff" data-finance-flow data-wiring={wiring}>
+    <div class="ff__scroll">
+        <div class="ff__stage" role="group" aria-label={label}>
+            <svg class="ff__wires" aria-hidden="true"></svg>
+
+            <div class="ff__cols">
+                <div class="ff__col ff__col--src">
+                    <p class="ff__title">{titles.sources}</p>
+                    {data.sources.map((n) => (
+                        <details class="ff-card" data-node={n.id} style={`--tone:${NEUTRAL}`}>
+                            <summary class="ff-card__head">{pick(n.short ?? n.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                <p>{pick(n.text, lang)}</p>
+                            </div>
+                        </details>
+                    ))}
+                </div>
+
+                <div class="ff__col ff__col--mech">
+                    <p class="ff__title">{titles.mechanisms}</p>
+                    {groups.map((g) => (
+                        <div class="ff__group">
+                            <p class="ff__group-title" style={`color:${g.ink}`}>{g.title}</p>
+                            {data.mechanisms.filter((m) => m.group === g.key).map((m) => (
+                                <details class="ff-card" data-node={m.id} style={`--tone:${g.color}`}>
+                                    <summary class="ff-card__head">{pick(m.short ?? m.label, lang)}</summary>
+                                    <div class="ff-card__body">
+                                        <Badge size="sm" tone={g.tone}>{pick(m.status, lang)}</Badge>
+                                        <p>{pick(m.text, lang)}</p>
+                                    </div>
+                                </details>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+
+                <div class="ff__col ff__col--proj">
+                    <p class="ff__title">{titles.projects}</p>
+                    {data.projects.map((n, i) => (
+                        <details class="ff-card" data-node={n.id} data-project style={`--tone:${PROJECT_TONES[i] ?? GREEN}`}>
+                            <summary class="ff-card__head">{pick(n.short ?? n.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                <p>{pick(n.text, lang)}</p>
+                            </div>
+                        </details>
+                    ))}
+                </div>
+            </div>
+
+            <div class="ff__band" data-node={PROC} style={`--tone:${NEUTRAL}`}>
+                <p class="ff__band-title">{pick(data.process.label, lang)}</p>
+                <div class="ff__parts">
+                    {data.process.parts.map((part) => (
+                        <details class="ff-card ff-card--part">
+                            <summary class="ff-card__head">{pick(part.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                <p>{pick(part.text, lang)}</p>
+                            </div>
+                        </details>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    import "../../scripts/finance-flow";
+</script>
+
+<style>
+    .ff__scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ff__stage {
+        position: relative;
+        min-width: 960px;
+    }
+    .ff__wires {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        pointer-events: none;
+    }
+    .ff__cols {
+        position: relative; /* above the wires */
+        display: grid;
+        grid-template-columns: minmax(13rem, 17rem) minmax(4rem, 1fr) minmax(14rem, 18rem) minmax(4rem, 1fr) minmax(15rem, 19rem);
+        align-items: start;
+    }
+    .ff__col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+    .ff__col--src {
+        grid-column: 1;
+    }
+    .ff__col--mech {
+        grid-column: 3;
+    }
+    .ff__col--proj {
+        grid-column: 5;
+        gap: 1.4rem;
+    }
+    .ff__title {
+        margin: 0 0 var(--space-6);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .ff__col--mech .ff__title {
+        margin-bottom: var(--space-2);
+    }
+    .ff__group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        margin-top: var(--space-6); /* room for the direct ribbons that pass above the mechanisms */
+    }
+    .ff__group + .ff__group {
+        margin-top: var(--space-6);
+    }
+    .ff__group-title {
+        margin: 0 0 -0.35rem;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* Cards: a pill that opens in place. */
+    .ff-card {
+        position: relative;
+        border: 1.4px solid var(--tone, var(--border-default));
+        border-left-width: 5px;
+        border-radius: 7px;
+        background: var(--paper);
+        transition: opacity 0.2s, box-shadow 0.2s;
+    }
+    .ff-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        min-height: 2.35rem;
+        padding: 0.45rem 0.75rem 0.45rem 0.8rem;
+        font-family: var(--sans);
+        font-size: 0.875rem;
+        line-height: 1.3;
+        color: var(--text-primary);
+        list-style: none;
+        cursor: pointer;
+    }
+    .ff-card__head::-webkit-details-marker {
+        display: none;
+    }
+    .ff-card__head::after {
+        content: "+";
+        flex: none;
+        font-family: var(--mono);
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+    }
+    .ff-card[open] > .ff-card__head::after {
+        transform: rotate(45deg);
+    }
+    .ff-card__head:focus-visible {
+        outline: 2px solid var(--tone, var(--text-primary));
+        outline-offset: 2px;
+        border-radius: 5px;
+    }
+    .ff-card[open] {
+        box-shadow: 0 8px 24px color-mix(in srgb, #221a12 10%, transparent);
+    }
+    .ff-card__body {
+        padding: 0 0.85rem 0.85rem 0.8rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+    }
+    .ff-card__body p {
+        margin: var(--space-2) 0 0;
+        font-size: 0.8125rem; /* the site's global paragraph size is reading-copy size */
+        line-height: 1.5;
+    }
+
+    /* The base: the strategy process. */
+    .ff__band {
+        position: relative;
+        margin-top: 5.5rem; /* room for the lower direct ribbon and the drops */
+        padding: var(--space-4) var(--space-5) var(--space-5);
+        border: 1.2px solid var(--border-default);
+        border-radius: 10px;
+        background: var(--surface-1);
+        transition: opacity 0.2s;
+    }
+    .ff__band-title {
+        margin: 0 0 var(--space-4);
+        font-family: var(--mono);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .ff__parts {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--space-3);
+        align-items: start;
+    }
+    .ff-card--part {
+        --tone: #6f6a64;
+    }
+
+    /* Hover / open: light one path, dim the rest. */
+    .ff__stage.is-focus .ff-card[data-node],
+    .ff__stage.is-focus .ff__band {
+        opacity: 0.35;
+    }
+    .ff__stage.is-focus .is-on {
+        opacity: 1 !important;
+    }
+</style>
+
+<style is:global>
+    /* The wires are built by the script, so they can't take scoped styles. */
+    .ff__wires .ff-wire {
+        fill: none;
+        stroke-width: 5;
+        stroke-linecap: round;
+        opacity: 0.5;
+        transition: opacity 0.2s, stroke-width 0.2s;
+    }
+    .ff__wires .ff-wire--directo {
+        stroke-width: 3;
+        stroke-dasharray: 7 6;
+        stroke-linecap: butt;
+        opacity: 0.6;
+    }
+    .ff__wires .ff-bracket {
+        fill: none;
+        stroke: #6f6a64;
+        stroke-width: 1.4;
+    }
+    .ff__wires .ff-label {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        fill: var(--text-muted);
+    }
+    .ff__stage.is-focus .ff-wire {
+        opacity: 0.07;
+    }
+    .ff__stage.is-focus .ff-wire.is-on {
+        opacity: 0.95;
+    }
+    .ff__stage.is-focus .ff-wire.is-on:not(.ff-wire--directo) {
+        stroke-width: 6.5;
+    }
+</style>

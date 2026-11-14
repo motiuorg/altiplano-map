@@ -1,0 +1,153 @@
+# Estrategia financiera: the flow diagram and its cards (/estrategia/).
+#
+# Hand-authored on purpose, not from Notion. The structure (nodes and links) was agreed with Andrea in
+# November 2026; the texts are synthesised from the vault: the notes in "Altiplano Estepario/3 Mecanismos/"
+# and "5 Estrategia Financiera/4 Facilidades y Flujos de Financiación.md". Nothing here links back to the
+# vault or Notion. When the strategy changes, change this file.
+#
+# Links show that money moves between two parts, not how much. `kind`:
+#   estructura  money that passes through a mechanism (solid ribbon)
+#   directo     money that reaches projects or the process with no structure in between (dashed)
+#   retornos    returns from the investment fund (solid, labelled)
+# `to` is a node id, `proyectos` (the whole projects column) or `proceso` (the base band).
+
+intro:
+  es: "Cada tipo de dinero llega al territorio con sus propias condiciones. Este mapa muestra cómo pueden combinarse para sostener la regeneración del Altiplano Estepario a largo plazo."
+  en: "Every kind of money reaches the territory on its own terms. This map shows how they can be combined to sustain the regeneration of the Altiplano Estepario over the long term."
+
+sources:
+  - id: pub
+    label: { es: "Subvenciones públicas", en: "Public grants" }
+    text:
+      es: "Ayudas a titulares (PAC, medidas agroambientales), convocatorias europeas y nacionales (Horizon, PRIMA, LIFE, Grupos Operativos) y fondos territoriales como LEADER. Financian acción con entregables verificables; rara vez cubren la estructura entre convocatorias."
+      en: "Payments to land holders (CAP, agri-environment measures), European and national calls (Horizon, PRIMA, LIFE, Operational Groups) and territorial funds such as LEADER. They fund action with verifiable deliverables; they rarely cover the structure between calls."
+  - id: fil
+    label: { es: "Filantropía", en: "Philanthropy" }
+    text:
+      es: "Fundaciones y programas de largo plazo que llegan por relación, no por convocatoria. Es el capital más flexible: puede cubrir coordinación, seguimiento y los primeros pasos de los fondos del territorio."
+      en: "Foundations and long-term programmes reached through relationships rather than open calls. It is the most flexible capital: it can cover coordination, monitoring and the first steps of the territory's funds."
+  - id: des
+    label: { es: "Capital público de desarrollo (EIB, ICO)", en: "Public development capital (EIB, ICO)" }
+    short: { es: "Capital público de desarrollo", en: "Public development capital" }
+    text:
+      es: "Bancos y agencias públicas cuyo retorno es de mandato, no financiero. Pueden asumir primeras pérdidas o aliviar el capital de la banca para que entre crédito privado en condiciones que el mercado no daría solo."
+      en: "Public banks and agencies whose return is their mandate, not profit. They can take first losses or relieve banks' capital so that private credit comes in on terms the market would not offer alone."
+  - id: ban
+    label: { es: "Banca y deuda privada", en: "Banks and private debt" }
+    text:
+      es: "Cajas rurales y banca ética que prestan con criterios de solvencia y garantía. Cajamar y Caja Rural de Granada ya ofrecen líneas ecológicas de hasta 15 años."
+      en: "Rural savings banks and ethical banks lending on solvency and collateral. Cajamar and Caja Rural de Granada already offer green credit lines of up to 15 years."
+  - id: eq
+    label: { es: "Equity e inversión de impacto", en: "Equity and impact investment" }
+    text:
+      es: "Fondos con mandato de impacto que aceptan retornos moderados y horizontes largos a cambio de impacto demostrable. Suelen pedir facturación mínima y medición."
+      en: "Funds with an impact mandate that accept moderate returns and long horizons in exchange for demonstrable impact. They usually ask for minimum revenue and measurement."
+  - id: cad
+    label: { es: "Capital estratégico de cadena", en: "Strategic supply-chain capital" }
+    text:
+      es: "Compradores y distribuidoras que invierten en sus proveedores porque les resuelve algo propio: suministro, compromisos de clima o marca. El modelo Almendrehesa y Danone es el ejemplo cercano."
+      en: "Buyers and distributors who invest in their suppliers because it solves something of their own: supply, climate commitments or brand. The Almendrehesa and Danone model is the example close to home."
+
+  - id: seg
+    label: { es: "Seguros y suministradoras", en: "Insurers and utilities" }
+    text:
+      es: "Empresas que ganan si el territorio aguanta: aseguradoras que pagan menos por sequía, incendio o erosión, y compañías de abastecimiento, regadío, embalses o hidroeléctrica que dependen de que la tierra retenga agua y suelo. Pueden pagar por prácticas que reducen ese riesgo de forma verificable sin comprar nada más al territorio, y así amplían los pagadores más allá de la cadena comercial."
+      en: "Companies that gain when the territory holds up: insurers that pay out less for drought, fire or erosion, and water supply, irrigation, reservoir or hydropower companies that depend on the land holding water and soil. They can pay for practices that verifiably reduce that risk without buying anything else from the territory, which widens the pool of payers beyond the supply chain."
+mechanisms:
+  - id: fc
+    group: sin-retorno
+    label: { es: "Fondo canalizador", en: "Pass-through fund" }
+    status: { es: "En diseño", en: "In design" }
+    text:
+      es: "Recibe dinero filantrópico y público y lo pasa entero a proyectos y al proceso, con criterios y seguimiento comunes; no guarda capital. Los fondos de AlVelAl (Semilla, Biodiversidad, Correcciones Hídricas) ya funcionan así, aunque solo se activan cuando hay una subvención o donación compatible."
+      en: "Receives philanthropic and public money and passes all of it on to projects and to the process, under shared criteria and follow-up; it keeps no capital. AlVelAl's funds (Semilla, Biodiversidad, Correcciones Hídricas) already work this way, although they only run when a compatible grant or donation comes in."
+  - id: pes
+    group: sin-retorno
+    label: { es: "Pagos por servicios ecosistémicos", en: "Payments for ecosystem services" }
+    status: { es: "En diseño", en: "In design" }
+    text:
+      es: "Quien se beneficia de un servicio natural (agua, carbono, biodiversidad) paga a quien lo produce, sin necesidad de comprarle nada más. La Certificación Ecoregenerativa de AlVelAl y CAAE es la base verificable que exige cualquier pagador."
+      en: "Whoever benefits from a natural service (water, carbon, biodiversity) pays whoever produces it, without buying anything else from them. The AlVelAl and CAAE Ecoregenerative Certification is the verifiable basis any payer will ask for."
+  - id: dba
+    group: con-retorno
+    label: { es: "Deuda bancaria adaptada", en: "Adapted bank debt" }
+    status: { es: "En diseño", en: "In design" }
+    text:
+      es: "Crédito paciente (plazos más largos, garantías más flexibles) condicionado a prácticas regenerativas verificadas. El EIB alivia el capital de las cajas rurales y la certificación justifica el trato diferenciado."
+      en: "Patient credit (longer terms, more flexible collateral) tied to verified regenerative practice. The EIB relieves the rural banks' capital, and certification justifies the different terms."
+  - id: fit
+    group: con-retorno
+    label: { es: "Fondo de inversión territorial", en: "Territorial investment fund" }
+    status: { es: "En diseño", en: "In design" }
+    text:
+      es: "Capital paciente a 5–15 años para iniciativas con modelo de negocio, entre lo que exige la banca y lo que pide el capital de mercado. Se construye por fases, y parte de sus retornos puede sostener el proceso que le prepara el pipeline."
+      en: "Patient capital over 5–15 years for initiatives with a business model, between what banks require and what market capital demands. It is built in phases, and part of its returns can sustain the process that prepares its pipeline."
+
+projects:
+  - id: hab
+    label: { es: "Habilitadores, sin retorno monetario", en: "Enablers, no monetary return" }
+    text:
+      es: "Formación, cultura, comunicación y evidencia: trabajo con valor colectivo que no genera ingresos propios."
+      en: "Training, culture, communication and evidence: work of collective value that generates no income of its own."
+  - id: nop
+    label: { es: "Gestión de suelo no productivo", en: "Non-productive land management" }
+    text:
+      es: "Restauración y cuidado de zonas naturales. Su único retorno posible a medio plazo llega por pagos por servicios ecosistémicos."
+      en: "Restoring and caring for natural areas. Its only possible return in the medium term comes through payments for ecosystem services."
+  - id: pro
+    label: { es: "Transición de suelo productivo", en: "Productive land in transition" }
+    text:
+      es: "Fincas agrícolas y montes con uso productivo que cambian a prácticas regenerativas o a un manejo forestal sostenible: asumen costes antes de ver beneficios, con un retorno parcial y diferido."
+      en: "Farms and productive forest land moving to regenerative practice or sustainable forest management: they carry costs before seeing benefits, with a partial and delayed return."
+  - id: neg
+    label: { es: "Comercialización y casos de negocio", en: "Marketing and business cases" }
+    text:
+      es: "Transformación, venta y servicios con modelo de negocio: donde el retorno es más claro y puede devolver deuda o retribuir una inversión."
+      en: "Processing, sales and services with a business model: where the return is clearest and can repay debt or reward an investment."
+
+process:
+  id: proceso
+  label: { es: "Proceso de la estrategia", en: "The strategy process" }
+  parts:
+    - label: { es: "Investigación y diagnóstico", en: "Research and diagnosis" }
+      text:
+        es: "Conocer el paisaje antes de intervenir: el estado del suelo, el agua y la biodiversidad, quién trabaja en el territorio, qué iniciativas hay en marcha y qué financiación ya llega. Es la evidencia de la que parte todo lo demás."
+        en: "Knowing the landscape before acting on it: the state of soil, water and biodiversity, who works in the territory, which initiatives are under way and what funding already arrives. It is the evidence everything else starts from."
+    - label: { es: "Estrategia y estructuración financiera", en: "Strategy and financial structuring" }
+      text:
+        es: "Decidir qué capital entra, en qué orden y por qué mecanismo: el capital stack del paisaje, donde cada tramo reduce el riesgo del siguiente y hace posible su entrada."
+        en: "Deciding which capital comes in, in what order and through which mechanism: the landscape's capital stack, where each layer lowers the risk of the next and makes its entry possible."
+    - label: { es: "Coordinación y gobernanza", en: "Coordination and governance" }
+      text:
+        es: "Sostener los espacios donde los actores del territorio deciden juntos: el grupo de trabajo, los acuerdos entre organizaciones y la relación con financiadores e instituciones."
+        en: "Keeping up the spaces where the territory's actors decide together: the working group, the agreements between organisations and the relationship with funders and institutions."
+    - label: { es: "Apoyo a proyectos", en: "Project support" }
+      text:
+        es: "Acompañar a las iniciativas hasta que pueden recibir capital: modelo de negocio, propuestas, métricas y contacto con financiadores. Es lo que prepara el pipeline de los mecanismos."
+        en: "Supporting initiatives until they can take on capital: business model, proposals, metrics and contact with funders. It is what prepares the mechanisms' pipeline."
+links:
+  - { from: pub, to: fc, kind: estructura }
+  - { from: pub, to: pes, kind: estructura }
+  - { from: pub, to: proyectos, kind: directo }
+  - { from: pub, to: proceso, kind: directo }
+  - { from: fil, to: fc, kind: estructura }
+  - { from: des, to: dba, kind: estructura }
+  - { from: des, to: fit, kind: estructura }
+  - { from: ban, to: dba, kind: estructura }
+  - { from: eq, to: fit, kind: estructura }
+  - { from: cad, to: fit, kind: estructura }
+  - { from: cad, to: pes, kind: estructura }
+  - { from: cad, to: neg, kind: directo }
+  - { from: seg, to: pes, kind: estructura }
+  - { from: fc, to: hab, kind: estructura }
+  - { from: fc, to: nop, kind: estructura }
+  - { from: fc, to: pro, kind: estructura }
+  - { from: fc, to: neg, kind: estructura }
+  - { from: fc, to: proceso, kind: estructura }
+  - { from: pes, to: nop, kind: estructura }
+  - { from: pes, to: pro, kind: estructura }
+  - { from: dba, to: pro, kind: estructura }
+  - { from: dba, to: neg, kind: estructura }
+  - { from: fit, to: pro, kind: estructura }
+  - { from: fit, to: neg, kind: estructura }
+  - { from: fit, to: proceso, kind: retornos }

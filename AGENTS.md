@@ -18,6 +18,16 @@ The same text in the vault: `Altiplano Estepario/8 Análisis Económico/Metodolo
 
 ## Data
 
+- The financial strategy page (`/estrategia/`) is hand-authored: nodes, links and card texts live in
+  `src/data/estrategia.yaml`, synthesised from the vault's `Altiplano Estepario/3 Mecanismos/` notes and the
+  strategy chapter. The structure was agreed with Andrea; change it there when the strategy changes. The
+  diagram is `src/components/estrategia/FinanceFlow.astro`.
+- The governance page (`/gobernanza/`) summarises the collaboration agreement and governance guide (Notion,
+  Documentos Operativos) in `src/data/gobernanza.yaml`. Public summary only: no people's names, no confidential
+  detail, no Notion links. The home (`/`) keeps the organisations map; its texts are `src/data/home.yaml`.
+- The regenerative vision page (`/vision/`) is hand-authored too: `src/data/vision.yaml` (texts and each
+  card's position on the illustration), adapted from Andrea's "Versión árbol" mockup. The tree is
+  `public/vision-arbol.svg`, exported from the mockup without its sky, grass and soil; edit it in the design tool, not by hand.
 - Organisations, interventions and the simulator's databases come from Notion at build time
   (`NOTION_API_KEY`, a GitHub secret). `USE_FIXTURE=1 npm run build` (or `npm run dev`) uses the local
   fixtures and the saved simulator snapshot `src/data/simulador.json` instead, so you can work without a key.
