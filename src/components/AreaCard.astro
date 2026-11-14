@@ -1,7 +1,7 @@
 ---
 // One work area on the portfolio page: a card that links to the area's own page.
 import type { AreaView } from "../lib/portfolio";
-import { pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
+import { pick, toneVars, compactEuro, portfolioHref, areaLabel } from "../lib/portfolio";
 import Badge from "@motiu/design/components/Badge.astro";
 import { t, tv } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
@@ -19,7 +19,7 @@ const count = (n: number) => (n === 1 ? t(lang, "pf.itvCount1") : t(lang, "pf.it
         <Badge tone={view.tone as any} size="sm">{t(lang, "pf.areaN", { n: view.num })}</Badge>
         <Badge shape="square" size="sm">{count(view.count)}</Badge>
     </span>
-    <span class="area-card__name">{tv(lang, view.name)}</span>
+    <span class="area-card__name">{areaLabel(lang, view.name)}</span>
     {view.def.kicker.es && <span class="area-card__kicker">{pick(view.def.kicker, lang)}</span>}
     <ul class="area-card__subs">
         {view.subareas.map((s) => (

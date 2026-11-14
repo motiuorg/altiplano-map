@@ -6,7 +6,7 @@ import Layout from "@motiu/design/components/Layout.astro";
 import Badge from "@motiu/design/components/Badge.astro";
 import InterventionCard from "../components/InterventionCard.astro";
 import { loadSiteData } from "../lib/data";
-import { buildAreaViews, pick, toneVars, compactEuro, portfolioHref } from "../lib/portfolio";
+import { buildAreaViews, pick, toneVars, compactEuro, portfolioHref, areaLabel } from "../lib/portfolio";
 import { interventionOrgNames } from "../lib/records";
 import { t, tv, numberLocale } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
@@ -38,7 +38,7 @@ const groups = hasFlows ? view.flows : [{ title: null, blurb: null, subareas: vi
 const anchor = (id: string) => "sub-" + id.replace(".", "-");
 const areaTotal = view.total;
 const tone = toneVars(view.tone);
-const name = tv(lang, view.name);
+const name = areaLabel(lang, view.name);
 ---
 
 <Layout title={name} description={pick(def.kicker, lang) || name} current="portafolio" lang={lang}>
@@ -203,11 +203,11 @@ const name = tv(lang, view.name);
             <div class="container aadj__row">
                 <a class="aadj__link aadj__link--prev" style={toneVars(prev.tone)} href={portfolioHref(lang, prev.slug)}>
                     <span>← {t(lang, "pf.prev")}</span>
-                    <strong>{tv(lang, prev.name)}</strong>
+                    <strong>{areaLabel(lang, prev.name)}</strong>
                 </a>
                 <a class="aadj__link aadj__link--next" style={toneVars(next.tone)} href={portfolioHref(lang, next.slug)}>
                     <span>{t(lang, "pf.next")} →</span>
-                    <strong>{tv(lang, next.name)}</strong>
+                    <strong>{areaLabel(lang, next.name)}</strong>
                 </a>
             </div>
         </nav>

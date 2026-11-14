@@ -10,7 +10,7 @@ import InterventionCard from "../components/InterventionCard.astro";
 import AreaCard from "../components/AreaCard.astro";
 import { areaTone } from "../lib/areas";
 import { loadSiteData } from "../lib/data";
-import { buildAreaViews, portfolioHref } from "../lib/portfolio";
+import { buildAreaViews, portfolioHref, areaLabel } from "../lib/portfolio";
 import { formatValor, formatEuro, interventionOrgNames } from "../lib/records";
 import { t, tv, numberLocale } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
@@ -98,7 +98,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                                 <a class="area-bubble" href={portfolioHref(lang, v.slug)} data-bubble-area={v.name.toLowerCase()}>
                                     <span class={`area-bubble__disc badge badge--${v.tone}`}></span>
                                     <span class="area-bubble__caption">
-                                        <span class="area-bubble__name">{tv(lang, v.name)}</span>
+                                        <span class="area-bubble__name">{areaLabel(lang, v.name)}</span>
                                         <span class="area-bubble__value" data-bubble-value></span>
                                         <span class="area-bubble__count" data-bubble-count></span>
                                     </span>
@@ -123,7 +123,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                     <select class="select" data-key="area" aria-label={t(lang, "itvs.areaBy")}>
                         <option value="">{t(lang, "itvs.allF")}</option>
                         {areas.map((a) => (
-                            <option value={a.toLowerCase()}>{tv(lang, a)}</option>
+                            <option value={a.toLowerCase()}>{areaLabel(lang, a)}</option>
                         ))}
                     </select>
                 </label>
@@ -244,7 +244,7 @@ const sliderMax = Math.ceil((finMax + pad) / step) * step;
                                         <td>
                                             <span class="itv-table__tags">
                                                 {itv.areaTrabajo.map((a) => (
-                                                    <Badge tone={areaTone(a) as any} size="sm">{tv(lang, a)}</Badge>
+                                                    <Badge tone={areaTone(a) as any} size="sm">{areaLabel(lang, a)}</Badge>
                                                 ))}
                                             </span>
                                         </td>

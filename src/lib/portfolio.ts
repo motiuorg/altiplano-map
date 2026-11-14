@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import type { InterventionRecord } from './records';
-import type { Lang } from './i18n';
+import { tv, type Lang } from './i18n';
 import { areaTone } from './areas';
 
 export type L = { es: string; en: string };
@@ -20,6 +20,7 @@ export interface AreaDef {
   slug: string;
   num: number;
   match: string[];
+  title?: L; // how the site names the area, when that differs from the Notion value
   kicker: L;
   lead: L;
   dynamics: { title: L; text: L }[];
@@ -49,6 +50,14 @@ export function loadAreas(): AreaDef[] {
 }
 
 export const pick = (l: L, lang: Lang) => l[lang] ?? l.es;
+
+// The area's name as shown on the site: the yaml's `title` for a known area, else the Notion value
+// translated by `tv`. Only for display: filters and matching keep using the Notion value.
+export function areaLabel(lang: Lang, notionName: string): string {
+  const key = norm(notionName);
+  const def = loadAreas().find((d) => d.match.some((m) => key.startsWith(m)));
+  return def?.title ? pick(def.title, lang) : tv(lang, notionName);
+}
 
 export interface SubareaView {
   key: string;

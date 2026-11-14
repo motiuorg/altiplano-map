@@ -17,6 +17,7 @@ import type { InterventionRecord } from "../lib/records";
 import { formatValor, formatEuro } from "../lib/records";
 import { areaTone } from "../lib/areas";
 import { t, tv, numberLocale } from "../lib/i18n";
+import { areaLabel } from "../lib/portfolio";
 import type { Lang } from "../lib/i18n";
 
 export interface Props {
@@ -29,7 +30,7 @@ export interface Props {
 }
 
 const { intervention: itv, orgNames, filterable = true, showOrg = true, lang = "es" } = Astro.props;
-const areas = itv.areaTrabajo.map((a) => ({ label: tv(lang, a), tone: areaTone(a) }));
+const areas = itv.areaTrabajo.map((a) => ({ label: areaLabel(lang, a), tone: areaTone(a) }));
 const capitales = [itv.capital1, itv.capital2].filter(Boolean).map((c) => tv(lang, c));
 const loc = numberLocale(lang);
 ---

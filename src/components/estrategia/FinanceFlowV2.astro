@@ -1,0 +1,421 @@
+---
+// The financial strategy diagram, version 2: sources → mechanisms → the sub-areas of each work area,
+// resting on a full-width base, Tejido territorial. A row of chips isolates one area: only the cards that
+// connect to it stay, and the ribbons are redrawn (src/scripts/finance-flow-v2.ts).
+// The cards are HTML <details>: each one opens in place to show its detail and closes again, and works
+// without JS. The ribbons are an SVG layer drawn in the browser from the cards' positions, so they follow
+// the cards when one opens. Ribbons show connections, not amounts.
+import type { StrategyV2 } from "../../lib/estrategia-v2";
+import { pick, portfolioHref, toneVars } from "../../lib/portfolio";
+import Badge from "@motiu/design/components/Badge.astro";
+import { t } from "../../lib/i18n";
+import type { Lang } from "../../lib/i18n";
+
+export interface Props {
+    data: StrategyV2;
+    lang?: Lang;
+    label: string;
+}
+const { data, lang = "es", label } = Astro.props;
+
+const NEUTRAL = "#6f6a64";
+// The mechanisms are kraft brown, not blue: blue (neural) is the portfolio's colour for Gestión forestal.
+const MECH = "#A67C52";
+const areaStyle = (tone: string) => `${toneVars(tone)};--tone:var(--tone-m)`;
+const BASE = data.base.id;
+
+// For the script: who links to whom, which nodes belong to which area, and the label for returns.
+const wiring = JSON.stringify({
+    links: data.links,
+    base: BASE,
+    areas: Object.fromEntries([
+        ...data.areas.map((a) => [a.id, a.subareas.map((s) => s.id)]),
+        [BASE, [BASE]],
+    ]),
+    retornos: t(lang, "estr2.retornos"),
+});
+const chips = [
+    { id: "all", label: t(lang, "estr2.all") },
+    { id: BASE, label: pick(data.base.label, lang) },
+    ...data.areas.map((a) => ({ id: a.id, label: pick(a.label, lang) })),
+];
+---
+
+<div class="ff" data-finance-flow data-wiring={wiring}>
+    <div class="ff__filter" role="group" aria-label={t(lang, "estr2.filter")}>
+        <span class="ff__filter-label">{t(lang, "estr2.filter")}</span>
+        {chips.map((c) => (
+            <button type="button" class="ff__chip" data-area-btn={c.id} aria-pressed={c.id === "all" ? "true" : "false"}>{c.label}</button>
+        ))}
+    </div>
+    <div class="ff__notes" aria-live="polite">
+        {data.areas.map((a) => (
+            <p class="ff__note" data-area-note={a.id} hidden>{pick(a.text, lang)}</p>
+        ))}
+        <p class="ff__note" data-area-note={BASE} hidden>{pick(data.base.text, lang)}</p>
+    </div>
+
+    <div class="ff__scroll">
+        <div class="ff__stage" role="group" aria-label={label}>
+            <svg class="ff__wires" aria-hidden="true"></svg>
+
+            <div class="ff__cols">
+                <div class="ff__col ff__col--src">
+                    <p class="ff__title">{t(lang, "estr2.colSources")}</p>
+                    {data.sources.map((n) => (
+                        <details class="ff-card" data-node={n.id} style={`--tone:${NEUTRAL}`}>
+                            <summary class="ff-card__head">{pick(n.short ?? n.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                {n.short && <p class="ff-card__full">{pick(n.label, lang)}</p>}
+                                <p>{pick(n.text, lang)}</p>
+                                {(n.how || n.funds || n.asks) && (
+                                    <dl class="ff-card__facts">
+                                        {n.how && <><dt>{t(lang, "estr2.how")}</dt><dd>{pick(n.how, lang)}</dd></>}
+                                        {n.funds && <><dt>{t(lang, "estr2.funds")}</dt><dd>{pick(n.funds, lang)}</dd></>}
+                                        {n.asks && <><dt>{t(lang, "estr2.asks")}</dt><dd>{pick(n.asks, lang)}</dd></>}
+                                    </dl>
+                                )}
+                            </div>
+                        </details>
+                    ))}
+                </div>
+
+                <div class="ff__col ff__col--mech">
+                    <p class="ff__title">{t(lang, "estr2.colMechs")}</p>
+                    {data.mechanisms.map((m) => (
+                        <details class="ff-card" data-node={m.id} style={`--tone:${MECH}`}>
+                            <summary class="ff-card__head">{pick(m.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                <Badge size="sm" tone="neutral">{pick(m.status, lang)}</Badge>
+                                <p>{pick(m.text, lang)}</p>
+                                <dl class="ff-card__facts">
+                                    <dt>{t(lang, "estr2.who")}</dt><dd>{pick(m.who, lang)}</dd>
+                                </dl>
+                            </div>
+                        </details>
+                    ))}
+                </div>
+
+                <div class="ff__col ff__col--areas">
+                    <p class="ff__title">{t(lang, "estr2.colAreas")}</p>
+                    {data.areas.map((a) => (
+                        <section class="ff__area" data-area-group={a.id} style={areaStyle(a.tone)}>
+                            <p class="ff__area-title"><a href={portfolioHref(lang, a.slug)}>{pick(a.label, lang)}</a></p>
+                            {a.subareas.map((s) => (
+                                <details class="ff-card" data-node={s.id} data-area={a.id}>
+                                    <summary class="ff-card__head">{pick(s.label, lang)}</summary>
+                                    <div class="ff-card__body">
+                                        <p>{pick(s.text, lang)}</p>
+                                    </div>
+                                </details>
+                            ))}
+                        </section>
+                    ))}
+                </div>
+            </div>
+
+            <div class="ff__band" data-node={BASE} style={areaStyle(data.base.tone)}>
+                <p class="ff__band-title"><a href={portfolioHref(lang, data.base.slug)}>{pick(data.base.label, lang)}</a></p>
+                <div class="ff__parts">
+                    {data.base.subareas.map((part) => (
+                        <details class="ff-card ff-card--part">
+                            <summary class="ff-card__head">{pick(part.label, lang)}</summary>
+                            <div class="ff-card__body">
+                                <p>{pick(part.text, lang)}</p>
+                            </div>
+                        </details>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    import "../../scripts/finance-flow-v2";
+</script>
+
+<style>
+    /* Area chips */
+    .ff__filter {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2);
+        margin-bottom: var(--space-3);
+    }
+    .ff__filter-label {
+        margin-right: var(--space-2);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .ff__chip {
+        padding: 0.35rem 0.85rem;
+        border: 1.2px solid var(--border-default);
+        border-radius: 999px;
+        background: var(--paper);
+        font-family: var(--sans);
+        font-size: 0.8125rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+    }
+    .ff__chip:hover {
+        background: var(--surface-1);
+    }
+    .ff__chip[aria-pressed="true"] {
+        background: var(--text-primary);
+        border-color: var(--text-primary);
+        color: var(--paper);
+    }
+    .ff__chip:focus-visible {
+        outline: 2px solid var(--text-primary);
+        outline-offset: 2px;
+    }
+    .ff__notes {
+        min-height: 1px;
+        margin-bottom: var(--space-4);
+    }
+    .ff__note {
+        max-width: 60ch;
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+    }
+
+    .ff__scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ff__stage {
+        position: relative;
+        min-width: 1080px;
+    }
+    .ff__wires {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        pointer-events: none;
+    }
+    .ff__cols {
+        position: relative; /* above the wires */
+        display: grid;
+        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(13rem, 17rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
+        align-items: start;
+    }
+    .ff__col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    .ff__col--src {
+        grid-column: 1;
+        align-self: center;
+    }
+    .ff__col--mech {
+        grid-column: 3;
+        align-self: center;
+        /* room above and below for the direct ribbons that pass over and under the mechanisms */
+        padding-bottom: 6rem;
+        gap: 0.85rem;
+    }
+    .ff__col--mech .ff__title {
+        margin-bottom: 6rem;
+    }
+    .ff__col--areas {
+        grid-column: 5;
+        gap: 1.4rem;
+    }
+    .ff__title {
+        margin: 0 0 var(--space-3);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .ff__col--mech > .ff__title {
+        margin-bottom: 6rem;
+    }
+    .ff__area {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+    .ff__area-title {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .ff__area-title a,
+    .ff__band-title a {
+        color: var(--tone-d);
+        text-decoration: none;
+    }
+    .ff__area-title a:hover,
+    .ff__band-title a:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+    .ff__area .ff-card {
+        --tone: inherit;
+    }
+
+    /* Cards: a pill that opens in place. */
+    .ff-card {
+        position: relative;
+        border: 1.4px solid var(--tone, var(--border-default));
+        border-left-width: 5px;
+        border-radius: 7px;
+        background: var(--paper);
+        transition: opacity 0.2s, box-shadow 0.2s;
+    }
+    .ff-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        min-height: 2.35rem;
+        padding: 0.45rem 0.75rem 0.45rem 0.8rem;
+        font-family: var(--sans);
+        font-size: 0.875rem;
+        line-height: 1.3;
+        color: var(--text-primary);
+        list-style: none;
+        cursor: pointer;
+    }
+    .ff-card__head::-webkit-details-marker {
+        display: none;
+    }
+    .ff-card__head::after {
+        content: "+";
+        flex: none;
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+    }
+    .ff-card[open] > .ff-card__head::after {
+        transform: rotate(45deg);
+    }
+    .ff-card__head:focus-visible {
+        outline: 2px solid var(--tone, var(--text-primary));
+        outline-offset: 2px;
+        border-radius: 5px;
+    }
+    .ff-card[open] {
+        box-shadow: 0 8px 24px color-mix(in srgb, #221a12 10%, transparent);
+    }
+    .ff-card__body {
+        padding: 0 0.85rem 0.85rem 0.8rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+    }
+    .ff-card__body p {
+        margin: var(--space-2) 0 0;
+        font-size: 0.8125rem; /* the site's global paragraph size is reading-copy size */
+        line-height: 1.5;
+    }
+    .ff-card__body .ff-card__full {
+        font-weight: 500;
+    }
+    .ff-card__facts {
+        margin: var(--space-3) 0 0;
+        font-size: 0.8125rem;
+        line-height: 1.45;
+    }
+    .ff-card__facts dt {
+        margin-top: var(--space-2);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .ff-card__facts dd {
+        margin: 0.1rem 0 0;
+    }
+
+    /* The base: Tejido territorial. */
+    .ff__band {
+        position: relative;
+        margin-top: 2.5rem; /* room for the drops' arrowheads */
+        padding: var(--space-4) var(--space-5) var(--space-5);
+        border: 1.2px solid var(--border-default);
+        border-radius: 10px;
+        background: var(--surface-1);
+        transition: opacity 0.2s;
+    }
+    .ff__band-title {
+        margin: 0 0 var(--space-4);
+        font-family: var(--mono);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .ff__parts {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: var(--space-3);
+        align-items: start;
+    }
+
+    /* An area is chosen: what doesn't connect to it leaves, the rest closes up. */
+    .ff .is-off {
+        display: none !important;
+    }
+    .ff__stage.is-single .ff__cols {
+        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(13rem, 17rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
+    }
+
+    /* Hover / open: light one path, dim the rest. */
+    .ff__stage.is-focus .ff-card[data-node],
+    .ff__stage.is-focus .ff__band {
+        opacity: 0.35;
+    }
+    .ff__stage.is-focus .is-on {
+        opacity: 1 !important;
+    }
+</style>
+
+<style is:global>
+    /* The wires are built by the script, so they can't take scoped styles. */
+    .ff__wires .ff-wire {
+        fill: none;
+        stroke-width: 4;
+        stroke-linecap: round;
+        opacity: 0.45;
+        transition: opacity 0.2s, stroke-width 0.2s;
+    }
+    .ff__wires .ff-wire--directo {
+        stroke-width: 2.5;
+        stroke-dasharray: 7 6;
+        stroke-linecap: butt;
+        opacity: 0.55;
+    }
+    .ff__wires .ff-label {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        fill: var(--text-muted);
+    }
+    .ff__stage.is-focus .ff-wire {
+        opacity: 0.06;
+    }
+    .ff__stage.is-focus .ff-wire.is-on {
+        opacity: 0.95;
+    }
+    .ff__stage.is-focus .ff-wire.is-on:not(.ff-wire--directo) {
+        stroke-width: 5.5;
+    }
+</style>

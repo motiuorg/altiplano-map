@@ -57,6 +57,7 @@ areas:
   - slug: educacion-cultura-turismo
     num: 2
     match: [programacion educativa, educacion]
+    title: { es: "Paisaje compartido", en: "Shared landscape" } # shown instead of the Notion name; the URL keeps its slug
     kicker:
       es: "Que la transición se entienda, se quiera y se pueda visitar."
       en: "So the transition is understood, wanted and can be visited."
@@ -100,6 +101,7 @@ areas:
   - slug: zonas-naturales
     num: 3
     match: [zonas naturales, espacios naturales]
+    title: { es: "Gestión forestal", en: "Forest management" } # shown instead of the Notion name; the URL keeps its slug
     kicker:
       es: "La mitad del territorio, y la que menos capital recibe."
       en: "Half the territory, and the part that receives the least capital."

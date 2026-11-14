@@ -6,4 +6,5 @@ items:
   - { id: gobernanza, href: /gobernanza/, label: { es: Gobernanza, en: Governance } }
   - { id: portafolio, href: /portafolio/, label: { es: Portafolio, en: Portfolio } }
   - { id: estrategia, href: /estrategia/, label: { es: Estrategia financiera, en: Financial strategy } }
+  - { id: estrategia-v2, href: /estrategia-v2/, label: { es: Estrategia financiera v2, en: Financial strategy v2 } }
   - { id: simulador, href: /simulador/, label: { es: Simulador económico, en: Economic simulator } }

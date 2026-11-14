@@ -11,7 +11,7 @@ import { loadHome, withLinks } from "../lib/pages";
 import { loadVision } from "../lib/vision";
 import { loadSimuladorData } from "../lib/simulador/data";
 import Modelo from "../lib/simulador/model.js";
-import { buildAreaViews, compactEuro, pick, toneVars } from "../lib/portfolio";
+import { buildAreaViews, compactEuro, pick, toneVars, areaLabel } from "../lib/portfolio";
 import { t, tv } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
@@ -210,7 +210,7 @@ const simCaption = tv(lang, arq.nombre);
                                     <p class="tour-areas__n"><strong>{interventions.length}</strong> {pick(home.process.stats.itvs, lang)}</p>
                                     <ul>
                                         {areas.map((a) => (
-                                            <li><Badge tone={a.tone as any} size="sm">{tv(lang, a.name)}</Badge> <span>{a.count}</span></li>
+                                            <li><Badge tone={a.tone as any} size="sm">{areaLabel(lang, a.name)}</Badge> <span>{a.count}</span></li>
                                         ))}
                                     </ul>
                                 </div>

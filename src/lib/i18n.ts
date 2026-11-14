@@ -55,6 +55,35 @@ const D = {
     en: 'Ribbons show connections, not amounts. Hover over a card to see its path, and click it to open it.',
   },
 
+  // --- financial strategy page, version 2 (texts of the diagram and cards: src/data/estrategia-v2.yaml)
+  'estr2.title': { es: 'Altiplano Estepario — Estrategia financiera (v2)', en: 'Altiplano Estepario — Financial strategy (v2)' },
+  'estr2.description': {
+    es: 'Cómo puede circular el dinero en el Altiplano Estepario: fuentes, mecanismos y las sub-áreas de cada área de trabajo.',
+    en: 'How money can flow in the Altiplano Estepario: sources, mechanisms and the sub-areas of each work area.',
+  },
+  'estr2.overline': { es: 'Estrategia financiera · versión 2, en revisión', en: 'Financial strategy · version 2, under review' },
+  'estr2.heading': { es: 'Del capital al paisaje', en: 'From capital to landscape' },
+  'estr2.diagram': {
+    es: 'Diagrama de flujo: fuentes de financiación, mecanismos y sub-áreas de cada área de trabajo, sobre el tejido territorial',
+    en: 'Flow diagram: funding sources, mechanisms and the sub-areas of each work area, resting on the territorial fabric',
+  },
+  'estr2.filter': { es: 'Ver', en: 'View' },
+  'estr2.all': { es: 'Todas las áreas', en: 'All areas' },
+  'estr2.colSources': { es: 'Fuentes', en: 'Sources' },
+  'estr2.colMechs': { es: 'Mecanismos', en: 'Mechanisms' },
+  'estr2.colAreas': { es: 'Áreas de trabajo', en: 'Work areas' },
+  'estr2.how': { es: 'Cómo se llega', en: 'How it is reached' },
+  'estr2.funds': { es: 'Financia bien', en: 'Funds well' },
+  'estr2.asks': { es: 'Suele exigir', en: 'Usually requires' },
+  'estr2.who': { es: 'Quién participaría', en: 'Who would take part' },
+  'estr2.retornos': { es: 'retornos', en: 'returns' },
+  'estr2.legendStructure': { es: 'A través de un mecanismo', en: 'Through a mechanism' },
+  'estr2.legendDirect': { es: 'Directo, sin mecanismo', en: 'Direct, no mechanism' },
+  'estr2.legendNote': {
+    es: 'Las cintas muestran conexiones, no cantidades; las que llegan a las sub-áreas son un punto de partida para discutir. Pasa el cursor por una tarjeta para ver su recorrido y haz clic para abrirla.',
+    en: 'Ribbons show connections, not amounts; those reaching the sub-areas are a starting point for discussion. Hover over a card to see its path, and click it to open it.',
+  },
+
   // --- banners
   'banner.error': { es: '⚠ Datos no disponibles.', en: '⚠ Data unavailable.' },
   'banner.fixture': { es: 'Modo fixture.', en: 'Fixture mode.' },
