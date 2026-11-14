@@ -55,13 +55,14 @@ const D = {
     en: 'Ribbons show connections, not amounts. Hover over a card to see its path, and click it to open it.',
   },
 
-  // --- financial strategy page, version 2 (texts of the diagram and cards: src/data/estrategia-v2.yaml)
-  'estr2.title': { es: 'Altiplano Estepario — Estrategia financiera (v2)', en: 'Altiplano Estepario — Financial strategy (v2)' },
+  // --- financial strategy page (/estrategia/; texts of the diagram and cards: src/data/estrategia-v2.yaml).
+  // The first version, with the `estr.*` strings, is kept unlinked at /estrategia-v1/.
+  'estr2.title': { es: 'Altiplano Estepario — Estrategia financiera', en: 'Altiplano Estepario — Financial strategy' },
   'estr2.description': {
     es: 'Cómo puede circular el dinero en el Altiplano Estepario: fuentes, mecanismos y las sub-áreas de cada área de trabajo.',
     en: 'How money can flow in the Altiplano Estepario: sources, mechanisms and the sub-areas of each work area.',
   },
-  'estr2.overline': { es: 'Estrategia financiera · versión 2, en revisión', en: 'Financial strategy · version 2, under review' },
+  'estr2.overline': { es: 'Estrategia financiera', en: 'Financial strategy' },
   'estr2.heading': { es: 'Del capital al paisaje', en: 'From capital to landscape' },
   'estr2.diagram': {
     es: 'Diagrama de flujo: fuentes de financiación, mecanismos y sub-áreas de cada área de trabajo, sobre el tejido territorial',

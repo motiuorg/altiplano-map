@@ -18,10 +18,12 @@ The same text in the vault: `Altiplano Estepario/8 Análisis Económico/Metodolo
 
 ## Data
 
-- The financial strategy page (`/estrategia/`) is hand-authored: nodes, links and card texts live in
-  `src/data/estrategia.yaml`, synthesised from the vault's `Altiplano Estepario/3 Mecanismos/` notes and the
-  strategy chapter. The structure was agreed with Andrea; change it there when the strategy changes. The
-  diagram is `src/components/estrategia/FinanceFlow.astro`.
+- The financial strategy page (`/estrategia/`) is hand-authored: sources, mechanisms, work-area sub-areas,
+  links and card texts live in `src/data/estrategia-v2.yaml` (header comment: where each link comes from), built
+  from the World Café cards in Notion. Change it there when the strategy changes. The diagram is
+  `src/components/estrategia/FinanceFlowV2.astro` and `src/scripts/finance-flow-v2.ts`. The first version
+  (`src/data/estrategia.yaml`, `FinanceFlow.astro`) is kept, unlinked, at `/estrategia-v1/`.
+  Area names on the site can differ from Notion's: `title` in `src/data/areas.yaml`, shown through `areaLabel()`.
 - The governance page (`/gobernanza/`) summarises the collaboration agreement and governance guide (Notion,
   Documentos Operativos) in `src/data/gobernanza.yaml`. Public summary only: no people's names, no confidential
   detail, no Notion links. The home (`/`) keeps the organisations map; its texts are `src/data/home.yaml`.

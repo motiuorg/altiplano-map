@@ -17,7 +17,7 @@ const { lang = "es" } = Astro.props;
 const data = loadStrategyV2();
 ---
 
-<Layout title={t(lang, "estr2.title")} description={t(lang, "estr2.description")} current="estrategia-v2" lang={lang}>
+<Layout title={t(lang, "estr2.title")} description={t(lang, "estr2.description")} current="estrategia" lang={lang}>
     <section class="section">
         <div class="container">
             <SectionHeading eyebrow={t(lang, "estr2.overline")} title={t(lang, "estr2.heading")} intro={pick(data.intro, lang)} />
