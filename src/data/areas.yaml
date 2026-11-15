@@ -46,10 +46,14 @@ areas:
       - { es: "Desarrollo rural y LEADER", en: "Rural development and LEADER" }
       - { es: "Administración pública", en: "Public administration" }
     subareas:
+      - match: [coordinacion de redes y gobernanza, articulacion de redes]
+        line: { es: "Reúne a actores con mandatos distintos hacia una misma agenda y hace visible el avance.", en: "Brings together actors with different mandates around one agenda and makes progress visible." }
       - match: [operaciones estructurales]
         line: { es: "Los equipos y costes fijos que mantienen en marcha a las organizaciones ancla.", en: "The teams and fixed costs that keep the anchor organisations running." }
-      - match: [articulacion de redes, coordinacion de redes y gobernanza]
-        line: { es: "Conecta actores con mandatos distintos y teje un relato compartido.", en: "Connects actors with different mandates and weaves a shared story." }
+      - match: [diagnostico y medicion de impacto]
+        line: { es: "Entender el punto de partida del territorio y medir qué cambia con cada intervención.", en: "Understanding the landscape's starting point and measuring what changes with each intervention." }
+      - match: [impulso y apoyo tecnico]
+        line: { es: "Acompaña a las iniciativas hasta que están listas para recibir capital.", en: "Accompanies initiatives until they are ready to receive capital." }
       - match: [comunicacion y difusion]
         line: { es: "Cuenta lo que ocurre y lo lleva a compradores, donantes y vecinos.", en: "Tells what is happening and takes it to buyers, donors and neighbours." }
 
@@ -86,16 +90,14 @@ areas:
       - { es: "Turismo y recreación", en: "Tourism and recreation" }
       - { es: "Apoyo comunitario", en: "Community support" }
     subareas:
-      - match: [capacidad educativa regenerativa]
-        line: { es: "Formación, itinerarios y redes de educadores.", en: "Training, learning paths and educator networks." }
-      - match: [comunicacion y difusion]
-        line: { es: "Lleva los resultados a compradores, donantes y vecinos.", en: "Takes results to buyers, donors and neighbours." }
+      - match: [educacion territorial]
+        line: { es: "Que niños y adultos entiendan su paisaje: escuelas y experiencias educativas en finca.", en: "So children and adults understand their landscape: schools and educational experiences on farms." }
+      - match: [formacion de profesionales locales]
+        line: { es: "Preparar a quienes el territorio necesita para sostener su transición.", en: "Preparing the people the landscape needs to sustain its transition." }
       - match: [eventos y actividades culturales]
         line: { es: "Convierte el paisaje en experiencia colectiva y relato compartido.", en: "Turns the landscape into a shared experience and story." }
       - match: [programacion turistica]
-        line: { es: "Apoyo al turismo regenerativo y al destino AlVelAl.", en: "Support for regenerative tourism and the AlVelAl destination." }
-      - match: [infraestructura turistica recreativa y comunitaria]
-        line: { es: "Las condiciones físicas para visitar el territorio como destino regenerativo.", en: "The physical conditions to visit the landscape as a regenerative destination." }
+        line: { es: "La marca turística y los programas que traen visitantes de fuera.", en: "The tourism brand and the programmes that bring in visitors." }
 
   # ------------------------------------------------------------------ 3
   - slug: zonas-naturales
@@ -131,11 +133,11 @@ areas:
       - { es: "Investigación y universidad", en: "Research and universities" }
       - { es: "Asociación y red territorial", en: "Landscape association and network" }
     subareas:
-      - match: [coordinacion de zonas naturales]
-        line: { es: "El equipo y el voluntariado que coordinan el trabajo en el monte.", en: "The team and volunteers who coordinate work in the woodland." }
-      - match: [estudios de uso de suelo y biodiversidad]
-        line: { es: "Herramientas para decidir dónde y cómo intervenir.", en: "Tools to decide where and how to intervene." }
-      - match: [restauracion de zonas naturales]
+      - match: [estudios y planes forestales]
+        line: { es: "Estudios de suelo, biodiversidad y corredores que orientan dónde y cómo restaurar.", en: "Soil, biodiversity and corridor studies that guide where and how to restore." }
+      - match: [cuidado del monte]
+        line: { es: "El equipo y el voluntariado que coordinan el trabajo en el monte día a día.", en: "The team and volunteers who coordinate the day-to-day work in the forest." }
+      - match: [restauracion de zonas forestales]
         line: { es: "Del suelo degradado al ecosistema funcional y conectado.", en: "From degraded soil to a working, connected ecosystem." }
       - match: [usos productivos de zonas forestales]
         line: { es: "Modelos de gestión forestal que no dependan solo de subvención.", en: "Forest management models that do not rely on subsidy alone." }
@@ -164,17 +166,16 @@ areas:
           es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
           en: "One changes the farm, through knowledge, support and practices, and lives on concessional funding. The other sells what it produces and can stand on its own income."
     flows:
-      - title: { es: "Transición en finca", en: "Transition on the farm" }
+      - title: { es: "Agricultura en finca", en: "On-farm agriculture" }
         blurb:
-          es: "Conocimiento, formación, apoyo material, financiación concesional, prácticas y evidencia."
-          en: "Knowledge, training, material support, concessional funding, practices and evidence."
-        subareas: [generacion de conocimiento agricola, formacion y asistencia tecnica, insumos y servicios, financiacion de la transicion, implementacion de practicas agricolas regenerativas, evidencia certificacion y posicionamiento]
-      - title: { es: "Comercialización", en: "Marketing" }
+          es: "Conocimiento, formación, apoyo material, financiación de la transición, certificación."
+          en: "Knowledge, training, material support, transition finance, certification."
+        subareas: [generacion de conocimiento agricola, formacion y asistencia en finca, insumos y servicios agricolas, transicion regenerativa en finca, certificacion regenerativa]
+      - title: { es: "Casos de negocio agrícolas", en: "Agricultural business cases" }
         blurb:
-          es: "Dar salida al producto: venta, transformación y negocios que sostienen la transición con ingresos."
-          en: "Giving the produce a market: sales, processing and businesses that sustain the transition through income."
-        subareas: [impulso de iniciativas, estudios de mercado, comercializacion de productos, infraestructura de transformacion]
-        rest: true
+          es: "Los negocios que dan salida a lo que producen las fincas: comercialización, transformación y los servicios que los sostienen."
+          en: "The businesses that take what farms produce to market: marketing, processing and the services that sustain them."
+        subareas: [estudios de mercado, circulante y capital de trabajo, infraestructura de transformacion]
     actors:
       - { es: "Explotación agraria", en: "Farm holding" }
       - { es: "Servicio técnico y agrario", en: "Technical and farm services" }
@@ -182,23 +183,19 @@ areas:
       - { es: "Empresa con compromisos ecológicos", en: "Company with ecological commitments" }
       - { es: "Entidad financiera", en: "Financial institution" }
     subareas:
-      - match: [generacion de conocimiento agricola, generacion de conocimiento agricola y de cadena]
+      - match: [generacion de conocimiento agricola]
         line: { es: "Finca experimental y estudios de purines, ganadería y razas autóctonas.", en: "An experimental farm and studies on slurry, livestock and local breeds." }
-      - match: [formacion y asistencia tecnica, seguimiento y asistencia tecnica]
+      - match: [formacion y asistencia en finca]
         line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y un espacio físico de encuentro.", en: "On-farm support, training, visits to other landscapes and a physical meeting place." }
-      - match: [insumos y servicios, apoyo material]
+      - match: [insumos y servicios agricolas]
         line: { es: "Compost comunitario y banco de maquinaria que las fincas comparten.", en: "Community compost and a machinery bank that farms share." }
-      - match: [financiacion de la transicion, financiacion concesional]
-        line: { es: "Fondos para semillas, cubiertas, agua y biodiversidad, y proyectos como el de carbono en suelo.", en: "Funds for seed, ground cover, water and biodiversity, and projects like soil carbon." }
-      - match: [implementacion de practicas agricolas regenerativas]
-        line: { es: "El cambio de manejo en finca: suelo, cubiertas, biodiversidad y agua.", en: "The change of management on the farm: soil, cover, biodiversity and water." }
-      - match: [evidencia certificacion y posicionamiento]
-        line: { es: "Certificación regenerativa y estándares que respaldan el producto.", en: "Regenerative certification and standards that back the product." }
-      - match: [impulso de iniciativas]
-        line: { es: "Fondos para que nuevas iniciativas del territorio arranquen.", en: "Funds to get new initiatives in the landscape off the ground." }
+      - match: [transicion regenerativa en finca]
+        line: { es: "El cambio de manejo en finca: suelo, cubiertas, biodiversidad y agua, y los fondos que lo financian.", en: "The change of management on the farm: soil, cover, biodiversity and water, and the funds that finance it." }
+      - match: [certificacion regenerativa]
+        line: { es: "Certificación y estándares que respaldan el producto y hacen verificable lo que ocurre en la finca.", en: "Certification and standards that back the product and make what happens on the farm verifiable." }
       - match: [estudios de mercado]
         line: { es: "Estudios económicos y de valor añadido que orientan qué y cómo vender.", en: "Economic and added-value studies that guide what to sell and how." }
-      - match: [comercializacion de productos, comercializacion y transformacion de productos]
-        line: { es: "Negocios que venden lo que producen las fincas: almendra, oliva y esencias.", en: "Businesses that sell what the farms produce: almonds, olives and essences." }
+      - match: [circulante y capital de trabajo]
+        line: { es: "Negocios que venden lo que producen las fincas y el circulante que adelanta la campaña.", en: "Businesses that sell what farms produce and the working capital that fronts the season." }
       - match: [infraestructura de transformacion]
         line: { es: "Activos fijos y transformación de productos dentro del territorio.", en: "Fixed assets and product processing inside the landscape." }
