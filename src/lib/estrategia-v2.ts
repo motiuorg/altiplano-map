@@ -13,6 +13,7 @@ export interface Source {
   how?: L; // how the money is reached
   funds?: L; // what it funds well
   asks?: L; // what it usually requires
+  challenges?: L; // why it is hard: limits and difficulties
 }
 export interface Mechanism {
   id: string;
@@ -20,7 +21,8 @@ export interface Mechanism {
   status: L;
   idea?: boolean; // an idea to explore, not yet in design
   text: L;
-  who: L;
+  how: L; // how it would work: the steps, and the key participants where relevant
+  evolution?: L; // what it could become in the long term
 }
 export interface SubArea {
   id: string;

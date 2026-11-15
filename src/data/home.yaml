@@ -7,18 +7,18 @@
 hero:
   lede:
     es: "Un millón de hectáreas de estepa, almendros y sierra en el sureste de España, donde un grupo de organizaciones locales se ha juntado para regenerar el territorio y encontrar cómo financiarlo."
-    en: "A million hectares of steppe, almond groves and sierra in south-eastern Spain, where a group of local organisations has come together to regenerate the territory and work out how to fund it."
+    en: "A million hectares of steppe, almond groves and sierra in south-eastern Spain, where a group of local organisations has come together to regenerate the landscape and work out how to fund it."
   cta: { es: "Empezar a explorar", en: "Start exploring" }
   mapNote: { es: "Las organizaciones del núcleo, en el mapa.", en: "The core organisations, on the map." }
 
 territory:
-  eyebrow: { es: "El territorio", en: "The territory" }
+  eyebrow: { es: "El territorio", en: "The landscape" }
   title: { es: "Una estepa que se puede regenerar", en: "A steppe that can be regenerated" }
   text:
     - es: "El Altiplano Estepario es una meseta de estepa mediterránea semiárida, entre 600 y 1.300 metros de altura, que se extiende entre Granada y Murcia por cinco comarcas: el Altiplano de Granada, Los Vélez, el Alto Almanzora, Guadix y el Noroeste de Murcia. Llueve entre 200 y 450 milímetros al año, los veranos queman y los inviernos hielan, y aun así es una de las zonas con más biodiversidad por superficie de Europa."
       en: "The Altiplano Estepario is a plateau of semi-arid Mediterranean steppe, between 600 and 1,300 metres high, stretching between Granada and Murcia across five comarcas: the Altiplano de Granada, Los Vélez, the Alto Almanzora, Guadix and the Noroeste de Murcia. It gets between 200 and 450 millimetres of rain a year, summers burn and winters freeze, and yet it is one of the most biodiverse areas per hectare in Europe."
     - es: "Esa riqueza está bajo presión. Los suelos pierden entre 20 y 30 toneladas por hectárea al año, los monocultivos de almendro y olivo desplazan el hábitat de las aves esteparias, y los pueblos se vacían y envejecen. Pero el territorio también tiene con qué responder: agricultores que ya prueban prácticas regenerativas, unas 50.000 hectáreas que pueden convertirse en corredores ecológicos, y más de una década de trabajo con el [marco de los 4 Retornos](https://commonland.com/es/4-marco-de-rendimientos/)."
-      en: "That richness is under pressure. Soils lose between 20 and 30 tonnes per hectare a year, almond and olive monocultures push out the habitat of steppe birds, and villages are emptying and ageing. But the territory also has ways to respond: farmers already trying regenerative practices, some 50,000 hectares that could become ecological corridors, and more than a decade of work with the [4 Returns framework](https://commonland.com/es/4-marco-de-rendimientos/)."
+      en: "That richness is under pressure. Soils lose between 20 and 30 tonnes per hectare a year, almond and olive monocultures push out the habitat of steppe birds, and villages are emptying and ageing. But the landscape also has ways to respond: farmers already trying regenerative practices, some 50,000 hectares that could become ecological corridors, and more than a decade of work with the [4 Returns framework](https://commonland.com/es/4-marco-de-rendimientos/)."
   stats:
     - { value: "~1 M ha", label: { es: "de paisaje, una cuarta parte de los Países Bajos", en: "of landscape, a quarter of the Netherlands" } }
     - { value: "~200.000", label: { es: "habitantes, cada vez menos y más mayores", en: "inhabitants, fewer and older each year" } }
@@ -30,7 +30,7 @@ process:
   title: { es: "Alinear el capital con la regeneración", en: "Aligning capital with regeneration" }
   text:
     - es: "La mayor parte del trabajo que regenera un paisaje no genera ingresos propios, y lo que sí los genera necesita años y capital paciente para llegar. Desde 2025, un grupo de organizaciones del territorio trabaja junto para cerrar esa brecha: entender qué necesita el Altiplano, diseñar los mecanismos que pueden financiarlo y hablar con una sola voz ante financiadores e instituciones."
-      en: "Most of the work that regenerates a landscape earns no income of its own, and the work that does needs years and patient capital to get there. Since 2025, a group of organisations in the territory has worked together to close that gap: understanding what the Altiplano needs, designing the mechanisms that can fund it, and speaking with one voice to funders and institutions."
+      en: "Most of the work that regenerates a landscape earns no income of its own, and the work that does needs years and patient capital to get there. Since 2025, a group of organisations in the landscape has worked together to close that gap: understanding what the Altiplano needs, designing the mechanisms that can fund it, and speaking with one voice to funders and institutions."
     - es: "Este sitio es donde ese trabajo se comparte en abierto. Las organizaciones y las intervenciones se actualizan desde su base de datos cada pocas horas."
       en: "This site is where that work is shared openly. Organisations and interventions are updated from their database every few hours."
   stats:
@@ -41,16 +41,16 @@ process:
 
 tour:
   eyebrow: { es: "Explorar", en: "Explore" }
-  title: { es: "Del territorio que imaginamos a cómo hacerlo posible", en: "From the territory we imagine to how to make it happen" }
+  title: { es: "Del territorio que imaginamos a cómo hacerlo posible", en: "From the landscape we imagine to how to make it happen" }
   intro:
     es: "Empieza por la pregunta que te trae hasta aquí: hacia dónde va el territorio, quién lo impulsa, qué hace falta hacer, de dónde puede venir el dinero o cuánto cuesta el cambio en una finca."
-    en: "Start with the question that brings you here: where the territory is heading, who is driving it, what needs to be done, where the money can come from, or what the change costs on a farm."
+    en: "Start with the question that brings you here: where the landscape is heading, who is driving it, what needs to be done, where the money can come from, or what the change costs on a farm."
   steps:
     - id: vision
       href: /vision/
       verb: { es: "Imaginar", en: "Imagine" }
       label: { es: "Visión regenerativa", en: "Regenerative vision" }
-      question: { es: "¿Cómo sería el territorio regenerado?", en: "What would the regenerated territory look like?" }
+      question: { es: "¿Cómo sería el territorio regenerado?", en: "What would the regenerated landscape look like?" }
       text:
         es: "El Altiplano restaurado dibujado como un árbol: el paisaje en la copa, la agricultura, la ganadería y los montes en las ramas, la economía y la comunidad en el tronco, y la identidad en las raíces. Entre capa y capa, lo que cada una aporta a la otra."
         en: "The restored Altiplano drawn as a tree: the landscape in the crown, farming, grazing and forests in the branches, the economy and the community in the trunk, and identity in the roots. Between each layer, what one gives the other."
@@ -61,7 +61,7 @@ tour:
       question: { es: "¿Quién lo impulsa y cómo decide?", en: "Who drives it and how do they decide?" }
       text:
         es: "Las organizaciones del núcleo, el acuerdo de colaboración de 2026, sus principios y los círculos con los que se abren al resto del territorio."
-        en: "The core organisations, the 2026 collaboration agreement, their principles and the circles through which they open up to the rest of the territory."
+        en: "The core organisations, the 2026 collaboration agreement, their principles and the circles through which they open up to the rest of the landscape."
     - id: portafolio
       href: /portafolio/
       verb: { es: "Actuar", en: "Act" }
@@ -69,7 +69,7 @@ tour:
       question: { es: "¿Qué hace falta hacer?", en: "What needs to be done?" }
       text:
         es: "Las intervenciones que el territorio necesita: las que las organizaciones ya impulsan y las que quieren poner en marcha, ordenadas por áreas de trabajo, con lo que cuestan, cuánto tiempo necesitan y si pueden sostenerse comercialmente."
-        en: "The interventions the territory needs: those the organisations are already driving and those they want to start, grouped by work area, with what they cost, how long they need and whether they can stand on their own commercially."
+        en: "The interventions the landscape needs: those the organisations are already driving and those they want to start, grouped by work area, with what they cost, how long they need and whether they can stand on their own commercially."
     - id: estrategia
       href: /estrategia/
       verb: { es: "Financiar", en: "Fund" }

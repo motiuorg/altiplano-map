@@ -219,6 +219,14 @@ function init(root: HTMLElement) {
   });
   root.querySelectorAll<HTMLButtonElement>('[data-area-btn]').forEach((b) => b.addEventListener('click', () => setArea(b.dataset.areaBtn!)));
   window.addEventListener('hashchange', () => setArea(location.hash.match(/^#area=([\w-]+)$/)?.[1] ?? 'all', false));
+  // a click anywhere on a card opens or closes it, not only on its header (the header does it natively);
+  // selecting text inside an open card doesn't count as a click
+  stage.addEventListener('click', (ev) => {
+    const card = (ev.target as Element).closest<HTMLDetailsElement>('details.ff-card');
+    if (!card || (ev.target as Element).closest('summary, a, button')) return;
+    if (window.getSelection()?.toString()) return;
+    card.open = !card.open;
+  });
   // a card opening or closing moves the cards below it: redraw, and keep the open card's path lit
   stage.addEventListener('toggle', (ev) => {
     const card = ev.target as HTMLDetailsElement;

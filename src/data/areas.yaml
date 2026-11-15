@@ -20,7 +20,7 @@ areas:
     match: [tejido territorial, articulacion]
     kicker:
       es: "Las personas y las redes que mantienen en pie el trabajo del territorio."
-      en: "The people and networks that keep the territory's work standing."
+      en: "The people and networks that keep the landscape's work standing."
     lead:
       es: "Equipos que sostienen a las organizaciones, redes que conectan actores y comunicación que cuenta lo que ocurre. Sin este tejido, las demás áreas no se sostienen."
       en: "Teams that keep organisations running, networks that connect actors, and communication that tells what is happening. Without this fabric, the other areas cannot hold."
@@ -28,7 +28,7 @@ areas:
       - title: { es: "Una agenda compartida", en: "A shared agenda" }
         text:
           es: "Los actores del territorio tienen mandatos y ritmos distintos. Una agenda común hace que lo que logra cada uno sume a escala de paisaje."
-          en: "Actors in the territory have different mandates and rhythms. A common agenda makes what each achieves add up at landscape scale."
+          en: "Actors in the landscape have different mandates and rhythms. A common agenda makes what each achieves add up at landscape scale."
       - title: { es: "Las redes abaratan arrancar", en: "Networks make starting cheaper" }
         text:
           es: "La confianza acumulada entre actores permite acceder a programas que exigen consorcio, tener voz ante la administración y replicar lo que funciona. La Comunidad Altiplano Regenerativo lo hizo con unas 40 empresas en 2023."
@@ -36,12 +36,12 @@ areas:
       - title: { es: "Un relato que compartimos", en: "A story we share" }
         text:
           es: "Una narrativa común hace que el territorio se reconozca a sí mismo y se entienda desde fuera. Inspira prácticas y atrae a quien aún no lo conoce."
-          en: "A common narrative lets the territory recognise itself and be understood from outside. It inspires practice and draws in those who do not know it yet."
+          en: "A common narrative lets the landscape recognise itself and be understood from outside. It inspires practice and draws in those who do not know it yet."
     flow:
       es: "Equipos que sostienen, redes que conectan y comunicación que difunde."
       en: "Teams that sustain, networks that connect, and communication that spreads the word."
     actors:
-      - { es: "Asociación y red territorial", en: "Territorial association and network" }
+      - { es: "Asociación y red territorial", en: "Landscape association and network" }
       - { es: "Fundaciones", en: "Foundations" }
       - { es: "Desarrollo rural y LEADER", en: "Rural development and LEADER" }
       - { es: "Administración pública", en: "Public administration" }
@@ -63,7 +63,7 @@ areas:
       en: "So the transition is understood, wanted and can be visited."
     lead:
       es: "Formación para quienes viven el paisaje, relato y fiestas que crean identidad, y una oferta turística que abre el territorio a quien viene de fuera."
-      en: "Training for those who live the landscape, stories and festivals that build identity, and a tourism offer that opens the territory to visitors."
+      en: "Training for those who live the landscape, stories and festivals that build identity, and a tourism offer that opens it to visitors."
     dynamics:
       - title: { es: "Hacia adentro", en: "Inwards" }
         text:
@@ -72,7 +72,7 @@ areas:
       - title: { es: "Hacia afuera", en: "Outwards" }
         text:
           es: "Comunicación y relato hacen legible el territorio para compradores, financiadores y visitantes que aún no lo conocen."
-          en: "Communication and storytelling make the territory legible to buyers, funders and visitors who do not know it yet."
+          en: "Communication and storytelling make the landscape legible to buyers, funders and visitors who do not know it yet."
       - title: { es: "Un ciclo que se alimenta", en: "A self-feeding cycle" }
         text:
           es: "El conocimiento da base al relato, el relato da valor a la experiencia y la experiencia deja ingresos que vuelven a la formación."
@@ -95,7 +95,7 @@ areas:
       - match: [programacion turistica]
         line: { es: "Apoyo al turismo regenerativo y al destino AlVelAl.", en: "Support for regenerative tourism and the AlVelAl destination." }
       - match: [infraestructura turistica recreativa y comunitaria]
-        line: { es: "Las condiciones físicas para visitar el territorio como destino regenerativo.", en: "The physical conditions to visit the territory as a regenerative destination." }
+        line: { es: "Las condiciones físicas para visitar el territorio como destino regenerativo.", en: "The physical conditions to visit the landscape as a regenerative destination." }
 
   # ------------------------------------------------------------------ 3
   - slug: zonas-naturales
@@ -104,7 +104,7 @@ areas:
     title: { es: "Gestión forestal", en: "Forest management" } # shown instead of the Notion name; the URL keeps its slug
     kicker:
       es: "La mitad del territorio, y la que menos capital recibe."
-      en: "Half the territory, and the part that receives the least capital."
+      en: "Half the landscape, and the part that receives the least capital."
     lead:
       es: "Estepa, monte y sierra sin gestión ni inversión. Aquí se decide dónde restaurar, cómo hacerlo y de qué puede vivir quien cuida el monte."
       en: "Steppe, woodland and sierra without management or investment. This is where it is decided where to restore, how, and what those who care for the land can live on."
@@ -129,7 +129,7 @@ areas:
       - { es: "Titular de monte público", en: "Public woodland owner" }
       - { es: "Servicio técnico y agrario", en: "Technical and farm services" }
       - { es: "Investigación y universidad", en: "Research and universities" }
-      - { es: "Asociación y red territorial", en: "Territorial association and network" }
+      - { es: "Asociación y red territorial", en: "Landscape association and network" }
     subareas:
       - match: [coordinacion de zonas naturales]
         line: { es: "El equipo y el voluntariado que coordinan el trabajo en el monte.", en: "The team and volunteers who coordinate work in the woodland." }
@@ -149,7 +149,7 @@ areas:
       en: "Where the transition has to show up on the farm."
     lead:
       es: "El núcleo productivo del territorio. Aquí se genera el ingreso, se cambia el paisaje a gran escala y se demuestra que el modelo funciona."
-      en: "The productive core of the territory. This is where income is made, the landscape changes at scale, and the model proves it works."
+      en: "The productive core of the landscape. This is where income is made, the landscape changes at scale, and the model proves it works."
     dynamics:
       - title: { es: "La finca paga el cambio", en: "The farm pays for the change" }
         text:
@@ -158,7 +158,7 @@ areas:
       - title: { es: "Pagar primero, cobrar despacio", en: "Pay first, get paid slowly" }
         text:
           es: "Quien comercializa adelanta la campaña y el circulante, y el dinero entra poco a poco. Transformar dentro del territorio retiene más valor, pero pide inversión."
-          en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the territory keeps more value, but it needs investment."
+          en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the landscape keeps more value, but it needs investment."
       - title: { es: "Dos flujos que se necesitan", en: "Two flows that need each other" }
         text:
           es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
@@ -185,7 +185,7 @@ areas:
       - match: [generacion de conocimiento agricola, generacion de conocimiento agricola y de cadena]
         line: { es: "Finca experimental y estudios de purines, ganadería y razas autóctonas.", en: "An experimental farm and studies on slurry, livestock and local breeds." }
       - match: [formacion y asistencia tecnica, seguimiento y asistencia tecnica]
-        line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y un espacio físico de encuentro.", en: "On-farm support, training, visits to other territories and a physical meeting place." }
+        line: { es: "Acompañamiento en finca, formación, visitas a otros territorios y un espacio físico de encuentro.", en: "On-farm support, training, visits to other landscapes and a physical meeting place." }
       - match: [insumos y servicios, apoyo material]
         line: { es: "Compost comunitario y banco de maquinaria que las fincas comparten.", en: "Community compost and a machinery bank that farms share." }
       - match: [financiacion de la transicion, financiacion concesional]
@@ -195,10 +195,10 @@ areas:
       - match: [evidencia certificacion y posicionamiento]
         line: { es: "Certificación regenerativa y estándares que respaldan el producto.", en: "Regenerative certification and standards that back the product." }
       - match: [impulso de iniciativas]
-        line: { es: "Fondos para que nuevas iniciativas del territorio arranquen.", en: "Funds to get new initiatives in the territory off the ground." }
+        line: { es: "Fondos para que nuevas iniciativas del territorio arranquen.", en: "Funds to get new initiatives in the landscape off the ground." }
       - match: [estudios de mercado]
         line: { es: "Estudios económicos y de valor añadido que orientan qué y cómo vender.", en: "Economic and added-value studies that guide what to sell and how." }
       - match: [comercializacion de productos, comercializacion y transformacion de productos]
         line: { es: "Negocios que venden lo que producen las fincas: almendra, oliva y esencias.", en: "Businesses that sell what the farms produce: almonds, olives and essences." }
       - match: [infraestructura de transformacion]
-        line: { es: "Activos fijos y transformación de productos dentro del territorio.", en: "Fixed assets and product processing inside the territory." }
+        line: { es: "Activos fijos y transformación de productos dentro del territorio.", en: "Fixed assets and product processing inside the landscape." }

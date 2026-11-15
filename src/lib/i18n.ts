@@ -17,7 +17,7 @@ const D = {
   'lang.label': { es: 'Idioma', en: 'Language' },
   'footer.blurb': {
     es: 'Las organizaciones que trabajan por la regeneración del Altiplano Estepario, su visión del territorio, sus intervenciones y cómo financiarlas.',
-    en: 'The organisations working to regenerate the Altiplano Estepario, their vision of the territory, their interventions and how to fund them.',
+    en: 'The organisations working to regenerate the Altiplano Estepario, their vision of the landscape, their interventions and how to fund them.',
   },
   'footer.sections': { es: 'Secciones', en: 'Sections' },
   'footer.project': { es: 'Creado por', en: 'Created by' },
@@ -66,7 +66,7 @@ const D = {
   'estr2.heading': { es: 'Del capital al paisaje', en: 'From capital to landscape' },
   'estr2.diagram': {
     es: 'Diagrama de flujo: fuentes de financiación, mecanismos y sub-áreas de cada área de trabajo, sobre el tejido territorial',
-    en: 'Flow diagram: funding sources, mechanisms and the sub-areas of each work area, resting on the territorial fabric',
+    en: 'Flow diagram: funding sources, mechanisms and the sub-areas of each work area, resting on the landscape fabric',
   },
   'estr2.filter': { es: 'Ver', en: 'View' },
   'estr2.all': { es: 'Todas las áreas', en: 'All areas' },
@@ -76,7 +76,9 @@ const D = {
   'estr2.how': { es: 'Cómo se llega', en: 'How it is reached' },
   'estr2.funds': { es: 'Financia bien', en: 'Funds well' },
   'estr2.asks': { es: 'Suele exigir', en: 'Usually requires' },
-  'estr2.who': { es: 'Quién participaría', en: 'Who would take part' },
+  'estr2.challenges': { es: 'Retos', en: 'Challenges' },
+  'estr2.howMech': { es: 'Cómo se haría', en: 'How it would work' },
+  'estr2.evolution': { es: 'Evolución', en: 'Evolution' },
   'estr2.retornos': { es: 'retornos', en: 'returns' },
   'estr2.legendStructure': { es: 'A través de un mecanismo', en: 'Through a mechanism' },
   'estr2.legendDirect': { es: 'Directo, sin mecanismo', en: 'Direct, no mechanism' },
@@ -97,7 +99,7 @@ const D = {
   'home.title': { es: 'Altiplano Estepario', en: 'Altiplano Estepario' },
   'home.description': {
     es: 'Quién trabaja por la regeneración del Altiplano Estepario, cómo imaginan el territorio, qué intervenciones están en marcha y cómo financiarlas.',
-    en: 'Who is working to regenerate the Altiplano Estepario, how they imagine the territory, which interventions are under way and how to fund them.',
+    en: 'Who is working to regenerate the Altiplano Estepario, how they imagine the landscape, which interventions are under way and how to fund them.',
   },
 
   'home.go': { es: 'Ver más', en: 'See more' },

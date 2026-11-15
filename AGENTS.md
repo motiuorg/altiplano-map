@@ -39,7 +39,10 @@ The same text in the vault: `Altiplano Estepario/8 Análisis Económico/Metodolo
   looks each text up in `src/data/value-translations.json` (key: the Spanish text exactly as in Notion;
   value: the English). A text that is not in the file shows in Spanish on the English pages, so after
   adding or editing interventions, organisations or their page text in Notion, add the new texts there.
-  Proper names (organisations, brands, clients) are left out on purpose and show unchanged. The Paisaje
+  Proper names (organisations, brands, clients) are left out on purpose and show unchanged.
+  In English, "territorio" and "territorial" are "landscape" ("Landscape fabric", "Landscape investment portfolio"),
+  everywhere on the site. Kept as they are: proper names ("Manifesto for a Regenerative Territory") and "territorial funds"
+  in the administrative sense (LEADER and similar). The Paisaje
   and Paisaje (prototype) pages keep a Spanish body by design.
 - Pushing to `main` deploys, and the site also rebuilds every 6 hours from Notion.
 

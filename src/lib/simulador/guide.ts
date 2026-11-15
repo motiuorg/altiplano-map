@@ -184,7 +184,7 @@ export const GUIDE: Record<'es' | 'en', Guide> = {
           },
           {
             term: 'Landscape',
-            text: 'The same at the scale of the territory. Set how many hectares of each crop there are and how much of it enters transition within ten years (the uptake); farms join in stages. You will see the hectares in transition, the gross cost, the financing need and the potential credit demand. It does not depend on the typical farm chosen above.',
+            text: 'The same at the scale of the landscape. Set how many hectares of each crop there are and how much of it enters transition within ten years (the uptake); farms join in stages. You will see the hectares in transition, the gross cost, the financing need and the potential credit demand. It does not depend on the typical farm chosen above.',
           },
           {
             term: 'Assumptions',
@@ -243,7 +243,7 @@ export const GUIDE: Record<'es' | 'en', Guide> = {
           'Yields and costs are Andalusian averages, not Altiplano ones. This is the biggest source of uncertainty, especially in current margin and therefore in repayment capacity.',
           'It is a partial budget: it only calculates what changes with the transition. It leaves out other crops and livestock, taxes and inflation; everything is in constant euros.',
           '“Pessimistic” and “Optimistic” are stress ranges, not probabilities: they move all the assumptions at once.',
-          'Payments for ecosystem services, such as carbon, are set to 0 by default because there is no market for them in the territory today. For the most prudent case, also set the regenerative premium to 0.',
+          'Payments for ecosystem services, such as carbon, are set to 0 by default because there is no market for them in the landscape today. For the most prudent case, also set the regenerative premium to 0.',
           'Pistachio is modelled as an adult orchard, without the first years of establishment before it produces.',
         ],
         after:

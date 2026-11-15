@@ -16,10 +16,10 @@
 # (the illustration leaves a gap there); the small preview on the home page draws simplified cards at that spot.
 
 eyebrow: { es: "Visión regenerativa", en: "Regenerative vision" }
-title: { es: "Así florece el territorio", en: "How the territory flourishes" }
+title: { es: "Así florece el territorio", en: "How the landscape flourishes" }
 intro:
   es: "Un mapa de cómo imaginamos el territorio restaurado, desde las raíces hasta el paisaje. Reúne lo aprendido en talleres colectivos, entrevistas e investigación, y muestra cómo se sostienen entre sí las capas del territorio."
-  en: "A map of how we imagine the restored territory, from its roots up to the landscape. It brings together what we learned in collective workshops, interviews and research, and shows how the territory's layers hold each other up."
+  en: "A map of how we imagine the restored Altiplano Estepario, from its roots up to the landscape. It brings together what we learned in collective workshops, interviews and research, and shows how its layers hold each other up."
 
 size: { w: 1440, h: 2234 }
 
@@ -35,7 +35,7 @@ parts:
       - { es: "Agua retenida", en: "Water held in the land" }
       - { es: "Corredor ecológico conectado", en: "A connected ecological corridor" }
       - { es: "Paisaje resiliente al fuego", en: "A fire-resilient landscape" }
-      - { es: "El territorio como refugio climático", en: "The territory as a climate refuge" }
+      - { es: "El territorio como refugio climático", en: "The landscape as a climate refuge" }
   - band: { es: "Tierra viva", en: "Living land" }
     pos: { x: 645, y: 422, w: 150 }
     up: { es: "Restauran suelo, agua y biodiversidad", en: "They restore soil, water and biodiversity" }
@@ -86,7 +86,7 @@ parts:
       - { es: "Compradores comprometidos", en: "Committed buyers" }
       - { es: "Emprendimiento más allá del campo", en: "Enterprise beyond farming" }
       - { es: "Rutas y experiencias que abren nuevos caminos", en: "Routes and experiences that open new paths" }
-      - { es: "Valor que se queda en el territorio", en: "Value that stays in the territory" }
+      - { es: "Valor que se queda en el territorio", en: "Value that stays in the landscape" }
   - label: { es: "Comunidad viva", en: "A living community" }
     sub: { es: "Un pueblo con oportunidades, todo el año", en: "Villages with opportunities, all year round" }
     tone: red

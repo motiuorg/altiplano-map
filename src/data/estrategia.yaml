@@ -13,7 +13,7 @@
 
 intro:
   es: "Cada tipo de dinero llega al territorio con sus propias condiciones. Este mapa muestra cómo pueden combinarse para sostener la regeneración del Altiplano Estepario a largo plazo."
-  en: "Every kind of money reaches the territory on its own terms. This map shows how they can be combined to sustain the regeneration of the Altiplano Estepario over the long term."
+  en: "Every kind of money reaches the landscape on its own terms. This map shows how they can be combined to sustain the regeneration of the Altiplano Estepario over the long term."
 
 sources:
   - id: pub
@@ -25,7 +25,7 @@ sources:
     label: { es: "Filantropía", en: "Philanthropy" }
     text:
       es: "Fundaciones y programas de largo plazo que llegan por relación, no por convocatoria. Es el capital más flexible: puede cubrir coordinación, seguimiento y los primeros pasos de los fondos del territorio."
-      en: "Foundations and long-term programmes reached through relationships rather than open calls. It is the most flexible capital: it can cover coordination, monitoring and the first steps of the territory's funds."
+      en: "Foundations and long-term programmes reached through relationships rather than open calls. It is the most flexible capital: it can cover coordination, monitoring and the first steps of the landscape's funds."
   - id: des
     label: { es: "Capital público de desarrollo (EIB, ICO)", en: "Public development capital (EIB, ICO)" }
     short: { es: "Capital público de desarrollo", en: "Public development capital" }
@@ -52,7 +52,7 @@ sources:
     label: { es: "Seguros y suministradoras", en: "Insurers and utilities" }
     text:
       es: "Empresas que ganan si el territorio aguanta: aseguradoras que pagan menos por sequía, incendio o erosión, y compañías de abastecimiento, regadío, embalses o hidroeléctrica que dependen de que la tierra retenga agua y suelo. Pueden pagar por prácticas que reducen ese riesgo de forma verificable sin comprar nada más al territorio, y así amplían los pagadores más allá de la cadena comercial."
-      en: "Companies that gain when the territory holds up: insurers that pay out less for drought, fire or erosion, and water supply, irrigation, reservoir or hydropower companies that depend on the land holding water and soil. They can pay for practices that verifiably reduce that risk without buying anything else from the territory, which widens the pool of payers beyond the supply chain."
+      en: "Companies that gain when the landscape holds up: insurers that pay out less for drought, fire or erosion, and water supply, irrigation, reservoir or hydropower companies that depend on the land holding water and soil. They can pay for practices that verifiably reduce that risk without buying anything else from the landscape, which widens the pool of payers beyond the supply chain."
 mechanisms:
   - id: fc
     group: sin-retorno
@@ -77,7 +77,7 @@ mechanisms:
       en: "Patient credit (longer terms, more flexible collateral) tied to verified regenerative practice. The EIB relieves the rural banks' capital, and certification justifies the different terms."
   - id: fit
     group: con-retorno
-    label: { es: "Fondo de inversión territorial", en: "Territorial investment fund" }
+    label: { es: "Fondo de inversión territorial", en: "Landscape investment fund" }
     status: { es: "En diseño", en: "In design" }
     text:
       es: "Capital paciente a 5–15 años para iniciativas con modelo de negocio, entre lo que exige la banca y lo que pide el capital de mercado. Se construye por fases, y parte de sus retornos puede sostener el proceso que le prepara el pipeline."
@@ -112,7 +112,7 @@ process:
     - label: { es: "Investigación y diagnóstico", en: "Research and diagnosis" }
       text:
         es: "Conocer el paisaje antes de intervenir: el estado del suelo, el agua y la biodiversidad, quién trabaja en el territorio, qué iniciativas hay en marcha y qué financiación ya llega. Es la evidencia de la que parte todo lo demás."
-        en: "Knowing the landscape before acting on it: the state of soil, water and biodiversity, who works in the territory, which initiatives are under way and what funding already arrives. It is the evidence everything else starts from."
+        en: "Knowing the landscape before acting on it: the state of soil, water and biodiversity, who works in the landscape, which initiatives are under way and what funding already arrives. It is the evidence everything else starts from."
     - label: { es: "Estrategia y estructuración financiera", en: "Strategy and financial structuring" }
       text:
         es: "Decidir qué capital entra, en qué orden y por qué mecanismo: el capital stack del paisaje, donde cada tramo reduce el riesgo del siguiente y hace posible su entrada."
@@ -120,7 +120,7 @@ process:
     - label: { es: "Coordinación y gobernanza", en: "Coordination and governance" }
       text:
         es: "Sostener los espacios donde los actores del territorio deciden juntos: el grupo de trabajo, los acuerdos entre organizaciones y la relación con financiadores e instituciones."
-        en: "Keeping up the spaces where the territory's actors decide together: the working group, the agreements between organisations and the relationship with funders and institutions."
+        en: "Keeping up the spaces where the landscape's actors decide together: the working group, the agreements between organisations and the relationship with funders and institutions."
     - label: { es: "Apoyo a proyectos", en: "Project support" }
       text:
         es: "Acompañar a las iniciativas hasta que pueden recibir capital: modelo de negocio, propuestas, métricas y contacto con financiadores. Es lo que prepara el pipeline de los mecanismos."

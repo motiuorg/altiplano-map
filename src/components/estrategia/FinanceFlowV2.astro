@@ -68,11 +68,12 @@ const chips = [
                             <div class="ff-card__body">
                                 {n.short && <p class="ff-card__full">{pick(n.label, lang)}</p>}
                                 <p>{pick(n.text, lang)}</p>
-                                {(n.how || n.funds || n.asks) && (
+                                {(n.how || n.funds || n.asks || n.challenges) && (
                                     <dl class="ff-card__facts">
                                         {n.how && <><dt>{t(lang, "estr2.how")}</dt><dd>{pick(n.how, lang)}</dd></>}
                                         {n.funds && <><dt>{t(lang, "estr2.funds")}</dt><dd>{pick(n.funds, lang)}</dd></>}
                                         {n.asks && <><dt>{t(lang, "estr2.asks")}</dt><dd>{pick(n.asks, lang)}</dd></>}
+                                        {n.challenges && <><dt>{t(lang, "estr2.challenges")}</dt><dd>{pick(n.challenges, lang)}</dd></>}
                                     </dl>
                                 )}
                             </div>
@@ -89,7 +90,8 @@ const chips = [
                                 <Badge size="sm" tone="neutral">{pick(m.status, lang)}</Badge>
                                 <p>{pick(m.text, lang)}</p>
                                 <dl class="ff-card__facts">
-                                    <dt>{t(lang, "estr2.who")}</dt><dd>{pick(m.who, lang)}</dd>
+                                    <dt>{t(lang, "estr2.howMech")}</dt><dd>{pick(m.how, lang)}</dd>
+                                    {m.evolution && <><dt>{t(lang, "estr2.evolution")}</dt><dd>{pick(m.evolution, lang)}</dd></>}
                                 </dl>
                             </div>
                         </details>
@@ -317,6 +319,7 @@ const chips = [
     }
     .ff-card__body {
         padding: 0 0.85rem 0.85rem 0.8rem;
+        cursor: pointer;
         font-size: 0.8125rem;
         line-height: 1.5;
     }

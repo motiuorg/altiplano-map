@@ -10,13 +10,13 @@ eyebrow: { es: "Gobernanza", en: "Governance" }
 title: { es: "Cómo nos organizamos", en: "How we organise ourselves" }
 intro:
   es: "Desde 2025, un grupo de organizaciones del Altiplano Estepario trabaja junto para movilizar capital hacia la regeneración del territorio. En septiembre de 2026 dieron forma a esa colaboración con un acuerdo y una guía de gobernanza."
-  en: "Since 2025, a group of organisations in the Altiplano Estepario has worked together to mobilise capital for the territory's regeneration. In September 2026 they gave that collaboration a shape, with an agreement and a governance guide."
+  en: "Since 2025, a group of organisations in the Altiplano Estepario has worked together to mobilise capital for the landscape's regeneration. In September 2026 they gave that collaboration a shape, with an agreement and a governance guide."
 
 why:
   title: { es: "Por qué un acuerdo", en: "Why an agreement" }
   text:
     - es: "En su primera etapa, con el acompañamiento de [Commonland](https://commonland.com/es/), el grupo investigó los flujos financieros del territorio, con un potencial de hasta 177,5 millones de euros, organizó talleres de diagnóstico y abrió conversaciones con financiadores. La etapa que empieza ahora es distinta: activar financiación concreta exige firmar convenios, gestionar recursos y hablar con una sola voz ante financiadores e instituciones."
-      en: "In its first stage, supported by [Commonland](https://commonland.com/es/), the group researched the territory's financial flows, with a potential of up to €177.5 million, ran diagnostic workshops and opened conversations with funders. The stage starting now is different: activating real funding means signing agreements, managing resources and speaking with one voice to funders and institutions."
+      en: "In its first stage, supported by [Commonland](https://commonland.com/es/), the group researched the landscape's financial flows, with a potential of up to €177.5 million, ran diagnostic workshops and opened conversations with funders. The stage starting now is different: activating real funding means signing agreements, managing resources and speaking with one voice to funders and institutions."
     - es: "El acuerdo de colaboración fija los compromisos que lo hacen posible, y la guía de gobernanza explica cómo funciona el grupo en el día a día. Los dos son documentos vivos: el grupo evalúa cómo avanza y cómo colabora al cierre de cada etapa, la primera en diciembre de 2026."
       en: "The collaboration agreement sets out the commitments that make this possible, and the governance guide explains how the group works day to day. Both are living documents: the group reviews how it is progressing and how it works together at the end of each stage, the first in December 2026."
 
@@ -40,7 +40,7 @@ returns:
       text: { es: "Comunidades, relaciones, gobernanza y bienestar más fuertes.", en: "Stronger communities, relationships, governance and wellbeing." }
     - label: { es: "Ecológico", en: "Ecological" }
       tone: green
-      text: { es: "Ecosistemas del territorio restaurados y cuidados.", en: "The territory's ecosystems restored and cared for." }
+      text: { es: "Ecosistemas del territorio restaurados y cuidados.", en: "The landscape's ecosystems restored and cared for." }
     - label: { es: "Financiero", en: "Financial" }
       tone: blue
       text: { es: "Viabilidad económica y capital alineado, al servicio de los otros tres.", en: "Economic viability and aligned capital, serving the other three." }
@@ -48,8 +48,8 @@ returns:
 principles:
   title: { es: "Principios de trabajo", en: "Working principles" }
   items:
-    - { es: "La regeneración del territorio es el objetivo; las soluciones financieras son un medio.", en: "Regenerating the territory is the goal; financial solutions are a means." }
-    - { es: "El capital debe adaptarse al territorio, no al revés.", en: "Capital should adapt to the territory, not the other way round." }
+    - { es: "La regeneración del territorio es el objetivo; las soluciones financieras son un medio.", en: "Regenerating the landscape is the goal; financial solutions are a means." }
+    - { es: "El capital debe adaptarse al territorio, no al revés.", en: "Capital should adapt to the landscape, not the other way round." }
     - { es: "El proceso importa tanto como el resultado.", en: "The process matters as much as the result." }
     - { es: "Se privilegia el aprendizaje situado sobre los modelos importados.", en: "Learning rooted in place comes before imported models." }
     - { es: "Se avanza paso a paso, con experimentos acotados y aprendizajes sucesivos.", en: "Progress is step by step, through bounded experiments and successive lessons." }
@@ -58,14 +58,14 @@ circles:
   title: { es: "Círculos", en: "Circles" }
   lead:
     es: "El grupo se organiza en círculos con distinto grado de compromiso. Así sostiene un núcleo ágil mientras construye relaciones más amplias con el territorio."
-    en: "The group is organised in circles with different degrees of commitment. That keeps a nimble core while it builds wider relationships across the territory."
+    en: "The group is organised in circles with different degrees of commitment. That keeps a nimble core while it builds wider relationships across the landscape."
   items:
     - label: { es: "Núcleo", en: "Core" }
       text: { es: "Las organizaciones firmantes del acuerdo. Sostienen la coordinación, la investigación y las decisiones estratégicas, y responden por el trabajo colectivo ante terceros. Se reúnen una vez al mes y en talleres presenciales según los hitos del proceso.", en: "The organisations that signed the agreement. They carry the coordination, research and strategic decisions, and answer for the collective work to third parties. They meet monthly, and in person at workshops as the process requires." }
     - label: { es: "Círculos de apoyo", en: "Support circles" }
       text: { es: "Grupos temáticos que se convocan cuando el proceso los necesita. Hoy se explora uno de expertos financieros, con cajas rurales, fundaciones y finanzas éticas.", en: "Thematic groups convened when the process needs them. One of financial experts, with rural banks, foundations and ethical finance, is being explored now." }
     - label: { es: "Círculo de escucha", en: "Listening circle" }
-      text: { es: "Personas y organizaciones del territorio que aportan su conocimiento mediante entrevistas, consultas y espacios de contraste, sin firmar el acuerdo. Informan el diagnóstico y son la cantera natural de futuras incorporaciones.", en: "People and organisations in the territory who contribute their knowledge through interviews, consultations and review sessions, without signing the agreement. They inform the diagnosis and are where future members naturally come from." }
+      text: { es: "Personas y organizaciones del territorio que aportan su conocimiento mediante entrevistas, consultas y espacios de contraste, sin firmar el acuerdo. Informan el diagnóstico y son la cantera natural de futuras incorporaciones.", en: "People and organisations in the landscape who contribute their knowledge through interviews, consultations and review sessions, without signing the agreement. They inform the diagnosis and are where future members naturally come from." }
   coordination:
     es: "Una coordinación transversal convoca los encuentros, comunica avances y sintetiza el trabajo de todos los círculos. No forma parte del núcleo ni vota. [Commonland](https://commonland.com/es/) financia hoy esta función y facilita el proceso, también sin formar parte del núcleo."
     en: "A coordination role across all circles convenes meetings, shares progress and brings together the work of every circle. It is not part of the core and does not vote. [Commonland](https://commonland.com/es/) currently funds this role and facilitates the process, also from outside the core."
@@ -82,13 +82,13 @@ fronts:
     - label: { es: "Gobernanza y coordinación", en: "Governance and coordination" }
       text: { es: "Sostener al grupo como un colectivo capaz de reunirse, decidir, resolver sus tensiones y responder por lo que hace.", en: "Keeping the group able to meet, decide, work through its tensions and answer for what it does." }
     - label: { es: "Investigación y estrategia", en: "Research and strategy" }
-      text: { es: "Un diagnóstico continuo del territorio y un criterio compartido sobre dónde concentrar el esfuerzo.", en: "An ongoing diagnosis of the territory and a shared sense of where to focus effort." }
+      text: { es: "Un diagnóstico continuo del territorio y un criterio compartido sobre dónde concentrar el esfuerzo.", en: "An ongoing diagnosis of the landscape and a shared sense of where to focus effort." }
     - label: { es: "Mecanismos y recursos financieros", en: "Financial mechanisms and resources" }
       text: { es: "Diseñar los mecanismos que movilizan capital hacia la regeneración, y gestionar con transparencia los recursos que los sostienen.", en: "Designing the mechanisms that move capital towards regeneration, and managing the resources behind them transparently." }
   not:
     title: { es: "Y lo que no hace", en: "And what it doesn't do" }
     items:
-      - { es: "No trabaja directamente con agricultores: esa relación la sostienen las entidades del territorio.", en: "It doesn't work directly with farmers: the territory's organisations hold that relationship." }
+      - { es: "No trabaja directamente con agricultores: esa relación la sostienen las entidades del territorio.", en: "It doesn't work directly with farmers: the landscape's organisations hold that relationship." }
       - { es: "No es un negocio: no persigue beneficio propio.", en: "It isn't a business: it seeks no profit of its own." }
       - { es: "No compite con las organizaciones locales ni duplica su trabajo.", en: "It doesn't compete with local organisations or duplicate their work." }
       - { es: "No ejecuta proyectos: diseña, facilita e intermedia.", en: "It doesn't run projects: it designs, facilitates and brokers." }
