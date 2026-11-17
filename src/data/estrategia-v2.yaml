@@ -142,8 +142,8 @@ mechanisms:
     status: { es: "En diseño", en: "In design" }
     text:
       es: "Un fondo común que recibe dinero filantrópico y público y lo pasa entero a proyectos y al proceso, con criterios y seguimiento claros."
-      en: "A common fund that receives philanthropic and public money and passes all of it on to projects and the process, with clear criteria and monitoring. It holds no capital."
-    # `how` is the "Un escenario" column: a list of steps (es), or a paragraph (en, until translated).
+      en: "A common fund that receives philanthropic and public money and passes all of it on to projects and the process, with clear criteria and monitoring."
+    # `how` is the "Un escenario" column: a list of numbered steps (a plain string is also accepted and shown as a paragraph).
     how:
       es:
         - "El grupo presenta a los financiadores una narrativa y unas reglas de gobernanza compartidas: quién decide, cómo se reparte y cómo se rinden cuentas."
@@ -151,17 +151,22 @@ mechanisms:
         - "Una mesa abierta reparte lo recibido con criterios públicos. En un mismo ciclo puede ir a restaurar 40 hectáreas de monte, acompañar a doce fincas en su transición, pagar estudios y certificación, o sostener la coordinación del proceso."
         - "Como una de las opciones, parte del fondo se reparte por convocatoria abierta, para que otras organizaciones presenten sus propias ideas."
         - "Cada seis meses se publica qué entró, qué se repartió y qué cambió en cada sitio."
-      en: "It starts from a shared narrative and governance to talk to funders with, which the group is already building. Then foundations and other funders contribute to the fund, which passes what it receives on to projects and the process with transparent criteria and monitoring."
+      en:
+        - "The group presents funders with a shared narrative and governance rules: who decides, how money is allocated and how accounts are given."
+        - "Foundations, public programmes and other funders contribute to a single fund, with one set of accounts. For example, €200,000 from a foundation and a regional line."
+        - "An open table allocates what is received on public criteria. In a single cycle it can go to restoring 40 hectares of woodland, supporting twelve farms in their transition, paying for studies and certification, or sustaining the coordination of the process."
+        - "As one of the options, part of the fund is allocated through an open call, so that other organisations can put forward their own ideas."
+        - "Every six months a report is published on what came in, what was allocated and what changed in each place."
     evolution:
       es: "Empieza como canal: pasa el dinero y no guarda capital. A largo plazo podría convertirse en un fondo perpetuo (endowment) que conserve el capital y financie con sus rendimientos."
       en: "It starts as a channel: it passes money on and holds no capital. In the long term it could become a perpetual fund (endowment) that keeps the capital and funds from its returns."
   - id: pes
-    label: { es: "Pagos por servicios al territorio", en: "Payments for results" }
+    label: { es: "Pagos por servicios al territorio", en: "Payments for landscape services" }
     status: { es: "Idea", en: "Idea" }
     idea: true
     text:
       es: "Quien se beneficia de un resultado verificable paga a quien lo logra, sin necesidad de comprarle nada más. El resultado puede ser ecológico (agua, carbono, biodiversidad) o de otro tipo, como cultural."
-      en: "Whoever benefits from a verifiable result pays whoever achieves it, without having to buy anything else from them. The result can be ecological (water, carbon, biodiversity: payments for ecosystem services) or of another kind, such as a reduced risk."
+      en: "Whoever benefits from a verifiable result pays whoever achieves it, without having to buy anything else from them. The result can be ecological (water, carbon, biodiversity) or of another kind, such as cultural."
     how:
       es:
         - "Se define qué prácticas benefician al territorio y qué resultados ofrece cada una. Por ejemplo, mantener cobertura vegetal en el almendro reduce la erosión, retiene agua y baja el riesgo de incendio; cerrar un corredor de biodiversidad conecta hábitats para la fauna."
@@ -169,13 +174,18 @@ mechanisms:
         - "Los pagadores aportan juntos a un solo pago por esa práctica, cada uno por el beneficio que recibe, en lugar de negociar por separado con cada finca."
         - "Una tercera parte neutra verifica cada año con el mismo método."
         - "Quien adopta la práctica cobra, por ejemplo una cantidad por hectárea. El pago puede ligarse a la práctica o al resultado que da, según lo que se pueda verificar, sin necesidad de comprar nada más al territorio."
-      en: "It defines the results the landscape can deliver, who benefits from each and how to verify them. Several payers, such as administrations and insurers, pay for what benefits them. It is an alternative to the carbon market, which is complex and offers less than is often expected."
+      en:
+        - "It defines which practices benefit the landscape and what results each one delivers. For example, keeping a ground cover in almond groves reduces erosion, retains water and lowers fire risk; closing a biodiversity corridor connects habitats for wildlife."
+        - "It identifies who benefits from each result. One practice often has several beneficiaries: less erosion matters to whoever manages a reservoir, retained water to a water company, lower fire risk to an insurer or public administration, and the practice itself to a large corporate buyer in the value chain, which secures its supply and meets its climate commitments."
+        - "Payers contribute together to a single payment for that practice, each for the benefit it receives, instead of negotiating separately with each farm."
+        - "A neutral third party verifies every year with the same method."
+        - "Whoever adopts the practice is paid, for example an amount per hectare. The payment can be tied to the practice or to the result it delivers, depending on what can be verified, without having to buy anything else from the landscape."
   - id: dba
     label: { es: "Deuda bancaria adaptada", en: "Adapted bank debt" }
     status: { es: "En discusión", en: "In discussion" }
     text:
       es: "Un mecanismo de crédito creado con los bancos y el Banco Europeo de Inversión (BEI) con plazos más largos y garantías más flexibles para proyectos que cumplen criterios verificados, como fincas con prácticas regenerativas o empresas que compran a esas fincas."
-      en: "A credit mechanism built with banks and the EIB for regenerative agriculture: longer terms and more flexible guarantees for farms with verified regenerative practices."
+      en: "A credit mechanism built with banks and the European Investment Bank (EIB) with longer terms and more flexible guarantees for projects that meet verified criteria, such as farms with regenerative practices or businesses that buy from those farms."
     how:
       es:
         - "Las cajas rurales y el BEI acuerdan qué proyectos acceden y con qué criterio: por ejemplo, certificación regenerativa para una finca, o compras a fincas certificadas para una comercializadora."
@@ -183,7 +193,12 @@ mechanisms:
         - "El BEI asume parte del riesgo y alivia el capital de las cajas, para que prestar así no les cueste más."
         - "Sirve a cualquier proyecto con ingresos que puedan devolver el préstamo: la transición de una finca, un banco de maquinaria compartido, el circulante de una comercializadora o una planta de transformación."
         - "El criterio se revisa cada año, por ejemplo al renovar la certificación."
-      en: "Rural savings banks and the EIB agree which farms and practices would get different treatment, backed by certification. The banks then lend on longer terms with more flexible guarantees, and the EIB relieves their capital."
+      en:
+        - "Rural savings banks and the EIB agree which projects qualify and on what criterion: for example, regenerative certification for a farm, or purchases from certified farms for a marketer."
+        - "The line offers terms that usual credit does not, such as 15 years to repay, two of grace and more flexible guarantees, with the certification as backing."
+        - "The EIB takes part of the risk and relieves the banks' capital, so lending this way costs them no more."
+        - "It serves any project with income able to repay the loan: a farm's transition, a shared machinery bank, a marketer's working capital or a processing plant."
+        - "The criterion is reviewed every year, for example when the certification is renewed."
   - id: fit
     label: { es: "Portafolio de inversión territorial", en: "Landscape investment portfolio" }
     status: { es: "En diseño", en: "In design" }
@@ -197,7 +212,12 @@ mechanisms:
         - "Se presenta el portafolio a posibles financiadores y se habla con cada uno de qué papel puede tener y en qué condiciones: capital público de desarrollo, inversores de impacto, compradores de la cadena."
         - "El capital entra por fases, y cada financiador firma su propio acuerdo. Por ejemplo, el capital público de desarrollo cubre las primeras pérdidas, los inversores de impacto aportan la parte principal y un comprador de la cadena entra a cambio de suministro."
         - "Una parte de los retornos vuelve al territorio y paga el trabajo que prepara las siguientes iniciativas."
-      en: "The portfolio is designed first: which initiatives it includes, on what criteria and what return is expected. Capital then comes in phases from public development capital, impact investors and value-chain capital, and part of the returns sustains the work that prepares new initiatives."
+      en:
+        - "It is designed first: which initiatives enter, on what criteria and what return is expected from each."
+        - "Initiatives from several areas fit, such as an almond processing plant, a shared marketing company, productive land or a regenerative livestock farm."
+        - "The portfolio is presented to potential funders, and each is asked what role it could play and on what terms: public development capital, impact investors, value-chain buyers."
+        - "Capital comes in phases, and each funder signs its own agreement. For example, public development capital covers first losses, impact investors put in the main share and a value-chain buyer joins in exchange for supply."
+        - "Part of the returns goes back to the landscape and pays for the work that prepares the next initiatives."
     evolution:
       es: "Empieza como un portafolio, con cada inversión en su propio acuerdo. Con el tiempo puede evolucionar a un fondo de inversión territorial."
       en: "It starts as a portfolio, with each investment under its own agreement. Over time it can evolve into a landscape investment fund."
@@ -215,7 +235,12 @@ mechanisms:
         - "Cada una hace su aportación anual, y el fondo reúne, por ejemplo, 30.000 € el primer año."
         - "Deciden juntas en qué usarlo. Puede ser un bien compartido (maquinaria, investigación), el mantenimiento del monte, formación de personal o una promoción turística conjunta."
         - "Otras fuentes pueden sumarse al ver que el territorio ya pone dinero."
-      en: "Before any money goes in, the businesses and organisations in the landscape need to find common goals. Then they agree clear rules (who contributes, how much, who decides) and begin contributing to a fund they use together. Other sources can join."
+      en:
+        - "Before any money goes in, around eight businesses and organisations meet to find common goals."
+        - "They agree clear rules: who contributes, how much according to size and who decides, for example one vote per contributor."
+        - "Each makes its annual contribution, and the fund gathers, for example, €30,000 in the first year."
+        - "They decide together what to use it for. It can be a shared asset (machinery, research), forest maintenance, staff training or joint tourism promotion."
+        - "Other sources can join once they see the landscape is already putting money in."
 
 areas:
   - id: educacion
