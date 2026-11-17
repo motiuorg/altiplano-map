@@ -77,7 +77,9 @@ const D = {
   'estr2.funds': { es: 'Financia bien', en: 'Funds well' },
   'estr2.asks': { es: 'Suele exigir', en: 'Usually requires' },
   'estr2.challenges': { es: 'Retos', en: 'Challenges' },
-  'estr2.howMech': { es: 'Cómo se haría', en: 'How it would work' },
+  'estr2.howMech': { es: 'Cómo se haría', en: 'How it would work' }, // English keeps this label until its text is translated to scenarios
+  'estr2.scenario': { es: 'Un escenario', en: 'A scenario' },
+  'estr2.total5': { es: 'Estimado a 5 años', en: 'Estimated over 5 years' },
   'estr2.evolution': { es: 'Evolución', en: 'Evolution' },
   'estr2.retornos': { es: 'retornos', en: 'returns' },
   'estr2.legendStructure': { es: 'A través de un mecanismo', en: 'Through a mechanism' },

@@ -1,4 +1,4 @@
-// Work areas (áreas de trabajo; four in Notion, the finer "subárea" is not shown) each get one badge colour, fixed, so a colour always means the
+// Work areas (áreas de trabajo; five in Notion, the finer "subárea" is not shown) each get one badge colour, fixed, so a colour always means the
 // same area. Hues are the design system's Badge tones. A new area that isn't listed gets a stable
 // colour picked from its name, so it never changes between builds.
 const norm = (s: string) =>
@@ -6,6 +6,7 @@ const norm = (s: string) =>
 
 const KNOWN: Array<[prefix: string, tone: string]> = [
   ['agricultura regenerativa', 'tissue'],
+  ['casos de negocio', 'yellow'],
   ['espacios naturales', 'neural'], // earlier name of the same area
   ['zonas naturales', 'neural'],
   ['tejido territorial', 'flow'], // current name of the area

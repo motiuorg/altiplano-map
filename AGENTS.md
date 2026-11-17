@@ -24,6 +24,9 @@ The same text in the vault: `Altiplano Estepario/8 Análisis Económico/Metodolo
   `src/components/estrategia/FinanceFlowV2.astro` and `src/scripts/finance-flow-v2.ts`. The first version
   (`src/data/estrategia.yaml`, `FinanceFlow.astro`) is kept, unlinked, at `/estrategia-v1/`.
   Area names on the site can differ from Notion's: `title` in `src/data/areas.yaml`, shown through `areaLabel()`.
+  The portfolio has five areas, and each one is a value of the interventions' "Area de trabajo" in Notion. Casos de
+  negocio is its own area (with Estudios de mercado, Circulante y capital de trabajo and Infraestructura de
+  transformación), separate from Agricultura regenerativa: move an intervention between them in Notion, not in code.
 - The governance page (`/gobernanza/`) summarises the collaboration agreement and governance guide (Notion,
   Documentos Operativos) in `src/data/gobernanza.yaml`. Public summary only: no people's names, no confidential
   detail, no Notion links. The home (`/`) keeps the organisations map; its texts are `src/data/home.yaml`.

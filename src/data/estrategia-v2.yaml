@@ -1,7 +1,7 @@
 # Estrategia financiera v2: sources, mechanisms and work areas, connected (/estrategia-v2/).
 #
 # Hand-authored, like estrategia.yaml. The nodes and texts come from the World Café cards (Notion, "Tarjetas
-# World Café", 18 nov 2026): 5 áreas, 20 sub-áreas, 10 fuentes, 7 mecanismos. Texts are condensed, not copied,
+# World Café", 18 nov 2026): 5 áreas, 21 sub-áreas, 10 fuentes, 5 mecanismos. Texts are condensed, not copied,
 # and the cards' "pregunta para la mesa" is left out on purpose (it belongs to the workshop, not the public site).
 #
 # Links show that money can move between two parts, not how much. `kind`:
@@ -14,7 +14,7 @@
 #   source → mechanism      each mechanism card's "quién participaría"
 #   source → sub-area       direct, and only where the process adds something there: strategic support to the
 #                           source itself (fondos territoriales, e.g. the GDRs) or a source with no mechanism
-#                           (convocatorias → conocimiento agrícola; capital de cadena → turismo), or the payments
+#                           (convocatorias → conocimiento agrícola, restauración, desarrollo de marca), or the payments
 #                           that reach land holders directly (ayudas a titulares → restauración, transición). The cards'
 #                           "vías que encajan" list many more, but those reach the sub-areas through a mechanism.
 #   mechanism → sub-area    a first reading, NOT in the cards: a starting point to discuss
@@ -23,8 +23,8 @@
 # `gap: true` marks a sub-area with no source mapped in the cards: a mapping gap, not an absence of need.
 
 intro:
-  es: "Cada tipo de dinero llega al territorio con sus propias condiciones. Este mapa conecta diez fuentes de financiación, siete mecanismos y las sub-áreas de las áreas de trabajo del Altiplano Estepario, con el tejido territorial como base. Elige un área para ver solo lo que la sostiene."
-  en: "Every kind of money reaches the landscape on its own terms. This map connects ten funding sources, seven mechanisms and the sub-areas of the Altiplano Estepario's work areas, with the landscape fabric as its base. Choose an area to see only what supports it."
+  es: "Cada tipo de dinero llega al territorio con sus propias condiciones. Este mapa conecta diez fuentes de financiación, cinco mecanismos y las sub-áreas de las áreas de trabajo del Altiplano Estepario, con el tejido territorial como base. Elige un área para ver solo lo que la sostiene."
+  en: "Every kind of money reaches the landscape on its own terms. This map connects ten funding sources, five mechanisms and the sub-areas of the Altiplano Estepario's work areas, with the landscape fabric as its base. Choose an area to see only what supports it."
 
 sources:
   - id: ayu
@@ -71,7 +71,7 @@ sources:
       es: "Suele financiar un proyecto o una etapa. Que una fundación se quede a largo plazo depende de la confianza y de que vea resultados."
       en: "It usually funds a project or a stage. Getting a foundation to stay for the long term depends on trust and on seeing results."
   - id: des
-    label: { es: "Capital público de desarrollo (EIB, ICO)", en: "Public development capital (EIB, ICO)" }
+    label: { es: "Capital público de desarrollo (BEI, ICO)", en: "Public development capital (EIB, ICO)" }
     short: { es: "Capital público de desarrollo", en: "Public development capital" }
     text:
       es: "Bancos y agencias públicas cuyo retorno es de mandato, no financiero."
@@ -141,32 +141,48 @@ mechanisms:
     label: { es: "Fondo canalizador", en: "Pass-through fund" }
     status: { es: "En diseño", en: "In design" }
     text:
-      es: "Un fondo común que recibe dinero filantrópico y público y lo pasa entero a proyectos y al proceso, con criterios y seguimiento claros. No guarda capital."
+      es: "Un fondo común que recibe dinero filantrópico y público y lo pasa entero a proyectos y al proceso, con criterios y seguimiento claros."
       en: "A common fund that receives philanthropic and public money and passes all of it on to projects and the process, with clear criteria and monitoring. It holds no capital."
+    # `how` is the "Un escenario" column: a list of steps (es), or a paragraph (en, until translated).
     how:
-      es: "Parte de narrativa y gobernanza compartidas para hablar con quienes financian, algo que el grupo ya está construyendo. Después fundaciones y otros financiadores aportan al fondo, que reparte lo recibido entre proyectos y proceso con criterios y seguimiento transparentes."
+      es:
+        - "El grupo presenta a los financiadores una narrativa y unas reglas de gobernanza compartidas: quién decide, cómo se reparte y cómo se rinden cuentas."
+        - "Fundaciones, programas públicos y otros financiadores aportan a un mismo fondo, con una sola contabilidad. Por ejemplo, 200.000 € de una fundación y una línea regional."
+        - "Una mesa abierta reparte lo recibido con criterios públicos. En un mismo ciclo puede ir a restaurar 40 hectáreas de monte, acompañar a doce fincas en su transición, pagar estudios y certificación, o sostener la coordinación del proceso."
+        - "Como una de las opciones, parte del fondo se reparte por convocatoria abierta, para que otras organizaciones presenten sus propias ideas."
+        - "Cada seis meses se publica qué entró, qué se repartió y qué cambió en cada sitio."
       en: "It starts from a shared narrative and governance to talk to funders with, which the group is already building. Then foundations and other funders contribute to the fund, which passes what it receives on to projects and the process with transparent criteria and monitoring."
     evolution:
       es: "Empieza como canal: pasa el dinero y no guarda capital. A largo plazo podría convertirse en un fondo perpetuo (endowment) que conserve el capital y financie con sus rendimientos."
       en: "It starts as a channel: it passes money on and holds no capital. In the long term it could become a perpetual fund (endowment) that keeps the capital and funds from its returns."
   - id: pes
-    label: { es: "Pagos por resultados", en: "Payments for results" }
+    label: { es: "Pagos por servicios al territorio", en: "Payments for results" }
     status: { es: "Idea", en: "Idea" }
     idea: true
     text:
-      es: "Quien se beneficia de un resultado verificable paga a quien lo logra, sin necesidad de comprarle nada más. El resultado puede ser ecológico (agua, carbono, biodiversidad: pagos por servicios ecosistémicos) o de otro tipo, como un riesgo reducido."
+      es: "Quien se beneficia de un resultado verificable paga a quien lo logra, sin necesidad de comprarle nada más. El resultado puede ser ecológico (agua, carbono, biodiversidad) o de otro tipo, como cultural."
       en: "Whoever benefits from a verifiable result pays whoever achieves it, without having to buy anything else from them. The result can be ecological (water, carbon, biodiversity: payments for ecosystem services) or of another kind, such as a reduced risk."
     how:
-      es: "Define los resultados que puede dar el territorio, quién se beneficia de cada uno y cómo verificarlos. Varios pagadores, como administraciones y aseguradoras, pagan por lo que les beneficia. Es una alternativa al mercado de carbono, que es complejo y ofrece menos de lo que se suele esperar."
+      es:
+        - "Se define qué prácticas benefician al territorio y qué resultados ofrece cada una. Por ejemplo, mantener cobertura vegetal en el almendro reduce la erosión, retiene agua y baja el riesgo de incendio; cerrar un corredor de biodiversidad conecta hábitats para la fauna."
+        - "Se identifica quién se beneficia de cada resultado. Una misma práctica suele tener varios beneficiarios: menos erosión le importa a quien gestiona un embalse, el agua retenida a una compañía de agua, el menor riesgo de incendio a una aseguradora o administración pública, y la práctica en sí a un gran comprador corporativo de la cadena de valor, que asegura así su suministro y cumple sus compromisos de clima."
+        - "Los pagadores aportan juntos a un solo pago por esa práctica, cada uno por el beneficio que recibe, en lugar de negociar por separado con cada finca."
+        - "Una tercera parte neutra verifica cada año con el mismo método."
+        - "Quien adopta la práctica cobra, por ejemplo una cantidad por hectárea. El pago puede ligarse a la práctica o al resultado que da, según lo que se pueda verificar, sin necesidad de comprar nada más al territorio."
       en: "It defines the results the landscape can deliver, who benefits from each and how to verify them. Several payers, such as administrations and insurers, pay for what benefits them. It is an alternative to the carbon market, which is complex and offers less than is often expected."
   - id: dba
     label: { es: "Deuda bancaria adaptada", en: "Adapted bank debt" }
     status: { es: "En discusión", en: "In discussion" }
     text:
-      es: "Un mecanismo de crédito creado con los bancos y el EIB para la agricultura regenerativa: plazos más largos y garantías más flexibles para fincas con prácticas regenerativas verificadas."
+      es: "Un mecanismo de crédito creado con los bancos y el Banco Europeo de Inversión (BEI) con plazos más largos y garantías más flexibles para proyectos que cumplen criterios verificados, como fincas con prácticas regenerativas o empresas que compran a esas fincas."
       en: "A credit mechanism built with banks and the EIB for regenerative agriculture: longer terms and more flexible guarantees for farms with verified regenerative practices."
     how:
-      es: "Las cajas rurales y el EIB acuerdan qué fincas y prácticas tendrían un trato distinto, respaldado por la certificación. Después las cajas dan crédito a más plazo y con garantías más flexibles, y el EIB alivia su capital."
+      es:
+        - "Las cajas rurales y el BEI acuerdan qué proyectos acceden y con qué criterio: por ejemplo, certificación regenerativa para una finca, o compras a fincas certificadas para una comercializadora."
+        - "La línea ofrece condiciones que el crédito habitual no da, como 15 años de plazo, dos de carencia y garantías más flexibles, con la certificación como respaldo."
+        - "El BEI asume parte del riesgo y alivia el capital de las cajas, para que prestar así no les cueste más."
+        - "Sirve a cualquier proyecto con ingresos que puedan devolver el préstamo: la transición de una finca, un banco de maquinaria compartido, el circulante de una comercializadora o una planta de transformación."
+        - "El criterio se revisa cada año, por ejemplo al renovar la certificación."
       en: "Rural savings banks and the EIB agree which farms and practices would get different treatment, backed by certification. The banks then lend on longer terms with more flexible guarantees, and the EIB relieves their capital."
   - id: fit
     label: { es: "Portafolio de inversión territorial", en: "Landscape investment portfolio" }
@@ -175,7 +191,12 @@ mechanisms:
       es: "Un portafolio de inversiones en negocios y activos del territorio que pueden devolver el dinero con el tiempo: suelo productivo, comercialización, transformación y otras iniciativas con modelo de negocio. Se construiría por fases, y parte de sus retornos podría sostener el trabajo que prepara esas iniciativas."
       en: "A portfolio of investments in the landscape's businesses and assets that can repay over time: productive land, marketing, processing and other initiatives with a business model. It would be built in phases, and part of its returns could sustain the work that prepares those initiatives."
     how:
-      es: "Empieza por diseñar el portafolio: qué iniciativas incluye, con qué criterios y qué retorno se espera. Después entra el capital, por fases, de capital público de desarrollo, inversores de impacto y capital de cadena, y parte de los retornos sostiene el trabajo que prepara nuevas iniciativas."
+      es:
+        - "Se diseña primero: qué iniciativas entran, con qué criterios y qué retorno se espera de cada una."
+        - "Caben iniciativas de varias áreas, como una planta de transformación de almendra, una comercializadora compartida, suelo productivo o una finca de ganadería regenerativa."
+        - "Se presenta el portafolio a posibles financiadores y se habla con cada uno de qué papel puede tener y en qué condiciones: capital público de desarrollo, inversores de impacto, compradores de la cadena."
+        - "El capital entra por fases, y cada financiador firma su propio acuerdo. Por ejemplo, el capital público de desarrollo cubre las primeras pérdidas, los inversores de impacto aportan la parte principal y un comprador de la cadena entra a cambio de suministro."
+        - "Una parte de los retornos vuelve al territorio y paga el trabajo que prepara las siguientes iniciativas."
       en: "The portfolio is designed first: which initiatives it includes, on what criteria and what return is expected. Capital then comes in phases from public development capital, impact investors and value-chain capital, and part of the returns sustains the work that prepares new initiatives."
     evolution:
       es: "Empieza como un portafolio, con cada inversión en su propio acuerdo. Con el tiempo puede evolucionar a un fondo de inversión territorial."
@@ -188,27 +209,13 @@ mechanisms:
       es: "Un fondo en el que quienes participan ponen dinero en común y deciden juntos cómo usarlo. También sirve cuando quienes se benefician de una mejora común, como el agua o el monte, aportan juntos para financiarla."
       en: "A fund where participants pool money and decide together how to use it. It also works when those who benefit from a shared improvement, such as water or the forest, contribute together to fund it."
     how:
-      es: "Antes de aportar dinero, las empresas y entidades del territorio tienen que encontrar objetivos comunes. Después acuerdan reglas claras (quién aporta, cuánto, quién decide) y empiezan a aportar a un fondo que usan juntas. Otras fuentes pueden sumarse."
+      es:
+        - "Antes de poner dinero, unas ocho empresas y entidades se reúnen para encontrar objetivos comunes."
+        - "Acuerdan unas reglas claras: quién aporta, cuánto según su tamaño y quién decide, por ejemplo un voto por aportante."
+        - "Cada una hace su aportación anual, y el fondo reúne, por ejemplo, 30.000 € el primer año."
+        - "Deciden juntas en qué usarlo. Puede ser un bien compartido (maquinaria, investigación), el mantenimiento del monte, formación de personal o una promoción turística conjunta."
+        - "Otras fuentes pueden sumarse al ver que el territorio ya pone dinero."
       en: "Before any money goes in, the businesses and organisations in the landscape need to find common goals. Then they agree clear rules (who contributes, how much, who decides) and begin contributing to a fund they use together. Other sources can join."
-  - id: cca
-    label: { es: "Compromiso de compra anticipada", en: "Advance purchase commitment" }
-    status: { es: "Ya existe", en: "Already exists" }
-    text:
-      es: "Compradores que se comprometen a comprar antes de que exista la producción, con un precio o unas condiciones acordadas. Da a quien produce la seguridad de tener a quién vender. Ya ocurre entre empresas del grupo de trabajo, y el acuerdo es siempre directo entre ellas, no con el grupo."
-      en: "Buyers who commit to buy before the production exists, at an agreed price or terms. It gives producers the security of having someone to sell to. It already happens among the working group's companies, and the agreement is always directly between them, not with the group."
-    how:
-      es: "Se identifican compradores y productores que se necesitan entre sí, y pactan antes de la campaña qué se compra y a qué precio."
-      en: "Buyers and producers who need each other are identified, and they agree before the season what is bought and at what price."
-  - id: cro
-    label: { es: "Crowdfunding y crédito colectivo", en: "Crowdfunding and collective credit" }
-    status: { es: "Idea", en: "Idea" }
-    idea: true
-    text:
-      es: "Muchas personas aportan cantidades pequeñas, como donación, préstamo o participación, a un proyecto concreto del territorio. Llega a quienes no financian de otra forma."
-      en: "Many people contribute small amounts, as a donation, loan or stake, to a specific project in the landscape. It reaches people who would not fund in any other way."
-    how:
-      es: "Se elige un proyecto concreto del territorio que la gente quiera apoyar y se prepara cómo contarlo. Luego se publica en una plataforma que gestiona pequeñas aportaciones, como donación, préstamo o participación, de vecinos, visitantes y otras personas."
-      en: "A specific project in the landscape that people would want to back is chosen and its story prepared. It is then published on a platform that handles small contributions, as donations, loans or stakes, from neighbours, visitors and others."
 
 areas:
   - id: educacion
@@ -234,11 +241,6 @@ areas:
         text:
           es: "Fiestas, festivales y experiencias que hacen del paisaje algo que se vive en común. Crean relato compartido y refuerzan el tejido social que sostiene la transición."
           en: "Festivals and experiences that make the landscape something lived in common. They build a shared story and strengthen the social fabric that sustains the transition."
-      - id: tur
-        label: { es: "Programación turística", en: "Tourism programming" }
-        text:
-          es: "Construye la marca turística del territorio y los programas que traen visitantes de fuera, además de las visitas y experiencias en sí. Es apoyo al turismo regenerativo: que lo que el visitante gasta deje ingresos aquí."
-          en: "Builds the landscape's tourism brand and the programmes that bring in visitors, as well as the visits and experiences themselves. It supports regenerative tourism: what visitors spend leaves income here."
   - id: forestal
     label: { es: "Gestión forestal", en: "Forest management" }
     text:
@@ -262,14 +264,8 @@ areas:
         text:
           es: "Convertir suelo degradado en un ecosistema funcional y conectado. Plantar es solo el comienzo: sin mantenimiento y seguimiento durante años, lo plantado no prospera."
           en: "Turning degraded soil into a functioning, connected ecosystem. Planting is only the start: without years of maintenance and monitoring, what is planted does not thrive."
-      - id: uso
-        label: { es: "Usos productivos de zonas forestales", en: "Productive uses of forest areas" }
-        gap: true
-        text:
-          es: "Muchas zonas forestales están abandonadas porque gestionarlas no sale a cuenta. Aquí se exploran aprovechamientos y casos de negocio forestales, como la ganadería o la madera, que den un uso económico al monte sin depender solo de subvención."
-          en: "Many forest areas are abandoned because managing them does not pay. Here, forest uses and business cases, such as grazing or timber, are explored that give the forest an economic use without relying on subsidy alone."
   - id: finca
-    label: { es: "Agricultura en finca", en: "On-farm agriculture" }
+    label: { es: "Agricultura regenerativa", en: "Regenerative agriculture" }
     text:
       es: "Donde la transición tiene que verse en la finca. Reúne lo que acompaña el cambio de manejo en las explotaciones agrícolas: conocimiento, formación, apoyo material, financiación de la transición y certificación."
       en: "Where the transition has to show on the farm. It brings together what supports the change of management on agricultural holdings: knowledge, training, material support, transition finance and certification."
@@ -302,18 +298,24 @@ areas:
           es: "Certificación y estándares que respaldan el producto ante compradores y hacen verificable lo que ocurre en la finca."
           en: "Certification and standards that back the product with buyers and make what happens on the farm verifiable."
   - id: negocios
-    label: { es: "Casos de negocio agrícolas", en: "Agricultural business cases" }
+    label: { es: "Casos de negocio", en: "Business cases" }
     text:
       es: "Los negocios que dan salida a lo que producen las fincas: comercialización, transformación y los servicios que los sostienen."
       en: "The businesses that take what farms produce to market: marketing, processing and the services that sustain them."
-    tone: tissue
-    slug: agricultura-regenerativa
+    tone: yellow
+    slug: casos-de-negocio
     subareas:
       - id: mer
         label: { es: "Estudios de mercado", en: "Market studies" }
         text:
           es: "Todo lo que ayuda a entender el mercado antes de invertir: mapear comercializadoras y plantas de transformación del territorio, seguir los precios de la almendra y otros productos, estudiar el valor añadido de cada producto."
           en: "Everything that helps understand the market before investing: mapping the landscape's marketers and processing plants, tracking almond and other product prices worldwide, studying each product's added value."
+      - id: mar
+        label: { es: "Desarrollo de marca y modelo de negocio", en: "Brand and business model development" }
+        gap: true
+        text:
+          es: "Construye la marca y el modelo de negocio de las iniciativas del territorio, desde el destino turístico y el turismo regenerativo hasta los fondos de emprendimiento y los usos productivos del monte."
+          en: "Builds the brand and the business model of the landscape's initiatives, from the tourist destination and regenerative tourism to entrepreneurship funds and productive uses of the forest."
       - id: cir
         label: { es: "Circulante y capital de trabajo", en: "Working capital" }
         gap: true
@@ -328,7 +330,7 @@ areas:
           en: "The fixed assets to process products within the landscape. Processing here keeps more value, but it takes investment."
 
 # Each area carries the portfolio's colour for it (src/lib/areas.ts: tone keys of the design system) and the
-# slug of its page under /portafolio/. Agricultura en finca and Casos de negocio are one area there.
+# slug of its page under /portafolio/. Agricultura regenerativa and Casos de negocio are separate areas there.
 # The base: Tejido territorial. Its five sub-areas replace v1's four-part "Proceso de la estrategia" (diagnosis,
 # strategy and structuring, coordination, project support), which is the same work.
 base:
@@ -355,16 +357,21 @@ base:
       text:
         es: "Entender el punto de partida del territorio: quién trabaja en él, qué iniciativas hay, qué financiación ya llega y cuál es el estado del suelo, el agua y la biodiversidad. Después, medir qué cambia con cada intervención."
         en: "Understanding the landscape's starting point: who works in it, which initiatives exist, what funding already arrives and the state of soil, water and biodiversity. Then measuring what changes with each intervention."
-    - id: apo
-      label: { es: "Impulso y apoyo técnico", en: "Boost and technical support" }
-      text:
-        es: "Acompaña a las iniciativas del territorio, con o sin modelo de negocio, hasta que están listas para recibir capital: prepara el modelo, las propuestas y las métricas, ayuda a acceder a financiación pública y privada, y diseña con ellas los mecanismos de financiación."
-        en: "Accompanies the landscape's initiatives, with or without a business model, until they are ready for capital: it prepares the model, proposals and metrics, helps access public and private funding, and designs the financing mechanisms with them."
     - id: com
       label: { es: "Comunicación y difusión", en: "Communication and outreach" }
       text:
         es: "Cuenta lo que ocurre en el territorio a quienes pueden comprarlo, financiarlo o vivirlo. Refuerza el orgullo de quienes ya viven aquí."
         en: "Tells what is happening in the landscape to those who can buy it, fund it or live it. It strengthens the pride of those who already live here."
+    - id: apo
+      label: { es: "Impulso y apoyo técnico", en: "Boost and technical support" }
+      text:
+        es: "Acompaña a las iniciativas del territorio, con o sin modelo de negocio, hasta que están listas para recibir capital: prepara el modelo, las propuestas y las métricas, ayuda a acceder a financiación pública y privada, y diseña con ellas los mecanismos de financiación."
+        en: "Accompanies the landscape's initiatives, with or without a business model, until they are ready for capital: it prepares the model, proposals and metrics, helps access public and private funding, and designs the financing mechanisms with them."
+    - id: ife
+      label: { es: "Influencia estratégica", en: "Strategic influence" }
+      text:
+        es: "Trabaja para influir en las estrategias y políticas que orientan el territorio y su financiación, como la PAC o las estrategias de los grupos de desarrollo rural (GDR), a favor de las prácticas regenerativas."
+        en: "Works to influence the strategies and policies that shape the landscape and its funding, such as the CAP or the strategies of rural development groups (GDRs), in favour of regenerative practices."
 
 links:
   # source → mechanism
@@ -378,7 +385,6 @@ links:
   - { from: imp, to: fit, kind: estructura }
   - { from: cad, to: fit, kind: estructura }
   - { from: prop, to: fm, kind: estructura }
-  - { from: cad, to: cca, kind: estructura }
   # source → sub-area, direct
   - { from: terr, to: edu, kind: directo }
   - { from: terr, to: eve, kind: directo }
@@ -389,24 +395,23 @@ links:
   - { from: terr, to: gen, kind: directo }
   - { from: terr, to: for, kind: directo }
   - { from: conv, to: gen, kind: directo }
-  - { from: cad, to: tur, kind: directo }
+  - { from: conv, to: res, kind: directo }
+  - { from: conv, to: mar, kind: directo }
   # mechanism → sub-area (a first reading, to review)
   - { from: fc, to: res, kind: estructura }
+  - { from: fc, to: edu, kind: estructura }
+  - { from: fc, to: ofi, kind: estructura }
+  - { from: fc, to: eve, kind: estructura }
   - { from: fc, to: for, kind: estructura }
   - { from: pes, to: res, kind: estructura }
   - { from: pes, to: tra, kind: estructura }
   - { from: dba, to: tra, kind: estructura }
   - { from: fit, to: cir, kind: estructura }
   - { from: fit, to: inf, kind: estructura }
-  - { from: fit, to: uso, kind: estructura }
+  - { from: fit, to: mar, kind: estructura }
   - { from: fm, to: ins, kind: estructura }
   - { from: fm, to: mon, kind: estructura }
-  - { from: cca, to: cir, kind: estructura }
-  - { from: cro, to: eve, kind: estructura }
-  - { from: cro, to: res, kind: estructura }
   - { from: fm, to: ofi, kind: estructura }
-  - { from: fc, to: tur, kind: estructura }
-  - { from: fm, to: tur, kind: estructura }
   - { from: fc, to: est, kind: estructura }
   - { from: fc, to: mon, kind: estructura }
   - { from: fc, to: ins, kind: estructura }

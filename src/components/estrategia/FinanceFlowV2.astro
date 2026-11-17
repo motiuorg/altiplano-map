@@ -2,21 +2,24 @@
 // The financial strategy diagram, version 2: sources → mechanisms → the sub-areas of each work area,
 // resting on a full-width base, Tejido territorial. A row of chips isolates one area: only the cards that
 // connect to it stay, and the ribbons are redrawn (src/scripts/finance-flow-v2.ts).
+// Tejido territorial is transversal: it has no chip of its own and its band stays in every view.
 // The cards are HTML <details>: each one opens in place to show its detail and closes again, and works
 // without JS. The ribbons are an SVG layer drawn in the browser from the cards' positions, so they follow
 // the cards when one opens. Ribbons show connections, not amounts.
 import type { StrategyV2 } from "../../lib/estrategia-v2";
-import { pick, portfolioHref, toneVars } from "../../lib/portfolio";
+import { pick, portfolioHref, toneVars, compactEuro } from "../../lib/portfolio";
 import Badge from "@motiu/design/components/Badge.astro";
 import { t } from "../../lib/i18n";
 import type { Lang } from "../../lib/i18n";
 
 export interface Props {
     data: StrategyV2;
+    totals?: Record<string, number>; // sub-area id → estimated total over 5 years, in euros
     lang?: Lang;
     label: string;
 }
-const { data, lang = "es", label } = Astro.props;
+const { data, totals = {}, lang = "es", label } = Astro.props;
+const total5 = (id: string) => (totals[id] ? compactEuro(totals[id], lang) : null);
 
 const NEUTRAL = "#6f6a64";
 // The mechanisms are kraft brown, not blue: blue (neural) is the portfolio's colour for Gestión forestal.
@@ -28,15 +31,11 @@ const BASE = data.base.id;
 const wiring = JSON.stringify({
     links: data.links,
     base: BASE,
-    areas: Object.fromEntries([
-        ...data.areas.map((a) => [a.id, a.subareas.map((s) => s.id)]),
-        [BASE, [BASE]],
-    ]),
+    areas: Object.fromEntries(data.areas.map((a) => [a.id, a.subareas.map((s) => s.id)])),
     retornos: t(lang, "estr2.retornos"),
 });
 const chips = [
     { id: "all", label: t(lang, "estr2.all") },
-    { id: BASE, label: pick(data.base.label, lang) },
     ...data.areas.map((a) => ({ id: a.id, label: pick(a.label, lang) })),
 ];
 ---
@@ -52,7 +51,6 @@ const chips = [
         {data.areas.map((a) => (
             <p class="ff__note" data-area-note={a.id} hidden>{pick(a.text, lang)}</p>
         ))}
-        <p class="ff__note" data-area-note={BASE} hidden>{pick(data.base.text, lang)}</p>
     </div>
 
     <div class="ff__scroll">
@@ -83,19 +81,27 @@ const chips = [
 
                 <div class="ff__col ff__col--mech">
                     <p class="ff__title">{t(lang, "estr2.colMechs")}</p>
-                    {data.mechanisms.map((m) => (
+                    {data.mechanisms.map((m) => {
+                        const how = m.how[lang] ?? m.how.es;
+                        return (
                         <details class="ff-card" data-node={m.id} style={`--tone:${MECH}`}>
                             <summary class="ff-card__head">{pick(m.label, lang)}</summary>
                             <div class="ff-card__body">
                                 <Badge size="sm" tone="neutral">{pick(m.status, lang)}</Badge>
                                 <p>{pick(m.text, lang)}</p>
                                 <dl class="ff-card__facts">
-                                    <dt>{t(lang, "estr2.howMech")}</dt><dd>{pick(m.how, lang)}</dd>
+                                    <dt>{Array.isArray(how) ? t(lang, "estr2.scenario") : t(lang, "estr2.howMech")}</dt>
+                                    <dd>
+                                        {Array.isArray(how)
+                                            ? <ol class="ff-card__steps">{how.map((step) => <li>{step}</li>)}</ol>
+                                            : how}
+                                    </dd>
                                     {m.evolution && <><dt>{t(lang, "estr2.evolution")}</dt><dd>{pick(m.evolution, lang)}</dd></>}
                                 </dl>
                             </div>
                         </details>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 <div class="ff__col ff__col--areas">
@@ -108,6 +114,7 @@ const chips = [
                                     <summary class="ff-card__head">{pick(s.label, lang)}</summary>
                                     <div class="ff-card__body">
                                         <p>{pick(s.text, lang)}</p>
+                                        {total5(s.id) && <p class="ff-card__total"><span>{t(lang, "estr2.total5")}</span> <strong>{total5(s.id)}</strong></p>}
                                     </div>
                                 </details>
                             ))}
@@ -124,6 +131,7 @@ const chips = [
                             <summary class="ff-card__head">{pick(part.label, lang)}</summary>
                             <div class="ff-card__body">
                                 <p>{pick(part.text, lang)}</p>
+                                {total5(part.id) && <p class="ff-card__total"><span>{t(lang, "estr2.total5")}</span> <strong>{total5(part.id)}</strong></p>}
                             </div>
                         </details>
                     ))}
@@ -195,7 +203,7 @@ const chips = [
     }
     .ff__stage {
         position: relative;
-        min-width: 1080px;
+        min-width: 1240px;
     }
     .ff__wires {
         position: absolute;
@@ -208,7 +216,7 @@ const chips = [
     .ff__cols {
         position: relative; /* above the wires */
         display: grid;
-        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(13rem, 17rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
+        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(20rem, 26rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
         align-items: start;
     }
     .ff__col {
@@ -347,6 +355,38 @@ const chips = [
     .ff-card__facts dd {
         margin: 0.1rem 0 0;
     }
+    .ff-card__body p.ff-card__total {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.15rem 0.6rem;
+        margin-top: var(--space-3);
+        padding-top: var(--space-2);
+        border-top: 1px solid var(--border-default);
+    }
+    .ff-card__total span {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .ff-card__total strong {
+        font-weight: 500;
+    }
+    .ff-card__steps {
+        margin: 0.15rem 0 0;
+        padding-left: 1.2rem;
+    }
+    .ff-card__steps li {
+        margin-top: 0.4rem;
+        padding-left: 0.1rem;
+    }
+    .ff-card__steps li::marker {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
 
     /* The base: Tejido territorial. */
     .ff__band {
@@ -368,7 +408,7 @@ const chips = [
     }
     .ff__parts {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: var(--space-3);
         align-items: start;
     }
@@ -378,7 +418,7 @@ const chips = [
         display: none !important;
     }
     .ff__stage.is-single .ff__cols {
-        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(13rem, 17rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
+        grid-template-columns: minmax(12rem, 16rem) minmax(8rem, 1fr) minmax(20rem, 26rem) minmax(6rem, 1fr) minmax(16rem, 21rem);
     }
 
     /* Hover / open: light one path, dim the rest. */

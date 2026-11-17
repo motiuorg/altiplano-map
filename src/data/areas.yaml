@@ -52,10 +52,12 @@ areas:
         line: { es: "Los equipos y costes fijos que mantienen en marcha a las organizaciones ancla.", en: "The teams and fixed costs that keep the anchor organisations running." }
       - match: [diagnostico y medicion de impacto]
         line: { es: "Entender el punto de partida del territorio y medir qué cambia con cada intervención.", en: "Understanding the landscape's starting point and measuring what changes with each intervention." }
-      - match: [impulso y apoyo tecnico]
-        line: { es: "Acompaña a las iniciativas hasta que están listas para recibir capital.", en: "Accompanies initiatives until they are ready to receive capital." }
       - match: [comunicacion y difusion]
         line: { es: "Cuenta lo que ocurre y lo lleva a compradores, donantes y vecinos.", en: "Tells what is happening and takes it to buyers, donors and neighbours." }
+      - match: [impulso y apoyo tecnico]
+        line: { es: "Acompaña a las iniciativas hasta que están listas para recibir capital.", en: "Accompanies initiatives until they are ready to receive capital." }
+      - match: [influencia estrategica]
+        line: { es: "Influir en las estrategias y políticas que orientan el territorio y su financiación, como la PAC o las de los grupos de desarrollo rural (GDR).", en: "Influencing the strategies and policies that shape the landscape and its funding, such as the CAP or those of rural development groups (GDRs)." }
 
   # ------------------------------------------------------------------ 2
   - slug: educacion-cultura-turismo
@@ -96,8 +98,6 @@ areas:
         line: { es: "Preparar a quienes el territorio necesita para sostener su transición.", en: "Preparing the people the landscape needs to sustain its transition." }
       - match: [eventos y actividades culturales]
         line: { es: "Convierte el paisaje en experiencia colectiva y relato compartido.", en: "Turns the landscape into a shared experience and story." }
-      - match: [programacion turistica]
-        line: { es: "La marca turística y los programas que traen visitantes de fuera.", en: "The tourism brand and the programmes that bring in visitors." }
 
   # ------------------------------------------------------------------ 3
   - slug: zonas-naturales
@@ -139,8 +139,6 @@ areas:
         line: { es: "El equipo y el voluntariado que coordinan el trabajo en el monte día a día.", en: "The team and volunteers who coordinate the day-to-day work in the forest." }
       - match: [restauracion de zonas forestales]
         line: { es: "Del suelo degradado al ecosistema funcional y conectado.", en: "From degraded soil to a working, connected ecosystem." }
-      - match: [usos productivos de zonas forestales]
-        line: { es: "Modelos de gestión forestal que no dependan solo de subvención.", en: "Forest management models that do not rely on subsidy alone." }
 
   # ------------------------------------------------------------------ 4
   - slug: agricultura-regenerativa
@@ -150,36 +148,24 @@ areas:
       es: "Donde la transición tiene que verse en la finca."
       en: "Where the transition has to show up on the farm."
     lead:
-      es: "El núcleo productivo del territorio. Aquí se genera el ingreso, se cambia el paisaje a gran escala y se demuestra que el modelo funciona."
-      en: "The productive core of the landscape. This is where income is made, the landscape changes at scale, and the model proves it works."
+      es: "El núcleo productivo del territorio. Aquí se cambia el paisaje a gran escala y se demuestra, finca a finca, que el modelo funciona."
+      en: "The productive core of the landscape. This is where the landscape changes at scale and where the model proves, farm by farm, that it works."
     dynamics:
       - title: { es: "La finca paga el cambio", en: "The farm pays for the change" }
         text:
           es: "Cambiar el manejo cuesta y baja el rendimiento al principio. El valor ecológico, en cambio, se reparte por todo el paisaje."
           en: "Changing management costs money and lowers yields at first. The ecological value, meanwhile, is shared across the whole landscape."
-      - title: { es: "Pagar primero, cobrar despacio", en: "Pay first, get paid slowly" }
+      - title: { es: "Compartir en vez de repetir", en: "Sharing instead of repeating" }
         text:
-          es: "Quien comercializa adelanta la campaña y el circulante, y el dinero entra poco a poco. Transformar dentro del territorio retiene más valor, pero pide inversión."
-          en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the landscape keeps more value, but it needs investment."
-      - title: { es: "Dos flujos que se necesitan", en: "Two flows that need each other" }
+          es: "Compost comunitario, banco de maquinaria y asistencia en finca bajan los costes y las barreras de quien quiere cambiar de manejo, y nadie lo hace solo."
+          en: "Community compost, a machinery bank and on-farm support lower the costs and barriers for those who want to change management, so nobody does it alone."
+      - title: { es: "Verificar lo que funciona", en: "Verifying what works" }
         text:
-          es: "Uno cambia la finca, con conocimiento, apoyo y prácticas, y vive de financiación concesional. El otro da salida a lo que produce y puede sostenerse con ingresos."
-          en: "One changes the farm, through knowledge, support and practices, and lives on concessional funding. The other sells what it produces and can stand on its own income."
-    flows:
-      - title: { es: "Agricultura en finca", en: "On-farm agriculture" }
-        blurb:
-          es: "Conocimiento, formación, apoyo material, financiación de la transición, certificación."
-          en: "Knowledge, training, material support, transition finance, certification."
-        subareas: [generacion de conocimiento agricola, formacion y asistencia en finca, insumos y servicios agricolas, transicion regenerativa en finca, certificacion regenerativa]
-      - title: { es: "Casos de negocio agrícolas", en: "Agricultural business cases" }
-        blurb:
-          es: "Los negocios que dan salida a lo que producen las fincas: comercialización, transformación y los servicios que los sostienen."
-          en: "The businesses that take what farms produce to market: marketing, processing and the services that sustain them."
-        subareas: [estudios de mercado, circulante y capital de trabajo, infraestructura de transformacion]
+          es: "La finca experimental y la certificación hacen verificable lo que ocurre en cada finca y respaldan el producto ante quien lo compra."
+          en: "The experimental farm and certification make what happens on each farm verifiable and back the product with those who buy it."
     actors:
       - { es: "Explotación agraria", en: "Farm holding" }
       - { es: "Servicio técnico y agrario", en: "Technical and farm services" }
-      - { es: "Comercialización y transformación", en: "Marketing and processing" }
       - { es: "Empresa con compromisos ecológicos", en: "Company with ecological commitments" }
       - { es: "Entidad financiera", en: "Financial institution" }
     subareas:
@@ -193,8 +179,43 @@ areas:
         line: { es: "El cambio de manejo en finca: suelo, cubiertas, biodiversidad y agua, y los fondos que lo financian.", en: "The change of management on the farm: soil, cover, biodiversity and water, and the funds that finance it." }
       - match: [certificacion regenerativa]
         line: { es: "Certificación y estándares que respaldan el producto y hacen verificable lo que ocurre en la finca.", en: "Certification and standards that back the product and make what happens on the farm verifiable." }
+
+  # ------------------------------------------------------------------ 5
+  - slug: casos-de-negocio
+    num: 5
+    match: [casos de negocio]
+    kicker:
+      es: "Los negocios que dan salida a lo que producen las fincas."
+      en: "The businesses that take what farms produce to market."
+    lead:
+      es: "Comercialización, transformación y los servicios que los sostienen. Aquí se decide cuánto valor se queda en el territorio y cómo se financia."
+      en: "Marketing, processing and the services that sustain them. This is where it is decided how much value stays in the landscape and how it is financed."
+    dynamics:
+      - title: { es: "Pagar primero, cobrar despacio", en: "Pay first, get paid slowly" }
+        text:
+          es: "Quien comercializa adelanta la campaña y el circulante, y el dinero entra poco a poco. Transformar dentro del territorio retiene más valor, pero pide inversión."
+          en: "Whoever sells has to front the season's costs and working capital, while the money comes in little by little. Processing inside the landscape keeps more value, but it needs investment."
+      - title: { es: "Entender el mercado antes de invertir", en: "Understanding the market before investing" }
+        text:
+          es: "Mapear comercializadoras y plantas de transformación, seguir los precios y estudiar el valor añadido de cada producto orienta qué y cómo vender."
+          en: "Mapping the landscape's marketers and processing plants, tracking prices and studying each product's added value guide what to sell and how."
+      - title: { es: "Negocios que se sostienen solos", en: "Businesses that stand on their own" }
+        text:
+          es: "A diferencia de la transición en finca, que vive de financiación concesional, estos negocios pueden sostenerse con sus ingresos y devolver el capital que reciben."
+          en: "Unlike the on-farm transition, which lives on concessional funding, these businesses can stand on their own income and repay the capital they receive."
+    flow:
+      es: "Los estudios orientan qué vender, el circulante sostiene la campaña y la transformación retiene valor en el territorio."
+      en: "Studies guide what to sell, working capital carries the season and processing keeps value in the landscape."
+    actors:
+      - { es: "Comercialización y transformación", en: "Marketing and processing" }
+      - { es: "Explotación agraria", en: "Farm holding" }
+      - { es: "Empresa con compromisos ecológicos", en: "Company with ecological commitments" }
+      - { es: "Entidad financiera", en: "Financial institution" }
+    subareas:
       - match: [estudios de mercado]
         line: { es: "Estudios económicos y de valor añadido que orientan qué y cómo vender.", en: "Economic and added-value studies that guide what to sell and how." }
+      - match: [desarrollo de marca y modelo de negocio]
+        line: { es: "La marca y el modelo de negocio de las iniciativas: del destino turístico y los fondos de emprendimiento a los usos productivos del monte.", en: "The brand and business model of initiatives: from the tourist destination and entrepreneurship funds to productive uses of the forest." }
       - match: [circulante y capital de trabajo]
         line: { es: "Negocios que venden lo que producen las fincas y el circulante que adelanta la campaña.", en: "Businesses that sell what farms produce and the working capital that fronts the season." }
       - match: [infraestructura de transformacion]

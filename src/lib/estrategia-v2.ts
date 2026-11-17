@@ -21,7 +21,9 @@ export interface Mechanism {
   status: L;
   idea?: boolean; // an idea to explore, not yet in design
   text: L;
-  how: L; // how it would work: the steps, and the key participants where relevant
+  // The "Un escenario" column: a speculative design, as numbered steps (a list) or, until a language is
+  // translated, a single paragraph (a string). Both are shown as they are.
+  how: { es: string | string[]; en: string | string[] };
   evolution?: L; // what it could become in the long term
 }
 export interface SubArea {

@@ -6,7 +6,8 @@ import Layout from "@motiu/design/components/Layout.astro";
 import SectionHeading from "@motiu/design/components/SectionHeading.astro";
 import FinanceFlow from "../components/estrategia/FinanceFlowV2.astro";
 import { loadStrategyV2 } from "../lib/estrategia-v2";
-import { pick } from "../lib/portfolio";
+import { pick, norm, buildAreaViews } from "../lib/portfolio";
+import { loadSiteData } from "../lib/data";
 import { t } from "../lib/i18n";
 import type { Lang } from "../lib/i18n";
 
@@ -15,6 +16,23 @@ export interface Props {
 }
 const { lang = "es" } = Astro.props;
 const data = loadStrategyV2();
+
+// Estimated total over 5 years of each sub-area: the sum of its interventions' "Valor ajustado a 5 años" (the same
+// figure as the portfolio pages), joined to the cards by sub-area name. A sub-area with no interventions has none.
+const totals: Record<string, number> = {};
+try {
+    const { interventions } = await loadSiteData();
+    const byName = new Map<string, number>();
+    for (const area of buildAreaViews(interventions)) {
+        for (const s of area.subareas) byName.set(norm(s.name), (byName.get(norm(s.name)) ?? 0) + s.total);
+    }
+    for (const s of [...data.areas.flatMap((a) => a.subareas), ...data.base.subareas]) {
+        const n = byName.get(norm(s.label.es));
+        if (n) totals[s.id] = n;
+    }
+} catch {
+    // Without the interventions (no Notion data) the cards simply show no figure.
+}
 ---
 
 <Layout title={t(lang, "estr2.title")} description={t(lang, "estr2.description")} current="estrategia" lang={lang}>
@@ -26,6 +44,7 @@ const data = loadStrategyV2();
         <figure class="estr-figure">
             <FinanceFlow
                 data={data}
+                totals={totals}
                 lang={lang}
                 label={t(lang, "estr2.diagram")}
             />

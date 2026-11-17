@@ -2,7 +2,8 @@
 // and redrawn whenever a card opens or closes, the layout changes or an area is chosen. Hovering / focusing a
 // card lights its whole upstream and downstream path; an open card keeps its path lit while nothing else is
 // hovered. Choosing an area hides every card that doesn't connect to it (the cards upstream of its
-// sub-areas stay) and keeps the choice in the URL hash (#area=forestal).
+// sub-areas stay, and so does the base band, which is transversal) and keeps the choice in the URL hash
+// (#area=forestal).
 type Kind = 'estructura' | 'directo' | 'retornos';
 interface Edge {
   from: string;
@@ -12,7 +13,7 @@ interface Edge {
 interface Wiring {
   links: Edge[];
   base: string;
-  areas: Record<string, string[]>; // area id → the ids that are its sub-areas (the base's is itself)
+  areas: Record<string, string[]>; // area id → the ids that are its sub-areas (the base is not one: it is in every view)
   retornos: string;
 }
 const NS = 'http://www.w3.org/2000/svg';
@@ -194,10 +195,12 @@ function init(root: HTMLElement) {
     area = next in wiring.areas ? next : 'all';
     const keep = new Set<string>();
     if (area === 'all') nodeEl.forEach((_, id) => keep.add(id));
-    else for (const sub of wiring.areas[area]) walk(edges, sub, 'up').seen.forEach((id) => keep.add(id));
+    else {
+      for (const sub of wiring.areas[area]) walk(edges, sub, 'up').seen.forEach((id) => keep.add(id));
+      keep.add(wiring.base); // the base is in every view: the mechanisms that fund it still reach it
+    }
     nodeEl.forEach((n, id) => n.classList.toggle('is-off', !keep.has(id)));
     root.querySelectorAll<HTMLElement>('[data-area-group]').forEach((g) => g.classList.toggle('is-off', area !== 'all' && g.dataset.areaGroup !== area));
-    col('areas').classList.toggle('is-off', area === wiring.base);
     stage.classList.toggle('is-single', area !== 'all');
     root.querySelectorAll<HTMLElement>('[data-area-note]').forEach((p) => { p.hidden = p.dataset.areaNote !== area; });
     root.querySelectorAll<HTMLButtonElement>('[data-area-btn]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.areaBtn === area)));
