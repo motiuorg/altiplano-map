@@ -1,12 +1,10 @@
 import { defineConfig } from 'astro/config';
 
-// GitHub Pages project page: https://motiuorg.github.io/altiplano-map/
-const SITE_URL = 'https://motiuorg.github.io';
-const BASE = '/altiplano-map';
+// Served from the custom domain (GitHub Pages + GoDaddy CNAME), so base is "/".
+const SITE_URL = 'https://altiplanoestepario.motiu.org';
 
 export default defineConfig({
   site: SITE_URL,
-  base: BASE,
   outDir: './dist',
   srcDir: './src',
   // @motiu/design ships raw .astro/.css source: compile it with this project.

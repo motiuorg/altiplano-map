@@ -61,7 +61,7 @@ ejemplo de `src/lib/fixture.ts`.
 
 ## Deploy (GitHub Pages)
 
-Repo: **`motiuorg/altiplano-map`** → https://motiuorg.github.io/altiplano-map/
+Repo: **`motiuorg/altiplano-map`** → https://altiplanoestepario.motiu.org (custom domain; DNS CNAME on GoDaddy → `motiuorg.github.io`)
 
 1. El código de `main` se despliega solo: el workflow `.github/workflows/deploy.yml`
    ejecuta el build con el secret `NOTION_API_KEY` en cada push y cada 6 horas.

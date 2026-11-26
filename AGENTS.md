@@ -1,7 +1,7 @@
 # Altiplano Estepario: notes for agents and developers
 
 Static Astro site (organisations map, interventions, economic simulator) for the Altiplano Estepario,
-deployed to GitHub Pages at `/altiplano-map/`. Spanish is the default language, English lives under `/en/`.
+deployed to GitHub Pages at https://altiplanoestepario.motiu.org (base path `/`). Spanish is the default language, English lives under `/en/`.
 The user-facing README is in Spanish; this file is the short version for whoever picks the work up.
 
 ## The simulator's methodology (read this first for anything about the model)

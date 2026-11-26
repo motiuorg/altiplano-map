@@ -1,7 +1,7 @@
 # Site identity for the shared design-system shell (Layout, Nav, Footer).
 # Strings may be plain or { es, en } maps.
 name: Altiplano Estepario
-url: https://motiuorg.github.io
+url: https://altiplanoestepario.motiu.org
 description:
   es: Mapa de organizaciones e intervenciones del Altiplano Estepario
   en: Map of the organizations and interventions of the Altiplano Estepario
