@@ -255,6 +255,38 @@ const simCaption = tv(lang, arq.nombre);
     </section>
 </Layout>
 
+<script>
+    // "Empezar a explorar": glide down the page to #explorar instead of jumping,
+    // so the visitor sees the way and knows where they landed.
+    const cta = document.querySelector<HTMLAnchorElement>('a[href="#explorar"]');
+    const target = document.getElementById("explorar");
+    if (cta && target) {
+        cta.addEventListener("click", (e) => {
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+            e.preventDefault();
+            const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0;
+            const startY = window.scrollY;
+            const endY = target.getBoundingClientRect().top + startY - navH;
+            const distance = endY - startY;
+            const duration = Math.min(1800, Math.max(900, Math.abs(distance) * 0.9));
+            const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+            let t0: number | null = null;
+            const step = (now: number) => {
+                if (t0 === null) t0 = now;
+                const p = Math.min(1, (now - t0) / duration);
+                window.scrollTo(0, startY + distance * ease(p));
+                if (p < 1) requestAnimationFrame(step);
+                else {
+                    history.replaceState(null, "", "#explorar");
+                    target.setAttribute("tabindex", "-1");
+                    target.focus({ preventScroll: true });
+                }
+            };
+            requestAnimationFrame(step);
+        });
+    }
+</script>
+
 <style>
     /* ============ landing: intro (left, 1/3) + map (right, 2/3) ============ */
     .landing {
